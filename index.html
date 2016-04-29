@@ -71,11 +71,6 @@
 		sensortag = evothings.tisensortag.createInstance(
 			evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 
-		// Uncomment to use SensorTag CC2541.
-		//sensortag = evothings.tisensortag.createInstance(
-		//	evothings.tisensortag.CC2541_BLUETOOTH_SMART)
-
-		//
 		// Here sensors are set up.
 		//
 		// If you wish to use only one or a few sensors, just set up
@@ -88,14 +83,8 @@
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.keypressCallback(keypressHandler)
-			.temperatureCallback(temperatureHandler, 1000)
-			.humidityCallback(humidityHandler, 1000)
-			.barometerCallback(barometerHandler, 1000)
 			.accelerometerCallback(accelerometerHandler, 1000)
-			.magnetometerCallback(magnetometerHandler, 1000)
 			.gyroscopeCallback(gyroscopeHandler, 1000)
-			.luxometerCallback(luxometerHandler, 1000)
 	}
 
 	function connect()
@@ -108,37 +97,7 @@
 		sensortag.disconnectDevice()
 		resetSensorDisplayValues()
 	}
-
-	var sensorsOn = true
-
-	function toggleSensors()
-	{
-		if(sensorsOn)
-		{
-			sensortag.keypressOff()
-			sensortag.temperatureOff()
-			sensortag.humidityOff()
-			sensortag.barometerOff()
-			sensortag.accelerometerOff()
-			sensortag.magnetometerOff()
-			sensortag.gyroscopeOff()
-			sensortag.luxometerOff()
-			sensorsOn = false
-		}
-		else
-		{
-			sensortag.keypressOn()
-			sensortag.temperatureOn()
-			sensortag.humidityOn()
-			sensortag.barometerOn()
-			sensortag.accelerometerOn()
-			sensortag.magnetometerOn()
-			sensortag.gyroscopeOn()
-			sensortag.luxometerOn()
-			sensorsOn = true
-		}
-	}
-
+	
 	function statusHandler(status)
 	{
 		if ('DEVICE_INFO_AVAILABLE' == status)
@@ -206,53 +165,6 @@
 		setBackgroundColor('white')
 	}
 
-	function keypressHandler(data)
-	{
-		// Update background color.
-		switch (data[0])
-		{
-			case 0:
-				setBackgroundColor('white')
-				break;
-			case 1:
-				setBackgroundColor('red')
-				break;
-			case 2:
-				setBackgroundColor('blue')
-				break;
-			case 3:
-				setBackgroundColor('magenta')
-				break;
-		}
-
-		// Update the value displayed.
-		var string = 'raw: 0x' + bufferToHexStr(data, 0, 1)
-		displayValue('KeypressData', string)
-	}
-
-	function temperatureHandler(data)
-	{
-		// Calculate temperature from raw sensor data.
-		var values = sensortag.getTemperatureValues(data)
-		var ac = values.ambientTemperature
-		var af = sensortag.celsiusToFahrenheit(ac)
-		var tc = values.targetTemperature
-		var tf = sensortag.celsiusToFahrenheit(tc)
-
-		// Prepare the information to display.
-		var string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, 0, 4) + '</span><br/>' +
-			(tc >= 0 ? '+' : '') + tc.toFixed(2) + '&deg; C ' +
-			'(' + (tf >= 0 ? '+' : '') + tf.toFixed(2) + '&deg; F)' + '<br/>' +
-			(ac >= 0 ? '+' : '') + ac.toFixed(2) + '&deg; C ' +
-			'(' + (af >= 0 ? '+' : '') + af.toFixed(2) + '&deg; F) [amb]' +
-			'<br/>'
-
-		// Update the value displayed.
-		displayValue('TemperatureData', string)
-	}
-
 	function accelerometerHandler(data)
 	{
 		// Calculate the x,y,z accelerometer values from raw data.
@@ -276,69 +188,6 @@
 		displayValue('AccelerometerData', string)
 	}
 
-	function humidityHandler(data)
-	{
-		// Calculate the humidity values from raw data.
-		var values = sensortag.getHumidityValues(data)
-
-		// Calculate the humidity temperature (C and F).
-		var tc = values.humidityTemperature
-		var tf = sensortag.celsiusToFahrenheit(tc)
-
-		// Calculate the relative humidity.
-		var h = values.relativeHumidity
-
-		// Prepare the information to display.
-		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, 0, 4) + '</span><br/>'
-			(tc >= 0 ? '+' : '') + tc.toFixed(2) + '&deg; C ' +
-			'(' + (tf >= 0 ? '+' : '') + tf.toFixed(2) + '&deg; F)' + '<br/>' +
-			(h >= 0 ? '+' : '') + h.toFixed(2) + '% RH' + '<br/>'
-
-		// Update the value displayed.
-		displayValue('HumidityData', string)
-	}
-
-	function magnetometerHandler(data)
-	{
-		// Calculate the magnetometer values from raw sensor data.
-		var values = sensortag.getMagnetometerValues(data)
-		var x = values.x
-		var y = values.y
-		var z = values.z
-
-		//var model = sensortag.getDeviceModel()
-		//var dataOffset = (model == 2 ? 12 : 0)
-
-		// Prepare the information to display.
-		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, dataOffset, 6) + '</span><br/>' +
-			'x: ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '&micro;T <br/>' +
-			'y: ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '&micro;T <br/>' +
-			'z: ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '&micro;T <br/>'
-
-		// Update the value displayed.
-		displayValue('MagnetometerData', string)
-	}
-
-	function barometerHandler(data)
-	{
-		// Calculate pressure from raw sensor data.
-		var values = sensortag.getBarometerValues(data)
-		var pressure = values.pressure
-
-		// Prepare the information to display.
-		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, 0, 4) + '</span><br/>' +
-			'Pressure: ' + pressure.toPrecision(5) + ' mbar<br/>'
-
-		// Update the value displayed.
-		displayValue('BarometerData', string)
-	}
-
 	function gyroscopeHandler(data)
 	{
 		// Calculate the gyroscope values from raw sensor data.
@@ -359,29 +208,9 @@
 		displayValue('GyroscopeData', string)
 	}
 
-	function luxometerHandler(data)
-	{
-		var value = sensortag.getLuxometerValue(data)
-
-		// Prepare the information to display.
-		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, 0, 2) + '</span><br/>' +
-			'Light level: ' + value.toPrecision(5) + ' lux<br/>'
-
-		// Update the value displayed.
-		displayValue('LuxometerData', string)
-	}
-
 	function displayValue(elementId, value)
 	{
 		document.getElementById(elementId).innerHTML = value
-	}
-
-	function setBackgroundColor(color)
-	{
-		document.documentElement.style.background = color
-		document.body.style.background = color
 	}
 
 	/**
