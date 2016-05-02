@@ -530,6 +530,5 @@ evothings.loadScripts(
 [
 	'libs/evothings/easyble/easyble.js',
 	'libs/evothings/tisensortag/tisensortag-ble.js',    // Abstract object for BLE tags
-	'libs/evothings/tisensortag/tisensortag-ble-cc2541.js', // Specific object for CC2541
 	'libs/evothings/tisensortag/tisensortag-ble-cc2650.js'  // Specific object for CC2650
 ])

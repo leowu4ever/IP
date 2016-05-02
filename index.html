@@ -64,7 +64,7 @@
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 1000)
+			.accelerometerCallback(accelerometerHandler, 200)
 			.gyroscopeCallback(gyroscopeHandler, 1000)
 	}
 
@@ -112,19 +112,21 @@
 
 	function accelerometerHandler(data)
 	{
+		var xOffset = 0.0
+		var yOffset = 0.0
+		var zOffset = 0.0
+		
 		// Calculate the x,y,z accelerometer values from raw data.
 		var values = sensortag.getAccelerometerValues(data)
-		var x = values.x
-		var y = values.y
-		var z = values.z
+		var x = (values.x - xOffset)
+		var y = values.y - yOffset
+		var z = (values.z - zOffset)/0.258
 		
 		// Prepare the information to display.
 		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, dataOffset, 6) + '</span><br/>' +
-			'x: ' + (x >= 0 ? '+' : '') + x.toFixed(5) + 'G<br/>' +
-			'y: ' + (y >= 0 ? '+' : '') + y.toFixed(5) + 'G<br/>' +
-			'z: ' + (z >= 0 ? '+' : '') + z.toFixed(5) + 'G<br/>'
+			'x : ' + (x >= 0 ? '+' : '') + x.toFixed(2) + 'G<br/>' +
+			'y : ' + (y >= 0 ? '+' : '') + y.toFixed(2) + 'G<br/>' +
+			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G<br/>'
 
 		// Update the value displayed.
 		displayValue('AccelerometerData', string)
@@ -140,11 +142,9 @@
 
 		// Prepare the information to display.
 		string =
-			//'raw: <span style="font-family: monospace;">0x' +
-			//	bufferToHexStr(data, 0, 6) + '</span><br/>' +
-			'x: ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '<br/>' +
-			'y: ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '<br/>' +
-			'z: ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '<br/>'
+			'x : ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '<br/>' +
+			'y : ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '<br/>' +
+			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '<br/>'
 
 		// Update the value displayed.
 		displayValue('GyroscopeData', string)
@@ -154,39 +154,6 @@
 	{
 		document.getElementById(elementId).innerHTML = value
 	}
-
-	/**
-	 * Convert byte buffer to hex string.
-	 * @param buffer - an Uint8Array
-	 * @param offset - byte offset
-	 * @param numBytes - number of bytes to read
-	 * @return string with hex representation of bytes
-	 */
-	function bufferToHexStr(buffer, offset, numBytes)
-	{
-		var hex = ''
-		for (var i = 0; i < numBytes; ++i)
-		{
-			hex += byteToHexStr(buffer[offset + i])
-		}
-		return hex
-	}
-
-	/**
-	 * Convert byte number to hex string.
-	 */
-	function byteToHexStr(d)
-	{
-		if (d < 0) { d = 0xFF + d + 1 }
-		var hex = Number(d).toString(16)
-		var padding = 2
-		while (hex.length < padding)
-		{
-			hex = '0' + hex
-		}
-		return hex
-	}
-
 	document.addEventListener(
 		'deviceready',
 		function() { evothings.scriptsLoaded(initialiseSensorTag) },
