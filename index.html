@@ -112,7 +112,7 @@
 
 	function accelerometerHandler(data)
 	{
-		var xOffset = 0.0
+		var xOffset = -0.01
 		var yOffset = 0.0
 		var zOffset = 0.0
 		
@@ -131,7 +131,7 @@
 		// Update the value displayed.
 		displayValue('AccelerometerData', string)
 	}
-
+	
 	function gyroscopeHandler(data)
 	{
 		// Calculate the gyroscope values from raw sensor data.
