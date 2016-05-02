@@ -29,10 +29,6 @@
 
 <body>
 
-	<p id="upgradeNotice" class="hidden">
-		<span class="color_softred">Please upgrade the firmware of your SensorTag.</span>
-	</p>
-
 	<button onclick="connect()" class="green">
 		Connect
 	</button>
@@ -55,12 +51,6 @@
 		<span id="GyroscopeData">[Waiting for value]</span>
 	</p>
 
-	<h2>Device info:</h2>
-	<p>
-		SensorTag device model: <span id="DeviceModel">?</span><br />
-		Firmware version: <span id="FirmwareData">?</span>
-	</p>
-
 	<script>
 	// SensorTag object.
 	var sensortag
@@ -71,15 +61,6 @@
 		sensortag = evothings.tisensortag.createInstance(
 			evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 
-		// Here sensors are set up.
-		//
-		// If you wish to use only one or a few sensors, just set up
-		// the ones you wish to use.
-		//
-		// First parameter to sensor function is the callback function.
-		// Several of the sensors take a millisecond update interval
-		// as the second parameter.
-		//
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
@@ -100,34 +81,6 @@
 	
 	function statusHandler(status)
 	{
-		if ('DEVICE_INFO_AVAILABLE' == status)
-		{
-			// Show a notification about that the firmware should be
-			// upgraded if the connected device is a SensorTag CC2541
-			// with firmware revision less than 1.5, since this the
-			// SensorTag library does not support these versions.
-			var upgradeNotice = document.getElementById('upgradeNotice')
-			if ('CC2541' == sensortag.getDeviceModel() &&
-				parseFloat(sensortag.getFirmwareString()) < 1.5)
-			{
-				upgradeNotice.classList.remove('hidden')
-			}
-			else
-			{
-				upgradeNotice.classList.add('hidden')
-			}
-
-			// Show device model and firmware version.
-			displayValue('DeviceModel', sensortag.getDeviceModel())
-			displayValue('FirmwareData', sensortag.getFirmwareString())
-
-			// Show which sensors are not supported by the connected SensorTag.
-			if (!sensortag.isLuxometerAvailable())
-			{
-				document.getElementById('Luxometer').style.display = 'none'
-			}
-		}
-
 		displayValue('StatusData', status)
 	}
 
@@ -150,16 +103,8 @@
 		// Clear current values.
 		var blank = '[Waiting for value]'
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
-		displayValue('DeviceModel', '?')
-		displayValue('FirmwareData', '?')
-		displayValue('KeypressData', blank)
-		displayValue('TemperatureData', blank)
 		displayValue('AccelerometerData', blank)
-		displayValue('HumidityData', blank)
-		displayValue('MagnetometerData', blank)
-		displayValue('BarometerData', blank)
 		displayValue('GyroscopeData', blank)
-		displayValue('LuxometerData', blank)
 
 		// Reset screen color.
 		setBackgroundColor('white')
@@ -172,10 +117,7 @@
 		var x = values.x
 		var y = values.y
 		var z = values.z
-
-		//var model = sensortag.getDeviceModel()
-		//var dataOffset = (model == 2 ? 6 : 0)
-
+		
 		// Prepare the information to display.
 		string =
 			//'raw: <span style="font-family: monospace;">0x' +
