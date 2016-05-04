@@ -18,7 +18,7 @@
 
 	<script>
 	// Redirect console.log to Evothings Workbench.	
-	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	if (window.hyper && window.hyper.log) { console.log = hyper.log}
 	</script>
 
 	<script src="cordova.js"></script>
@@ -28,7 +28,10 @@
 </head>
 
 <body>
-
+	<button onclick="window.location.href='test.html'" class="yellow">
+		Start
+	</button> 
+	
 	<button onclick="connect()" class="green">
 		Connect
 	</button>
@@ -158,6 +161,7 @@
 		'deviceready',
 		function() { evothings.scriptsLoaded(initialiseSensorTag) },
 		false)
+	
 	</script>
 
 </body>
