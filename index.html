@@ -113,26 +113,54 @@
 		setBackgroundColor('white')
 	}
 
+	var x_last = 0;
+	var y_last = 0;
+	var z_last = 0;
+	
+	var xOffset = 0.0
+	var yOffset = 0.0
+	var zOffset = 0.0	
+	
+	var noiseThreshold = 0.015;
+	
 	function accelerometerHandler(data)
 	{
-		var xOffset = -0.01
-		var yOffset = 0.0
-		var zOffset = 0.0
-		
 		// Calculate the x,y,z accelerometer values from raw data.
 		var values = sensortag.getAccelerometerValues(data)
 		var x = (values.x - xOffset)
 		var y = values.y - yOffset
 		var z = (values.z - zOffset)/0.258
 		
+		if (Math.abs(x-x_last) < noiseThreshold) 
+		{
+			x = x_last;
+		} 
+		if (Math.abs(y-y_last) < noiseThreshold) 
+		{
+			y = y_last;
+		} 
+		if (Math.abs(z-z_last) < noiseThreshold) 
+		{
+			z = z_last;
+		} 
+		
+		var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI);;
+		var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI);;
+		
 		// Prepare the information to display.
 		string =
 			'x : ' + (x >= 0 ? '+' : '') + x.toFixed(2) + 'G<br/>' +
 			'y : ' + (y >= 0 ? '+' : '') + y.toFixed(2) + 'G<br/>' +
-			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G<br/>'
-
+			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G<br/>' + 
+			'pitch : ' + pitch.toFixed(0) + '<br/>' +
+			'roll : ' + roll.toFixed(0) + '<br/>'
+			
 		// Update the value displayed.
 		displayValue('AccelerometerData', string)
+		
+		x_last = x;
+		y_last = y;
+		z_last = z;
 	}
 	
 	function gyroscopeHandler(data)
@@ -157,13 +185,12 @@
 	{
 		document.getElementById(elementId).innerHTML = value
 	}
+	
 	document.addEventListener(
 		'deviceready',
 		function() { evothings.scriptsLoaded(initialiseSensorTag) },
 		false)
 	
 	</script>
-
 </body>
-
 </html>
