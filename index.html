@@ -20,7 +20,8 @@
 	// Redirect console.log to Evothings Workbench.	
 	if (window.hyper && window.hyper.log) { console.log = hyper.log}
 	</script>
-
+   
+    <script src="crafty.js"></script>
 	<script src="cordova.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="libs/evothings/ui/ui.js"></script>
@@ -28,31 +29,25 @@
 </head>
 
 <body>
-	<button onclick="window.location.href='test.html'" class="yellow">
-		Start
-	</button> 
+
 	
-	<button onclick="connect()" class="green">
-		Connect
-	</button>
+	<button onclick="connect()" class="green">Connect</button>
 
-	<button onclick="disconnect()" class="charcoal">
-		Disconnect
-	</button>
-
+	<button onclick="disconnect()" class="charcoal">Disconnect</button>
+	
+	<button onclick="window.location.href='test.html'" class="yellow">Test Page</button> 	
+	
 	<p>
-		<strong>Status:</strong> <span id="StatusData">Press Connect to find the nearest SensorTag</span>
+		<strong>Status:</strong> 
+		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	</p>
 
 	<h2>Accelerometer:</h2>
 	<p>
 		<span id="AccelerometerData">[Waiting for value]</span>
 	</p>
-
-	<h2>Gyroscope:</h2>
-	<p>
-		<span id="GyroscopeData">[Waiting for value]</span>
-	</p>
+	
+	<div id="game"></div>
 
 	<script>
 	// SensorTag object.
@@ -67,12 +62,12 @@
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 200)
-			.gyroscopeCallback(gyroscopeHandler, 1000)
+			.accelerometerCallback(accelerometerHandler, 50)
 	}
 
 	function connect()
 	{
+		startGame()
 		sensortag.connectToNearestDevice()
 	}
 
@@ -107,21 +102,30 @@
 		var blank = '[Waiting for value]'
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
 		displayValue('AccelerometerData', blank)
-		displayValue('GyroscopeData', blank)
 
 		// Reset screen color.
 		setBackgroundColor('white')
 	}
+	
+	function displayValue(elementId, value)
+	{
+		document.getElementById(elementId).innerHTML = value
+	}
+	
+	document.addEventListener(
+		'deviceready',
+		function() { evothings.scriptsLoaded(initialiseSensorTag) },
+		false)	
 
-	var x_last = 0;
-	var y_last = 0;
-	var z_last = 0;
+	var x_last = 0
+	var y_last = 0
+	var z_last = 0
 	
 	var xOffset = 0.0
 	var yOffset = 0.0
 	var zOffset = 0.0	
 	
-	var noiseThreshold = 0.015;
+	var noiseThreshold = 0.015
 	
 	function accelerometerHandler(data)
 	{
@@ -133,19 +137,19 @@
 		
 		if (Math.abs(x-x_last) < noiseThreshold) 
 		{
-			x = x_last;
+			x = x_last
 		} 
 		if (Math.abs(y-y_last) < noiseThreshold) 
 		{
-			y = y_last;
+			y = y_last
 		} 
 		if (Math.abs(z-z_last) < noiseThreshold) 
 		{
-			z = z_last;
+			z = z_last
 		} 
 		
-		var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI);;
-		var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI);;
+		var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
+		var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
 		
 		// Prepare the information to display.
 		string =
@@ -158,38 +162,25 @@
 		// Update the value displayed.
 		displayValue('AccelerometerData', string)
 		
-		x_last = x;
-		y_last = y;
-		z_last = z;
+		x_last = x
+		y_last = y
+		z_last = z
 	}
+
+		
+	// game
+	var speed = 1
 	
-	function gyroscopeHandler(data)
-	{
-		// Calculate the gyroscope values from raw sensor data.
-		var values = sensortag.getGyroscopeValues(data)
-		var x = values.x
-		var y = values.y
-		var z = values.z
-
-		// Prepare the information to display.
-		string =
-			'x : ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '<br/>' +
-			'y : ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '<br/>' +
-			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '<br/>'
-
-		// Update the value displayed.
-		displayValue('GyroscopeData', string)
-	}
-
-	function displayValue(elementId, value)
-	{
-		document.getElementById(elementId).innerHTML = value
-	}
+	var background
+	var fish
 	
-	document.addEventListener(
-		'deviceready',
-		function() { evothings.scriptsLoaded(initialiseSensorTag) },
-		false)
+	function startGame () {
+		Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'))
+		
+		background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
+		fish = Crafty.e("2D, DOM, Image").image("Graphics/number_one.png")
+	}	
+		
 	
 	</script>
 </body>
