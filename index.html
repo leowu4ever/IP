@@ -62,7 +62,7 @@
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 50)
+			.accelerometerCallback(accelerometerHandler, 200)
 	}
 
 	function connect()
@@ -120,68 +120,85 @@
 	var x_last = 0
 	var y_last = 0
 	var z_last = 0
+	var pitch_last = 0
+	var roll_last = 0
 	
 	var xOffset = 0.0
 	var yOffset = 0.0
 	var zOffset = 0.0	
 	
 	var noiseThreshold = 0.015
+	var rotationThreshold = 1
 	
 	function accelerometerHandler(data)
 	{
 		// Calculate the x,y,z accelerometer values from raw data.
 		var values = sensortag.getAccelerometerValues(data)
+		
 		var x = (values.x - xOffset)
 		var y = values.y - yOffset
 		var z = (values.z - zOffset)/0.258
-		
-		if (Math.abs(x-x_last) < noiseThreshold) 
-		{
-			x = x_last
-		} 
-		if (Math.abs(y-y_last) < noiseThreshold) 
-		{
-			y = y_last
-		} 
-		if (Math.abs(z-z_last) < noiseThreshold) 
-		{
-			z = z_last
-		} 
-		
 		var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
 		var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
 		
+		if (Math.abs(x - x_last) < noiseThreshold) 
+		{
+			x = x_last
+		} 
+		if (Math.abs(y - y_last) < noiseThreshold) 
+		{
+			y = y_last
+		} 
+		if (Math.abs(z - z_last) < noiseThreshold) 
+		{
+			z = z_last
+		} 
+		if (Math.abs(pitch - pitch_last) < rotationThreshold) 
+		{
+			pitch = pitch_last
+		}
+		if (Math.abs(roll - roll_last) < rotationThreshold) 
+		{
+			roll = roll_last
+		}
+
 		// Prepare the information to display.
 		string =
-			'x : ' + (x >= 0 ? '+' : '') + x.toFixed(2) + 'G<br/>' +
-			'y : ' + (y >= 0 ? '+' : '') + y.toFixed(2) + 'G<br/>' +
-			'z : ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G<br/>' + 
-			'pitch : ' + pitch.toFixed(0) + '<br/>' +
-			'roll : ' + roll.toFixed(0) + '<br/>'
+			'X ' + (x >= 0 ? '+' : '') + x.toFixed(2) + 'G ' +
+			'Y ' + (y >= 0 ? '+' : '') + y.toFixed(2) + 'G ' +
+			'Z ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G ' + 
+			'Pitch ' + pitch.toFixed(0) + ' ' +
+			'Roll ' + roll.toFixed(0)
 			
 		// Update the value displayed.
 		displayValue('AccelerometerData', string)
 		
+		fish.bind('EnterFrame', function() {
+			this.y = this.y + (pitch - pitch_last) * speed
+			this.x = this.x + (roll - roll_last) * speed
+		})
+					
 		x_last = x
 		y_last = y
 		z_last = z
+		pitch_last = pitch
+		roll_last = roll
 	}
-
 		
 	// game
-	var speed = 1
+	var speed = 0.0001
 	
 	var background
 	var fish
+	var score
 	
 	function startGame () {
 		Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'))
 		
 		background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
-		fish = Crafty.e("2D, DOM, Image").image("Graphics/number_one.png")
+		fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
+		score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
 	}	
-		
-	
 	</script>
 </body>
 </html>
