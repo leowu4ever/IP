@@ -57,7 +57,7 @@
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 500)
+			.accelerometerCallback(accelerometerHandler, 200)
 	}
 
 	function connect()
@@ -111,14 +111,6 @@
 
 	var init_bool = false
 
-	var x_start = 0.0
-	var y_start = 0.0
-	var z_start = 0.0
-
-	var x_pre= 0.0
-	var y_pre = 0.0
-	var z_pre = 0.0
-
 	var x_offset = -0.01
 	var y_offset = 0.01
 	var z_offset = -0.01	
@@ -138,27 +130,18 @@
 			var x = parseFloat((values.x - x_offset).toFixed(2))
 			var y = parseFloat((values.y - y_offset).toFixed(2))
 			var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
-			
-			if (!init_bool && x!=0 && y!=0 && z!=0) {
-				x_start = x
-				y_start = y
-				z_start = z
-				
-				x_pre = x
-				y_pre = y
-				z_pre = z
-				
-				init_bool = !init_bool
-			}
-	
+		
+			var roll = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
+			var pitch = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
 		
 			string =
 				'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
 				'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
-				'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>'
+				'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' +
+				'Pitch ' + pitch.toPrecision(2) + '</br> ' +
+				'Roll ' + roll.toPrecision(2)	
 				
 			displayValue('AccelerometerData', string)
-		
 		}	
 	}
 		
@@ -174,7 +157,6 @@
 		fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
 		score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
  		//Crafty.e("2D, DOM, Image").image("Graphics/number_one.png").origin("center")
-		
 	}	
 	</script>
 </body>
