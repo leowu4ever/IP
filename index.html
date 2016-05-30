@@ -18,7 +18,7 @@
 
 	<script>
 	// Redirect console.log to Evothings Workbench.	
-	if (window.hyper && window.hyper.log) { console.log = hyper.log}
+		if (window.hyper && window.hyper.log) { console.log = hyper.log}
 	</script>
    
     <script src="crafty.js"></script>
@@ -29,12 +29,8 @@
 </head>
 
 <body>
-
-	
 	<button onclick="connect()" class="green">Connect</button>
-
 	<button onclick="disconnect()" class="charcoal">Disconnect</button>
-	
 	<button onclick="window.location.href='test.html'" class="yellow">Test Page</button> 	
 	
 	<p>
@@ -56,13 +52,12 @@
 	function initialiseSensorTag()
 	{
 		// Create SensorTag CC2650 instance.
-		sensortag = evothings.tisensortag.createInstance(
-			evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 
 		sensortag
 			.statusCallback(statusHandler)
 			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 200)
+			.accelerometerCallback(accelerometerHandler, 500)
 	}
 
 	function connect()
@@ -98,12 +93,9 @@
 
 	function resetSensorDisplayValues()
 	{
-		// Clear current values.
 		var blank = '[Waiting for value]'
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
 		displayValue('AccelerometerData', blank)
-
-		// Reset screen color.
 		setBackgroundColor('white')
 	}
 	
@@ -117,77 +109,60 @@
 		function() { evothings.scriptsLoaded(initialiseSensorTag) },
 		false)	
 
-	var x_last = 0
-	var y_last = 0
-	var z_last = 0
-	var pitch_last = 0
-	var roll_last = 0
+	var init_bool = false
+
+	var x_start = 0.0
+	var y_start = 0.0
+	var z_start = 0.0
+
+	var x_pre= 0.0
+	var y_pre = 0.0
+	var z_pre = 0.0
+
+	var x_offset = -0.01
+	var y_offset = 0.01
+	var z_offset = -0.01	
 	
-	var xOffset = 0.0
-	var yOffset = 0.0
-	var zOffset = 0.0	
+	var updateThreshold = 0.004
+	var speed = 10
 	
-	var noiseThreshold = 0.015
-	var rotationThreshold = 1
+	// get rid of noise first so the reading are stable 
+	// next set offsets 
 	
 	function accelerometerHandler(data)
 	{
-		// Calculate the x,y,z accelerometer values from raw data.
 		var values = sensortag.getAccelerometerValues(data)
 		
-		var x = (values.x - xOffset)
-		var y = values.y - yOffset
-		var z = (values.z - zOffset)/0.258
-		var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
-		var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
-		
-		if (Math.abs(x - x_last) < noiseThreshold) 
-		{
-			x = x_last
-		} 
-		if (Math.abs(y - y_last) < noiseThreshold) 
-		{
-			y = y_last
-		} 
-		if (Math.abs(z - z_last) < noiseThreshold) 
-		{
-			z = z_last
-		} 
-		if (Math.abs(pitch - pitch_last) < rotationThreshold) 
-		{
-			pitch = pitch_last
-		}
-		if (Math.abs(roll - roll_last) < rotationThreshold) 
-		{
-			roll = roll_last
-		}
-
-		// Prepare the information to display.
-		string =
-			'X ' + (x >= 0 ? '+' : '') + x.toFixed(2) + 'G ' +
-			'Y ' + (y >= 0 ? '+' : '') + y.toFixed(2) + 'G ' +
-			'Z ' + (z >= 0 ? '+' : '') + z.toFixed(2) + 'G ' + 
-			'Pitch ' + pitch.toFixed(0) + ' ' +
-			'Roll ' + roll.toFixed(0)
+		if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
 			
-		// Update the value displayed.
-		displayValue('AccelerometerData', string)
+			var x = parseFloat((values.x - x_offset).toFixed(2))
+			var y = parseFloat((values.y - y_offset).toFixed(2))
+			var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
+			
+			if (!init_bool && x!=0 && y!=0 && z!=0) {
+				x_start = x
+				y_start = y
+				z_start = z
+				
+				x_pre = x
+				y_pre = y
+				z_pre = z
+				
+				init_bool = !init_bool
+			}
+	
 		
-		fish.bind('EnterFrame', function() {
-			this.y = this.y + (pitch - pitch_last) * speed
-			this.x = this.x + (roll - roll_last) * speed
-		})
-					
-		x_last = x
-		y_last = y
-		z_last = z
-		pitch_last = pitch
-		roll_last = roll
+			string =
+				'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
+				'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
+				'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>'
+				
+			displayValue('AccelerometerData', string)
+		
+		}	
 	}
 		
-	// game
-	var speed = 0.0001
-	
+	// game	
 	var background
 	var fish
 	var score
@@ -198,6 +173,8 @@
 		background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
 		fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
 		score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
+ 		//Crafty.e("2D, DOM, Image").image("Graphics/number_one.png").origin("center")
+		
 	}	
 	</script>
 </body>
