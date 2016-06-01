@@ -1,0 +1,29 @@
+1. Define meaingful gestures 
+
+0-9 numbers
+
+2. rotation translation
+
+up
+down
+left
+right
+upleft
+upright
+downleft
+downright
+
+
+
+You have to training your model/classfier first 
+and it is very important
+
+training parameters using Baum-Welch
+
+Lastling evaluate with gesture with the trained model
+
+input representation affects its performance
+
+may need preprocessor to extract important information or get rid of noise
+
+second, 

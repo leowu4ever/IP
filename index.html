@@ -20,8 +20,9 @@
 	// Redirect console.log to Evothings Workbench.	
 		if (window.hyper && window.hyper.log) { console.log = hyper.log}
 	</script>
-   
-    <script src="crafty.js"></script>
+   	
+	<script type="text/javascript" src="libs/jscharts.js"></script>
+    <script src="libs/crafty.js"></script>
 	<script src="cordova.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="libs/evothings/ui/ui.js"></script>
@@ -30,9 +31,10 @@
 
 <body>
 	<button onclick="connect()" class="green">Connect</button>
-	<button onclick="disconnect()" class="charcoal">Disconnect</button>
-	<button onclick="window.location.href='test.html'" class="yellow">Test Page</button> 	
-	
+	<button onclick="disconnect()" class="yellow">Disconnect</button>
+	<button onclick="startReading()" class="green">Start Reading</button>
+	<button onclick="stopReading()" class="red">End Reading</button>
+
 	<p>
 		<strong>Status:</strong> 
 		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
@@ -43,121 +45,138 @@
 		<span id="AccelerometerData">[Waiting for value]</span>
 	</p>
 	
+	<div id="chartcontainer">This is just a replacement in case Javascript is not available or used for SEO purposes</div>
+
 	<div id="game"></div>
 
 	<script>
-	// SensorTag object.
-	var sensortag
+		var sensortag
+		var isReading
 
-	function initialiseSensorTag()
-	{
-		// Create SensorTag CC2650 instance.
-		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-
-		sensortag
-			.statusCallback(statusHandler)
-			.errorCallback(errorHandler)
-			.accelerometerCallback(accelerometerHandler, 200)
-	}
-
-	function connect()
-	{
-		startGame()
-		sensortag.connectToNearestDevice()
-	}
-
-	function disconnect()
-	{
-		sensortag.disconnectDevice()
-		resetSensorDisplayValues()
-	}
-	
-	function statusHandler(status)
-	{
-		displayValue('StatusData', status)
-	}
-
-	function errorHandler(error)
-	{
-		console.log('Error: ' + error)
-
-		if (evothings.easyble.error.DISCONNECTED == error)
+		function startReading() 
 		{
+			isReading = true	
+		}
+		
+		function stopReading() 
+		{
+			isReading = false
+		}
+		
+		function initialiseSensorTag()
+		{
+			// Create SensorTag CC2650 instance.
+			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+
+			sensortag
+				.statusCallback(statusHandler)
+				.errorCallback(errorHandler)
+				.accelerometerCallback(accelerometerHandler, 100)
+		}
+
+		function connect()
+		{
+			//startGame()
+			sensortag.connectToNearestDevice()
+		}
+
+		function disconnect()
+		{
+			sensortag.disconnectDevice()
 			resetSensorDisplayValues()
 		}
-		else
+		
+		function statusHandler(status)
 		{
-			displayValue('StatusData', 'Error: ' + error)
+			displayValue('StatusData', status)
 		}
-	}
 
-	function resetSensorDisplayValues()
-	{
-		var blank = '[Waiting for value]'
-		displayValue('StatusData', 'Press Connect to find a SensorTag')
-		displayValue('AccelerometerData', blank)
-		setBackgroundColor('white')
-	}
-	
-	function displayValue(elementId, value)
-	{
-		document.getElementById(elementId).innerHTML = value
-	}
-	
-	document.addEventListener(
-		'deviceready',
-		function() { evothings.scriptsLoaded(initialiseSensorTag) },
-		false)	
+		function errorHandler(error)
+		{
+			console.log('Error: ' + error)
 
-	var init_bool = false
+			if (evothings.easyble.error.DISCONNECTED == error)
+			{
+				resetSensorDisplayValues()
+			}
+			else
+			{
+				displayValue('StatusData', 'Error: ' + error)
+			}
+		}
 
-	var x_offset = -0.01
-	var y_offset = 0.01
-	var z_offset = -0.01	
-	
-	var updateThreshold = 0.004
-	var speed = 10
-	
-	// get rid of noise first so the reading are stable 
-	// next set offsets 
-	
-	function accelerometerHandler(data)
-	{
-		var values = sensortag.getAccelerometerValues(data)
+		function resetSensorDisplayValues()
+		{
+			var blank = '[Waiting for value]'
+			displayValue('StatusData', 'Press Connect to find a SensorTag')
+			displayValue('AccelerometerData', blank)
+			setBackgroundColor('white')
+		}
 		
-		if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
-			
-			var x = parseFloat((values.x - x_offset).toFixed(2))
-			var y = parseFloat((values.y - y_offset).toFixed(2))
-			var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
+		function displayValue(elementId, value)
+		{
+			document.getElementById(elementId).innerHTML = value
+		}
 		
-			var roll = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
-			var pitch = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
+		document.addEventListener(
+			'deviceready',
+			function() { evothings.scriptsLoaded(initialiseSensorTag) },
+			false)	
+
+		var x_offset = -0.01
+		var y_offset = 0.01
+		var z_offset = -0.01	
+		var string = ""
+		// get rid of noise first so the reading are stable 
+		// next set offsets 
 		
-			string =
-				'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
-				'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
-				'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' +
-				'Pitch ' + pitch.toPrecision(2) + '</br> ' +
-				'Roll ' + roll.toPrecision(2)	
+		function accelerometerHandler(data)
+		{
+			if (isReading) {
+				var values = sensortag.getAccelerometerValues(data)
+				if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
+					
+					var x = parseFloat((values.x - x_offset).toFixed(2))
+					var y = parseFloat((values.y - y_offset).toFixed(2))
+					var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
 				
-			displayValue('AccelerometerData', string)
+					string = string +
+						'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
+						'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
+						'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' 
+						
+					displayValue('AccelerometerData', string)
+				}				
+			}
+		}
+				
+		function thresholdFilter () 
+		{
+			
+		}		
+				
+		// visualisze dynamic data inputs
+		
+		var myData = new Array(['unit', 20], ['unit two', 10], ['unit three', 30], ['other unit', 10], ['last unit', 30]);
+		var myChart = new JSChart('chartcontainer', 'bar');
+		myChart.setDataArray(myData);
+		myChart.draw();
+			
+			
+		// game	
+		var background
+		var fish
+		var score
+		var speed = 10
+		
+		function startGame () {
+			Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'))
+			
+			background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
+			fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
+			score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
+			//Crafty.e("2D, DOM, Image").image("Graphics/number_one.png").origin("center")
 		}	
-	}
-		
-	// game	
-	var background
-	var fish
-	var score
-	
-	function startGame () {
-		Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'))
-		
-		background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
-		fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
-		score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
- 		//Crafty.e("2D, DOM, Image").image("Graphics/number_one.png").origin("center")
-	}	
 	</script>
 </body>
 </html>
