@@ -27,3 +27,20 @@ input representation affects its performance
 may need preprocessor to extract important information or get rid of noise
 
 second, 
+
+
+
+
+
+
+
+Fast fourier transform FFT get rid of noise 
+
+
+x,y,z -> roll pitch and yaw 
+
+Left right model
+
+now generating codewords or states 1. vector quantization
+
+nearest-neighbour condition
