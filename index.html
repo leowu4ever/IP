@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<!--
-	Demonstration of the TI SensorTag JavaScript library.
--->
-<html>
 
+<html>
 <head>
 	<meta charset="utf-8" />
 	<meta name="format-detection" content="telephone=no" />
@@ -21,7 +18,6 @@
 		if (window.hyper && window.hyper.log) { console.log = hyper.log}
 	</script>
    	
-    <script src="libs/hmm.js"></script>
 	<script type="text/javascript" src="libs/jscharts.js"></script>
     <script src="libs/crafty.js"></script>
 	<script src="cordova.js"></script>
@@ -35,7 +31,8 @@
 	<button onclick="disconnect()" class="yellow">Disconnect</button>
 	<button onclick="startReading()" class="green">Start Reading</button>
 	<button onclick="stopReading()" class="red">End Reading</button>
-
+	<button onclick="preprocess()" class="blue">Preprocess</button>
+	<button onclick="printHmm()" class="blue">PrintHmm</button>
 	<p>
 		<strong>Status:</strong> 
 		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
@@ -46,14 +43,14 @@
 		<span id="AccelerometerData">[Waiting for value]</span>
 	</p>
 	
-	<div id="chartcontainer">This is just a replacement in case Javascript is not available or used for SEO purposes</div>
-
 	<div id="game"></div>
 
 	<script>
 		var sensortag
 		var isReading
-
+		
+		var record
+		
 		function startReading() 
 		{
 			isReading = true	
@@ -62,11 +59,14 @@
 		function stopReading() 
 		{
 			isReading = false
+			hyper.log(record)
+			record = ""
+
 		}
 		
 		function initialiseSensorTag()
 		{
-			// Create SensorTag CC2650 instance.
+			// Create SensorTa	g CC2650 instance.
 			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 
 			sensortag
@@ -111,7 +111,6 @@
 			var blank = '[Waiting for value]'
 			displayValue('StatusData', 'Press Connect to find a SensorTag')
 			displayValue('AccelerometerData', blank)
-			setBackgroundColor('white')
 		}
 		
 		function displayValue(elementId, value)
@@ -140,11 +139,15 @@
 					var x = parseFloat((values.x - x_offset).toFixed(2))
 					var y = parseFloat((values.y - y_offset).toFixed(2))
 					var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
-				
-					string = string +
-						'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
-						'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
-						'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' 
+					var pitch = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
+					var roll = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
+					
+					record =  roll + "," + record	
+					string = 'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
+							 'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
+						     'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' +
+							 'pitch : ' + pitch + '<br/>' +
+ 							 'roll : ' + roll + '<br/>'
 						
 					displayValue('AccelerometerData', string)
 				}				
@@ -156,14 +159,76 @@
 			
 		}		
 				
-		// visualisze dynamic data inputs
+		// hmm
+		var startProb = [0,1,2];
+		var transitionProb = [[0,1],[0,1]];
+		var observationProb = [[0,1,2],[0,1,5]];
+		var observations = [0.1, 0.2, 0.3]
+		var n = 14
+		var m = 1
+		var trainingData = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
 		
-		var myData = new Array(['unit', 20], ['unit two', 10], ['unit three', 30], ['other unit', 10], ['last unit', 30]);
-		var myChart = new JSChart('chartcontainer', 'bar');
-		myChart.setDataArray(myData);
-		myChart.draw();
+		// low pass filter
+		function preprocess (reading) {
+			
+		}
+		
+		function train () {
+			preprocess()
+		}
+		
+		function recognise () {
+			preprocess()
+		}
+		
+		function initHmmForTraining () {
+			
+		}
+		
+		function initHmmForRecognising () {
 			
 			
+		}
+		
+		function printHmm () {
+			hyper.log ("--- start prob ---")
+			hyper.log (startProb)	
+			hyper.log ("--- start prob ---" + '\n')
+			
+			hyper.log ("--- trainsition prob ---")
+			printMatrix (transitionProb)	
+			hyper.log ("--- trainsition prob ---" + '\n')
+			
+			hyper.log ("--- observation prob ---")
+			printMatrix (observationProb)	
+			hyper.log ("--- observation prob ---" + '\n')
+			
+			hyper.log ("n = " + n + '\n')
+			hyper.log ("m = " + m + '\n')
+			printMatrixtrainingData)
+		}
+		
+		function printMatrix (matrix) {
+			var temp = ""
+			for(var i = 0; i < matrix.length; i++) {
+				for(var j = 0; j < matrix[i].length; j++) {
+					if (j!=matrix[i].length-1) {
+						temp = temp + matrix[i][j] + "," 
+					} else {
+						temp = temp + matrix[i][j]
+						
+					}
+				}
+				if (i!=matrix.length-1) {
+					temp = temp + '|'
+				} else {
+					temp = temp 
+				}
+			}
+			hyper.log(temp)
+		}
+		
+		
 		// game	
 		var background
 		var fish
