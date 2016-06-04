@@ -169,6 +169,7 @@
 		var n = 14
 		var m = 1
 		var trainingData = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+		var filterThreshold = 0.2
 		
 		function preprocess () {
 			denoise (trainingData)	
@@ -176,24 +177,25 @@
 		
 		function denoise (reading) {
 			
+			hyper.log ("trainingdata length before: " + trainingData.length)
 			for (var i = 0; i<reading.length; i++) {
 				if (i != 0) {
 					if (Math.sqrt (Math.pow (reading[i][0] - reading[i-1][0], 2) +
 								   Math.pow (reading[i][1] - reading[i-1][1], 2) +
-								   Math.pow (reading[i][2] - reading[i-1][2], 2)) < 0.2 ) {
+								   Math.pow (reading[i][2] - reading[i-1][2], 2)) < filterThreshold ) {
 									   
 									   reading.splice (i,1)
 								   }
 				} else {
 					if (Math.sqrt (Math.pow (reading[i][0] - 0, 2) +
 								   Math.pow (reading[i][1] - 0, 2) +
-								   Math.pow (reading[i][2] - 0, 2)) < 0.2 ) {
+								   Math.pow (reading[i][2] - 0, 2)) < filterThreshold ) {
 									   
 									   reading.splice (i,1)
 								   }
 				}	
 			}
-			
+			hyper.log ("trainingdata length after: " + trainingData.length)
 			printMatrix (trainingData)
 			
 		}
