@@ -33,8 +33,6 @@
 	<button onclick="stopReading()" class="red">End Reading</button>
 	<button onclick="preprocess()" class="blue">Preprocess</button>
 	<button onclick="printHmm()" class="blue">PrintHmm</button>
-
-
 	<p>
 		<strong>Status:</strong> 
 		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
@@ -50,7 +48,6 @@
 	<script>
 		var sensortag
 		var isReading
-		
 		var record
 		
 		function startReading() 
@@ -63,7 +60,6 @@
 			isReading = false
 			hyper.log(record)
 			record = ""
-
 		}
 		
 		function initialiseSensorTag()
@@ -156,11 +152,6 @@
 			}
 		}
 				
-		function thresholdFilter () 
-		{
-			
-		}		
-				
 		// hmm
 		var startProb = [0,1,2];
 		var transitionProb = [[0,1],[0,1]];
@@ -196,9 +187,9 @@
 								   }
 				}	
 			}
+			// double checks
 			hyper.log ("trainingdata length after: " + trainingData.length)
 			printMatrix (trainingData)
-			
 		}
 		
 		var numOfKmeansIteration = 10
@@ -279,20 +270,7 @@
 			
 		}
 				
-		function train () {
-		}
-		
-		function recognise () {
-		}
-		
-		function initHmmForTraining () {
-			
-		}
-		
-		function initHmmForRecognising () {
-			
-			
-		}
+		// 
 		
 		function printHmm () {
 			hyper.log ("--- start prob ---")
@@ -330,7 +308,6 @@
 			}
 			hyper.log(temp)
 		}
-		
 		
 		// game	
 		var background
