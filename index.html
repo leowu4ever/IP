@@ -152,14 +152,16 @@
 			}
 		}
 				
-		// hmm
+		// test hmm model
 		var startProb = [0,1,2];
 		var transitionProb = [[0,1],[0,1]];
-		var observationProb = [[0,1,2],[0,1,5]];
+		var emissionProb = [[0,1,2],[0,1,5]];
 		var observations = [0.1, 0.2, 0.3]
-		var n = 14
-		var m = 1
+		var N = 14
+		var M = 1
 		var trainingData = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9], [1.1, 1.5, 0.6], [2.1, 1.2, 1.3], [1.4, 3.5, 0.6], [0.1, 1.2, 2.3], [1.4, 0.5, 1.6], [1.1, 3.2, 2.3], [1.4, 1.5, 1.6], [2.1, 2.2, 2.3], [3.4, 3.5, 3.6], [1.1, -0.2, 0.3], [-0.4, -0.5, -0.6], [-0.1, -0.2, 0.3], [-0.4, -0.5, -0.6]]
+		
+		
 		var filterThreshold = 0.2
 		
 		function preprocess () {
@@ -269,8 +271,26 @@
 			hyper.log(length)
 			
 		}
-				
-		// 
+		
+		function forward (Pi, B, N, readings) {
+			
+			prob = 0
+			readingsLength = readings.length
+			
+			// at(i) up to time t and is hidden state i at t
+			// 1. when t = 1     1 < i< n
+			
+			for (i = 0; i < N; i++) {
+				prob += Pi[i] * B[i][]
+			}
+			
+			// 2. when t > 1 and 1 <= j <= n
+		}
+			
+		function baumWelch () {
+			
+			
+		}
 		
 		function printHmm () {
 			hyper.log ("--- start prob ---")
@@ -282,7 +302,7 @@
 			hyper.log ("--- trainsition prob ---" + '\n')
 			
 			hyper.log ("--- observation prob ---")
-			printMatrix (observationProb)	
+			printMatrix (emissionProb)	
 			hyper.log ("--- observation prob ---" + '\n')
 			
 			hyper.log ("n = " + n + '\n')
