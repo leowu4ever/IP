@@ -300,9 +300,8 @@
 			// sum all alpha together
 			var prob
 			for (i = 0; i < N; i++) {
-				for (j = 0; j < T; j++) {
-					prob += alphas[i][j]					
-				}
+				prob += alphas[i][T-1]					
+				
 			}
 			return prob
 		}
@@ -333,13 +332,13 @@
 			
 			var prob
 			for (i = 0; i < N; i++) {
-				for (j = 0; j < T; j++) {
-					prob += betas[i][j]					
-				}
+				prob += betas[i][0]					
 			}
 			return prob
 		}
 		
+		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
+		// Expectation - Maximization approach
 		function baumwelch (reading) {
 			
 			var PI = new Array ()
@@ -389,6 +388,10 @@
 			hyper.log ("B" + B)
 					
 			// actual learing 
+
+			var xi
+			var gamma
+
 		}
 		
 		function printMatrix (matrix) {
@@ -409,6 +412,8 @@
 			hyper.log(temp) 
 		}
 		
+		
+
 		// game	
 		var background
 		var fish
