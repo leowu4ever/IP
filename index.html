@@ -307,8 +307,37 @@
 			return prob
 		}
 	
-		function backward (PI, A, B, reading) {
+		function backward (PI, A, B, observation) {
+			var T = reading.length
+			var betas = new Array ()
 			
+			// init beta array
+			for (i = 0; i < N; i++) {
+				betas[i] = new Array()
+			}
+			
+			// from the last one t = T
+			for (i = 0; i < N; i++) {
+				betas [i][T-1] = 1
+			} 
+			
+			// now loop backwards from T-1 to 1
+			for (t = T-1; t < 0; i--) {
+				for (i = 0; i < N; i++) {
+					var temp = 0
+					for ( j = 0; j < N; j++ ) {
+						temp += B[j][observation[t+1] - 1] * A[i][j] * betas[j][t+1]
+					}
+				}
+			}
+			
+			var prob
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < T; j++) {
+					prob += betas[i][j]					
+				}
+			}
+			return prob
 		}
 		
 		function baumwelch (reading) {
