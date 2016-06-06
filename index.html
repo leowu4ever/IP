@@ -276,7 +276,7 @@
 			var alphas = new Array ()
 			
 			// init alpha array
-			for (i = 0; i < N, i++) {
+			for (i = 0; i < N; i++) {
 				alphas[i] = new Array()
 			}
 			
@@ -304,11 +304,10 @@
 					prob += alphas[i][j]					
 				}
 			}
-			
 			return prob
 		}
 	
-		function backward (reading) {
+		function backward (PI, A, B, reading) {
 			
 		}
 		
