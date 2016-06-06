@@ -394,6 +394,73 @@
 			var gamma
 
 		}
+
+		// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
+		// compute γ
+		// T is number of observation
+		// N is number of states
+		function computeGamma (T, N, alpha, beta) {
+			var column, row, time, denominator;
+			var gamma = [];
+			for (time = 0; time < T; time++) {
+				gamma[time] = [];
+			}
+
+			for (time = 0; time < T; time++) {
+				denominator = 0;
+				for (column = 0; column < N; column++) {
+					gamma[time][column] = alpha[column][time] * beta[column][time];
+					denominator +=  gamma[time][column];
+				}
+
+				for (column = 0; column < N; column++) {
+					gamma[time][column] = gamma[time][column] / denominator;
+				}
+			}
+			return gamma;
+		};
+
+		// compute ξ
+		function computeXi (hmmModel, observation, alpha, beta) {
+			var xi = [];
+			var T = observation.length;
+			var N = hmmModel.getStatesSize();
+			var transitionProbability = hmmModel.getTransitionProbability();
+			var emissionProbability = hmmModel.getEmissionProbability();
+			var columnI, columnJ, time, sum;
+			for (time = 0; time < T; time++) {
+				xi[time] = [];
+				for (columnI = 0; columnI < N; columnI++) {
+					xi[time][columnI] = [];
+					for(columnJ = 0; columnJ < N; columnJ++) {
+						xi[time][columnI][columnJ] = [];
+					}
+				}
+			}
+
+			for (time = 0; time < T - 1; time++) {
+				sum = 0;
+				for (columnI = 0; columnI < N; columnI++) {
+					for (columnJ = 0; columnJ < N; columnJ++) {
+						xi[time][columnI][columnJ] = alpha[columnI][time] 
+						* beta[columnJ][time+1]
+						* transitionProbability[columnI][columnJ] 
+						* emissionProbability[columnJ][observation[time+1]];
+						sum += xi[time][columnI][columnJ];
+					}
+				}
+
+				for (columnI = 0; columnI < N; columnI++) {
+					for (columnJ = 0; columnJ < N; columnJ++) {
+						xi[time][columnI][columnJ] = xi[time][columnI][columnJ] / sum;
+					}
+				}
+			}
+
+
+			return xi;
+		};
+
 		
 		function printMatrix (matrix) {
 			var temp = ""
