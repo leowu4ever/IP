@@ -193,6 +193,7 @@
 		
 		// convert the raw data to symbolised observations
 		// for baum welch, forward and backward
+		
 		function kmeans( reading, numOfClusters ) {
 			
 			var observation = new Array ()
@@ -270,6 +271,7 @@
 		// for training 
 		// baum welch 
 		
+		// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
 		function forward (PI, A, B, observation) {
 		
 			var T = reading.length
@@ -282,7 +284,7 @@
 			
 			// t = 0
 			for (i = 0; i < N; i++) {
-				alphas[i][0] = PI[i] * b[i][observation[0]]
+				alphas[i][0] = PI[i] * B[i][observation[0]]
 			} 
 			
 			// t = 1 ~ T - 1
@@ -292,7 +294,7 @@
 					for (j = 0; j < N; j++) {
 						temp += alphas[j][t] * A[j][i]
 					}
-					temp = temp * b[i][observation[t]]
+					temp = temp * B[i][observation[t]]
 					alphas[i][t] = temp
 				}
 			}
@@ -301,9 +303,8 @@
 			var prob
 			for (i = 0; i < N; i++) {
 				prob += alphas[i][T-1]					
-				
 			}
-			return prob
+			return Math.log2(prob)
 		}
 	
 		function backward (PI, A, B, observation) {
@@ -334,7 +335,7 @@
 			for (i = 0; i < N; i++) {
 				prob += betas[i][0]					
 			}
-			return prob
+			return Math.log2(prob)
 		}
 		
 		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
