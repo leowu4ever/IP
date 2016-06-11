@@ -31,8 +31,7 @@
 	<button onclick="disconnect()" class="yellow">Disconnect</button>
 	<button onclick="startReading()" class="green">Start Reading</button>
 	<button onclick="stopReading()" class="red">End Reading</button>
-	<button onclick="preprocess()" class="blue">Preprocess</button>
-	<button onclick="printHmm()" class="blue">PrintHmm</button>
+	<button onclick="train()" class="blue">Train</button>
 	<p>
 		<strong>Status:</strong> 
 		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
@@ -46,11 +45,10 @@
 	<div id="game"></div>
 
 	<script>
-
 		var sensortag
 		var isReading
 		var record
-		
+
 		function startReading() 
 		{
 			isReading = true	
@@ -67,11 +65,9 @@
 		{
 			// Create SensorTa	g CC2650 instance.
 			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-
-			sensortag
-				.statusCallback(statusHandler)
-				.errorCallback(errorHandler)
-				.accelerometerCallback(accelerometerHandler, 100)
+			sensortag.statusCallback(statusHandler)
+					 .errorCallback(errorHandler)
+				     .accelerometerCallback(accelerometerHandler, 100)
 		}
 
 		function connect()
@@ -122,6 +118,7 @@
 			function() { evothings.scriptsLoaded(initialiseSensorTag) },
 			false)	
 
+		// ------------------------------------------ Sensor Reading ------------------------------------------
 		var x_offset = -0.01
 		var y_offset = 0.01
 		var z_offset = -0.01	
@@ -168,20 +165,21 @@
 			// denoise reading 
 			// convert to observation
 			// run baum welch with the observation - and output the model and save
-		}
+			var temp = denoise (trainingData)
+			temp = kmeans(temp, 5)
+			var result = baumwelch (temp)
+		} 
 		
 		function recognise () {
 			// denoise raw reading 
 			// convert to observation
 			// run either forward or backward against all models - the result should be the same
 			// pick the one haing the highest prob
-			
 		}
 
 		// get rid of uncontributed inputs
 		function denoise (reading) {
 			
-			hyper.log ("trainingdata length before: " + reading.length)
 			for (i = 0; i<reading.length; i++) {
 				if (i != 0) {
 					if (Math.sqrt (Math.pow (reading[i][0] - reading[i-1][0], 2) +
@@ -200,9 +198,6 @@
 				}	
 			}
 			// double checks
-			hyper.log ("trainingdata length after: " + reading.length)
-			printMatrix (reading)
-
 			return reading
 		}
 		
@@ -289,7 +284,7 @@
 		// baum welch 
 		
 		// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
-		function forward (PI, A, B, observation) {
+		function forward (pi, A, B, observation) {
 		
 			var T = observation.length
 			var alphas = new Array ()
@@ -301,18 +296,17 @@
 			
 			// t = 0
 			for (i = 0; i < N; i++) {
-				alphas[0][i] = PI[i] * B[i][observation[0]]
+				alphas[0][i] = pi[i] * B[i][observation[0]]
 			} 
 			
 			// t = 1 ~ T - 1
 			for (t = 1; t < T; t++) {
 				for (i = 0; i < N; i++) {
-					var temp = 0
+					var sum = 0
 					for (j = 0; j < N; j++) {
-						temp += alphas[t-1][j] * A[j][i]
+						sum += alphas[t-1][j] * A[j][i]
 					}
-					temp = temp * B[i][observation[t]]
-					alphas[i][t] = temp
+					alphas[t][i] = sum * B[i][observation[t]]
 				}
 			}
 			
@@ -321,10 +315,11 @@
 			for (i = 0; i < N; i++) {
 				prob += alphas[T-1][i]					
 			}
-			return Math.log2(prob)
+			var logprob = Math.log2(prob)
+			return [logprob, alphas]
 		}
 	
-		function backward (PI, A, B, observation) {
+		function backward (pi, A, B, observation) {
 			var T = observation.length
 			var betas = new Array ()
 			
@@ -353,7 +348,8 @@
 			for (i = 0; i < N; i++) {
 				prob += betas[0][i]					
 			}
-			return Math.log2(prob)
+			var logprob = Math.log2(prob)
+			return [logprob, betas]
 		}
 		
 		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
@@ -363,74 +359,89 @@
 			var pi = []
 			var A = []
 			var B = []
-
-			var alphas = []
-			var betas = []
-
+			var alphas 
+			var betas 
 			var T = observation.length
-			var row, column, time, denominatorA, denominatorB, numberatorA, numberatorB, logProbPrev, delta;
-			var initPi = 1 / N;
+			var row, column, time, denominatorA, denominatorB, numberatorA, numberatorB, logProbPrev, delta
+			var initPi = 1 / N
 			
 			// 1.1 init pi
 			for (column = 0; column < N; column++) {
-				pi[column] = initPi;
-				A[column] = [];
-				B[column] = [];
-				alphas[column] = [];
-				betas[column] = [];
+				pi[column] = initPi
+				A[column] = []
+				B[column] = []
+			}
+			
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < N; j++) {
+					if (i == j) {
+						A[i][j] = 1 - 1/(T/N)
+					}
+					if (i == j - 1) {
+						A[i][j] = 1/(T/N)
+					}
+				}
+			}
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < M; j++) {
+					B[i][j] = 1/M
+				}
 			}
 
 			// 1.2 init alpha
-			var logprobf = forward(pi, A, B, observation, alphas);
+			var logprobf = forward(pi, A, B, observation, alphas)[0];
+			alphas = forward(pi, A, B, observation, alphas)[1] 
 			// 1.3 init beta
-			var logprobb = backward(pi, A, B, observation, betas);
-
+			var logprobb = backward(pi, A, B, observation, betas)[0];
+			betas = backward(pi, A, B, observation, betas)[1]
+		
 			var gamma = computeGamma(T, N, alphas, betas);
 			var xi = computeXi(pi, A, B, observation, alphas, betas);
-			
 			logProbPrev = logprobf;
 			delta = 1;			
 			DELTA = 0.1;
 
 			while (delta > DELTA) {
-					// 2.1 compute pi
+				
+				// 2.1 compute pi
+				for (column = 0; column < N; column++) {
+					pi[column] = 0.001 + 0.999*gamma[1][column];
+				} 
+
+				// 2.2 compute transition matrix and emission matrix
+				for (row = 0; row < N; row++) {
+					denominatorA = 0;
+					for (time = 0; time < T-2; time++)
+						denominatorA += gamma[time][row];
+
 					for (column = 0; column < N; column++) {
-						pi[column] = 0.001 + 0.999*gamma[1][column];
-					} 
-
-					// 2.2 compute transition matrix and emission matrix
-					for (row = 0; row < N; row++) {
-						denominatorA = 0;
+						numberatorA = 0;
 						for (time = 0; time < T-2; time++)
-							denominatorA += gamma[time][row];
-
-						for (column = 0; column < N; column++) {
-							numberatorA = 0;
-							for (time = 0; time < T-2; time++)
-								numberatorA += xi[time][row][column]
-								A[row][column] = 0.001 + 0.999*numberatorA/denominatorA;
-						}
-
-						denominatorB = denominatorA + gamma[T-1][row];
-						for (var k = 0; k < M; k++) {
-							numberatorB = 0;
-							for (time = 0; time < T; time++) {
-								if (observation[time] == k)
-									numberatorB += gamma[time][row];
-							}
-							B[row][k] = 0.001 + 0.999 * numberatorB / denominatorB;
-						}
+							numberatorA += xi[time][row][column]
+							A[row][column] = 0.001 + 0.999*numberatorA/denominatorA;
 					}
 
+					denominatorB = denominatorA + gamma[T-1][row];
+					for (var k = 0; k < M; k++) {
+						numberatorB = 0;
+						for (time = 0; time < T; time++) {
+							if (observation[time] == k)
+								numberatorB += gamma[time][row];
+						}
+						B[row][k] = 0.001 + 0.999 * numberatorB / denominatorB;
+					}
+				}
 
-					// 2.3 comput logfile
-					logprobf = forward(pi, A, B, observation, alphas);
-					logprobb = backward(pi, A, B, observation, betas);
-					gamma = computeGamma(T, N, alphas, betas);
-					xi = computeXi(pi, A, B, observation, alphas, betas);
 
-					delta = Math.abs(logprobf - logProbPrev);
-					logProbPrev = logprobf;
+				// 2.3 comput logfile
+				logprobf = forward(pi, A, B, observation, alphas);
+				logprobb = backward(pi, A, B, observation, betas);
+				gamma = computeGamma(T, N, alphas, betas);
+				xi = computeXi(pi, A, B, observation, alphas, betas);
+
+				delta = Math.abs(logprobf - logProbPrev);
+				logProbPrev = logprobf;
+					
 
 				} // while (delta > DELTA);
 				return [pi, A, B];						
@@ -441,7 +452,7 @@
 		// compute γ
 		// T is number of observation
 		// N is number of states
-		function computeGamma (T, N, alpha, beta) {
+		function computeGamma (T, N, alphas, betas) {
 			var column, row, time, denominator;
 			var gamma = [];
 			for (time = 0; time < T; time++) {
@@ -451,7 +462,7 @@
 			for (time = 0; time < T; time++) {
 				denominator = 0;
 				for (column = 0; column < N; column++) {
-					gamma[time][column] = alpha[column][time] * beta[column][time];
+					gamma[time][column] = alphas[column][time] * betas[column][time];
 					denominator +=  gamma[time][column];
 				}
 
@@ -460,10 +471,10 @@
 				}
 			}
 			return gamma;
-		};
+		}
 
 		// compute ξ
-		function computeXi (PI, A, B, observation, alpha, beta) {
+		function computeXi (PI, A, B, observation, alphas, betas) {
 			var xi = [];
 			var T = observation.length;
 			var columnI, columnJ, time, sum;
@@ -481,8 +492,8 @@
 				sum = 0;
 				for (columnI = 0; columnI < N; columnI++) {
 					for (columnJ = 0; columnJ < N; columnJ++) {
-						xi[time][columnI][columnJ] = alpha[columnI][time] 
-						* beta[columnJ][time+1]
+						xi[time][columnI][columnJ] = alphas[columnI][time] 
+						* betas[columnJ][time+1]
 						* A[columnI][columnJ] 
 						* B[columnJ][observation[time+1]];
 						sum += xi[time][columnI][columnJ];
@@ -496,7 +507,7 @@
 				}
 			}
 			return xi;
-		};
+		}
 
 		function printMatrix (matrix) {
 			var temp = ""
