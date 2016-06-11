@@ -166,7 +166,7 @@
 			// convert to observation
 			// run baum welch with the observation - and output the model and save
 			var temp = denoise (trainingData)
-			temp = kmeans(temp, 14)
+			temp = kmeans(temp, M)
 			var result = baumwelch (temp)
 		} 
 		
@@ -310,9 +310,10 @@
 				}
 			}
 			// sum all alpha together
+			hyper.log(alphas)
 			var prob
 			for (i = 0; i < N; i++) {
-				prob += alphas[T-1][i]					
+				prob += alphas[T-1][i]	
 			}
 			var logprob = Math.log2(prob)
 			return [logprob, alphas]
