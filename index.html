@@ -334,7 +334,7 @@
 			} 
 			
 			// now loop backwards from T-1 to 1
-			for (t = T-2; t >= 0; i--) {
+			for (t = T-2; t >= 0; t--) {
 				for (i = 0; i < N; i++) {
 					var sum = 0
 					for ( j = 0; j < N; j++ ) {
@@ -393,7 +393,7 @@
 			alphas = forward(pi, A, B, observation, alphas)[1] 
 			// 1.3 init beta
 			var logprobb = backward(A, B, observation, betas)[0];
-			betas = backward(pi, A, B, observation, betas)[1]
+			betas = backward(A, B, observation, betas)[1]
 		
 			var gamma = computeGamma(T, N, alphas, betas);
 			var xi = computeXi(pi, A, B, observation, alphas, betas);
