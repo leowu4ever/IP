@@ -319,7 +319,7 @@
 			return [logprob, alphas]
 		}
 	
-		function backward (pi, A, B, observation) {
+		function backward (A, B, observation) {
 			var T = observation.length
 			var betas = new Array ()
 			
@@ -334,13 +334,13 @@
 			} 
 			
 			// now loop backwards from T-1 to 1
-			for (t = T-1; t < 0; i--) {
+			for (t = T-2; t >= 0; i--) {
 				for (i = 0; i < N; i++) {
-					var temp = 0
+					var sum = 0
 					for ( j = 0; j < N; j++ ) {
-						temp +=  A[i][j] * B[j][observation[t+1]] * betas[t+1][j]
+						sum +=  A[i][j] * B[j][observation[t+1]] * betas[t+1][j]
 					}
-					betas[t][i] = temp
+					betas[t][i] = sum
 				}
 			}
 			
@@ -392,7 +392,7 @@
 			var logprobf = forward(pi, A, B, observation, alphas)[0];
 			alphas = forward(pi, A, B, observation, alphas)[1] 
 			// 1.3 init beta
-			var logprobb = backward(pi, A, B, observation, betas)[0];
+			var logprobb = backward(A, B, observation, betas)[0];
 			betas = backward(pi, A, B, observation, betas)[1]
 		
 			var gamma = computeGamma(T, N, alphas, betas);
