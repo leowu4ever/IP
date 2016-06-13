@@ -323,37 +323,27 @@
 			return [logprob, alphas, scale]
 		}
 	
-		function backward (A, B, observation) {
+		function backward_with_scale (A, B, observation, scales) {
 			var T = observation.length
-			var betas = new Array ()
 			
-			// init beta array
-			for (i = 0; i < T; i++) {
-				betas[i] = new Array()
-			}
+			var betas = zerosMatrix (N, T)
 			
-			// from the last one t = T
-			for (i = 0; i < N; i++) {
-				betas[T-1][i] = 1
+			// from the last one t = T-1
+			for (n = 0; n < N; n++) {
+				betas[n][T-1] = 1 / scales[T-1]
 			} 
 			
 			// now loop backwards from T-1 to 1
 			for (t = T-2; t >= 0; t--) {
-				for (i = 0; i < N; i++) {
-					var sum = 0
-					for ( j = 0; j < N; j++ ) {
-						sum +=  A[i][j] * B[j][observation[t+1]] * betas[t+1][j]
+				for (n = 0; n < N; n++) {
+					var sumOfBeta = 0
+					for (i = 0; i < N; i++) {
+						sumOfBeta +=  A[n][i] * B[i][observation[t+1]] * betas[i][t+1]
 					}
-					betas[t][i] = sum
+					betas[n][t] = sumOfBeta / scales[t]
 				}
 			}
-			
-			var prob
-			for (i = 0; i < N; i++) {
-				prob += betas[0][i]					
-			}
-			var logprob = Math.log2(prob)
-			return [logprob, betas]
+			return betas
 		}
 		
 		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
