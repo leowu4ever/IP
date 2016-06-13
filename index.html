@@ -280,43 +280,47 @@
 			return observation
 		}
 		
-		// for training 
-		// baum welch 
-		
 		// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
-		function forward (pi, A, B, observation) {
+		function forward_with_scale (pi, A, B, observation) {
 		
 			var T = observation.length
-			var alphas = new Array ()
-			
-			// init alpha array
-			for (i = 0; i < T; i++) {
-				alphas[i] = new Array()
-			}
+
+			var alphas = zerosMatrix (N,T)
+			var scales = zerosScales (T)
 
 			// t = 0
-			for (i = 0; i < N; i++) {
-				alphas[0][i] = pi[i] * B[i][observation[0]]
+			for (n = 0; n < N; i++) {
+				alphas[n][0] = pi[n] * B[n][observation[0]]
 			} 
-			
+
+			scales[0] = sumOfColumn (alphas, 0)
+			for (n = 0; n < N; n++) {
+				alphas[n][0] /= scale[0]
+			}
+
 			// t = 1 ~ T - 1
 			for (t = 1; t < T; t++) {
+				for (n = 0; n < N; n++) {
+					var sumOfAlpha = 0
+					for (a = 0; a < N; a++) {
+						sumOfAlpha += alphas[i][t-1] * A[i][n]
+					} // for sum
+					alphas[n][t] = sumOfAlpha * B[n][observation[t]]
+				}
+				scales[t] = sumOfColumn (alphas, t)
+				
 				for (i = 0; i < N; i++) {
-					var sum = 0
-					for (j = 0; j < N; j++) {
-						sum += alphas[t-1][j] * A[j][i]
-					}
-					alphas[t][i] = sum * B[i][observation[t]]
+					alphas[i][t] /= scales[t]
 				}
 			}
-			// sum all alpha together
-			hyper.log(alphas)
-			var prob
-			for (i = 0; i < N; i++) {
-				prob += alphas[T-1][i]	
+
+			// calculate log prob
+			var logprob
+			for (t = 0; t < T; t++) {
+				logprob += Math.log(scale[t])
 			}
-			var logprob = Math.log2(prob)
-			return [logprob, alphas]
+
+			return [logprob, alphas, scale]
 		}
 	
 		function backward (A, B, observation) {
@@ -531,6 +535,36 @@
 			hyper.log(temp) 
 		}
 		
+		function zerosMatrix (row, column) {
+			var matrix = new Array (row)
+			for (i = 0; i < row; i++) {
+				matrix[i] = new Array (column)
+			}
+
+			for (i = 0; i < row; i++) {
+				for (j = 0; j < column; j++) {
+					matrix [i][j] = 0
+				}
+			}
+			return matrix
+		}
+
+		function zerosScales (length) {
+			var scales = new Array (length)
+			for (i = 0; i < length; i++) {
+				scales[i] = 0
+			}
+			return scales
+		}
+
+		function sumOfColumn (martix, column) {
+			var sum
+			for (i = 0; i < matrix.length; i++) {
+				sum += matrix[i][column]
+			}
+			return sum
+		}
+
 		// ------------------------------------------ game ------------------------------------------
 		var background
 		var fish
