@@ -469,8 +469,44 @@
 		}
 
 		// compute ξ
-		function computeXi (PI, A, B, observation, alphas, betas) {
+		function computeXi (A, B, observation, alphas, betas) {
 			
+			var xi = [];
+			var T = observation.length;
+			
+			// init xi[i][j][t]
+			var columnI, columnJ, time, sum;
+			for (columnI = 0; columnI < N; columnI++) {
+				xi[columnI] = [];
+				for(columnJ = 0; columnJ < N; columnJ++) {
+					xi[columnI][columnJ] = [];
+					for (time = 0; time < T; time++) {
+						xi[columnI][columnJ][time] = [];
+					}
+				}
+			}
+			
+			for (time = 0; time < T - 1; time++) {
+				sum = 0;
+				for (columnI = 0; columnI < N; columnI++) {
+					for (columnJ = 0; columnJ < N; columnJ++) {
+					
+						xi[columnI][columnJ][time] = alpha[columnI][time] 
+												   * A[columnI][columnJ] 
+												   * beta[columnJ][time+1]
+												   * B[columnJ][observation[time+1]];
+												
+						sum += xi[columnI][columnJ][time];
+					}
+				}
+
+				for (columnI = 0; columnI < N; columnI++) {
+					for (columnJ = 0; columnJ < N; columnJ++) {
+						xi[columnI][columnJ][time] = xi[columnI][columnJ][time] / sum;
+					}
+				}
+			}
+			return xi;			
 		}
 
 		function printMatrix (matrix) {
