@@ -355,6 +355,7 @@
 			var pi = zerosScales(T)
 			var A = zerosMatrix(N, N)
 			var B = zerosMatrix(N, M) 
+			var initPi = 1/N
 
 			// 1.1 init pi, A, B
 			for (column = 0; column < N; column++) {
@@ -385,13 +386,65 @@
 			var gamma = computeGamma (alphas, betas)
 			var xi = computeXi(A, B, observation, alphas,betas)
 		
-			var initPi = 1/N
 			var logprobinit = logprobprev
+			
+			while (delta > DELTA) {
+				// 2.1 compute pi
+				for (column = 0; column < N; column++) {
+					pi[column] = 0.001 + 0.999*gamma[column][0];
+				}
 
-					
+				// 2.2 compute transition matrix and emission matrix
+				for (row = 0; row < N; row++) {
+					var denominatorA = 0;
+					for (time = 0; time < T-1; time++) {
+						denominatorA += gamma[row][time];
+					}
+
+					for (column = 0; column < N; column++) {
+						var numberatorA = 0;
+						for (time = 0; time < T-1; time++) {
+							numberatorA += xi[row][column][time]
+						}
+						A[row][column] = 0.001 + 0.999 * (numberatorA / denominatorA)
+					}
+				}	// A
+
+				for (j = 0; j < N; j++) {
+					var denominatorB = 0
+					for (time = 0; time < T; time++) {
+						denominatorB += gamma[j][time]
+					}
+
+					for (k = 0; k < M; k++) {
+						numeratorB = 0.0
+						for (t = 0; t < T; t++) {
+							if (observation[t] == k) {
+								numeratorB += gamma[j][t]
+							}
+						}
+						B[j][k] = 0.001 + 0.999 * (numeratorB / denominatorB)
+					}
+				} // B
 
 
+				f = forward_with_scale (pi, A, B, observation)
+				logprobcur = f[0]
+				alphas = f[1]
+				scales = f[2]
+				
+				betas = backward_with_scale (A, B, observation, scales)
+				gamma = computeGamma (alphas, betas)
+				xi = computeXi(A, B, observation, alphas,betas)
 
+				delta = logprobcur - logprobprev
+				logprobprev = logprobcur
+
+			} // while 
+			
+			logprobfinal = logprobcur
+			
+			return [logprobinit, logprobfinal, pi, A, B]
 		}
 
 		// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
