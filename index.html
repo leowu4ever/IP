@@ -168,6 +168,7 @@
 			var temp = denoise (trainingData)
 			temp = kmeans(temp, M)
 			var result = baumwelch (temp)
+			hyper.log(result[0])
 		} 
 		
 		function recognise () {
@@ -289,7 +290,7 @@
 			var scales = zerosScales (T)
 
 			// t = 0
-			for (n = 0; n < N; i++) {
+			for (n = 0; n < N; n++) {
 				alphas[n][0] = pi[n] * B[n][observation[0]]
 			} 
 
@@ -303,7 +304,7 @@
 				for (n = 0; n < N; n++) {
 					var sumOfAlpha = 0
 					for (a = 0; a < N; a++) {
-						sumOfAlpha += alphas[i][t-1] * A[i][n]
+						sumOfAlpha += alphas[a][t-1] * A[a][n]
 					} // for sum
 					alphas[n][t] = sumOfAlpha * B[n][observation[t]]
 				}
@@ -346,6 +347,8 @@
 			return betas
 		}
 		
+		DELTA = 0.001
+
 		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
 		// Expectation - Maximization approach
 		function baumwelch (observation) {
@@ -383,12 +386,12 @@
 			var scales = f[2]
 
 			var betas = backward_with_scale (A, B, observation, scales)
-			var gamma = computeGamma (alphas, betas)
+			var gamma = computeGamma (alphas, betas, T)
 			var xi = computeXi(A, B, observation, alphas,betas)
 		
 			var logprobinit = logprobprev
 			
-			while (delta > DELTA) {
+			while (true) {
 				// 2.1 compute pi
 				for (column = 0; column < N; column++) {
 					pi[column] = 0.001 + 0.999*gamma[column][0];
@@ -427,19 +430,21 @@
 					}
 				} // B
 
-
 				f = forward_with_scale (pi, A, B, observation)
 				logprobcur = f[0]
 				alphas = f[1]
 				scales = f[2]
 				
 				betas = backward_with_scale (A, B, observation, scales)
-				gamma = computeGamma (alphas, betas)
+				gamma = computeGamma (alphas, betas, T)
 				xi = computeXi(A, B, observation, alphas,betas)
 
 				delta = logprobcur - logprobprev
 				logprobprev = logprobcur
 
+				if (delta <= DELTA) {
+					break
+				}
 			} // while 
 			
 			logprobfinal = logprobcur
@@ -449,9 +454,7 @@
 
 		// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
 		// compute γ
-		// T is number of observation
-		// N is number of states
-		function computeGamma (alphas, betas) {
+		function computeGamma (alphas, betas, T) {
 			
 				var gamma = zerosMatrix(N, T)
 
@@ -492,9 +495,9 @@
 				for (columnI = 0; columnI < N; columnI++) {
 					for (columnJ = 0; columnJ < N; columnJ++) {
 					
-						xi[columnI][columnJ][time] = alpha[columnI][time] 
+						xi[columnI][columnJ][time] = alphas[columnI][time] 
 												   * A[columnI][columnJ] 
-												   * beta[columnJ][time+1]
+												   * betas[columnJ][time+1]
 												   * B[columnJ][observation[time+1]];
 												
 						sum += xi[columnI][columnJ][time];
@@ -550,7 +553,7 @@
 			return scales
 		}
 
-		function sumOfColumn (martix, column) {
+		function sumOfColumn (matrix, column) {
 			var sum
 			for (i = 0; i < matrix.length; i++) {
 				sum += matrix[i][column]
