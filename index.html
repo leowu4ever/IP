@@ -29,8 +29,6 @@
 <body>
 	<button onclick="connect()" class="green">Connect</button>
 	<button onclick="disconnect()" class="yellow">Disconnect</button>
-	<button onclick="startReading()" class="green">Start Reading</button>
-	<button onclick="stopReading()" class="red">End Reading</button>
 	<button onclick="train()" class="blue">Train</button>
 	<p>
 		<strong>Status:</strong> 
@@ -46,21 +44,7 @@
 
 	<script>
 		var sensortag
-		var isReading
-		var record
 
-		function startReading() 
-		{
-			isReading = true	
-		}
-		
-		function stopReading() 
-		{
-			isReading = false
-			hyper.log(record)
-			record = ""
-		}
-		
 		function initialiseSensorTag()
 		{
 			// Create SensorTa	g CC2650 instance.
@@ -119,34 +103,56 @@
 			false)	
 
 		// ------------------------------------------ Sensor Reading ------------------------------------------
-		var x_offset = -0.01
-		var y_offset = 0.01
-		var z_offset = -0.01	
 		var string = ""
-		// get rid of noise first so the reading are stable 
-		// next set offsets 
+		var updateUpperBound = 0.4	
+		var updateLowerBound = 0.1
+
+		var x_offset = -0.01
+		var y_offset = 0
+		var z_offset = -0.01	
 		
+		var xPrev = 0
+		var yPrev = 0
+		var zPrev = 0
+
+		var record = ""
+		var recording = false
+
 		function accelerometerHandler(data)
 		{
-			if (isReading) {
-				var values = sensortag.getAccelerometerValues(data)
-				if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
-					
-					var x = parseFloat((values.x - x_offset).toFixed(2))
-					var y = parseFloat((values.y - y_offset).toFixed(2))
-					var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
-					var pitch = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
-					var roll = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
-					
-					record =  "[" + x + "," + y + "," + z + "]" + "," + record	
-					string = 'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
-							 'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
-						     'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' +
-							 'pitch : ' + pitch + '<br/>' +
- 							 'roll : ' + roll + '<br/>'
+			var values = sensortag.getAccelerometerValues(data)
+			if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
+				
+				var x = parseFloat((values.x - x_offset).toFixed(2))
+				var y = parseFloat((values.y - y_offset).toFixed(2))
+				var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
+				
+				string = 'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
+							'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
+							'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' 
+				displayValue('AccelerometerData', string)	
 						
-					displayValue('AccelerometerData', string)
-				}				
+				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) > updateUpperBound) {
+					recording = true
+				} 
+
+				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) < updateLowerBound) {
+					recording = false
+				} 
+
+				if (recording) {
+					 record += x + "," + y + "," + z + "|"
+					 hyper.log ("moving")
+				} else {
+ 					if (record != "") {
+						hyper.log(record)
+						record = ""
+					}
+				}
+
+				xPrev = x
+				yPrev = y
+				zPrev = z
 			}
 		}
 				
@@ -156,11 +162,7 @@
 		trainingData = [[0.01,-0.16,-0.84],[0,-0.17,-0.84],[-0.01,-0.16,-0.84],[-0.02,-0.16,-0.8],[-0.04,-0.18,-0.76],[0,-0.16,-0.68],[0.01,-0.16,-0.76],[0.01,-0.17,-0.76],[0.01,-0.17,-0.76],[0,-0.19,-0.8],[-0.02,-0.21,-0.72],[-0.01,-0.21,-0.68],[0.01,-0.2,-0.68],[0.03,-0.2,-0.76],[0.06,-0.18,-0.88],[0.06,-0.17,-0.88],[0.05,-0.18,-0.72],[0.06,-0.22,-0.8],[0.01,-0.25,-0.84],[-0.04,-0.24,-0.84],[-0.08,-0.21,-0.76],[-0.1,-0.18,-0.84],[-0.12,-0.15,-0.8],[-0.14,-0.14,-0.64],[-0.12,-0.08,-0.72],[-0.11,-0.06,-0.72],[-0.1,-0.05,-0.76],[-0.04,-0.01,-0.68],[0.02,0,-0.8],[0.04,0,-0.88],[0.03,-0.02,-0.96],[0.01,-0.05,-0.96],[-0.03,-0.08,-1.12],[-0.05,-0.08,-1.12],[-0.06,-0.1,-1.12],[-0.06,-0.11,-1],[-0.06,-0.11,-0.88],[-0.06,-0.1,-0.88],[-0.06,-0.1,-0.92]]
 	
 		var filterThreshold = 0.2
-		
-		function preprocess () {
-			baumwelch(trainingData)
-		}
-		
+	
 		function train () {
 			// denoise reading 
 			// convert to observation
@@ -168,11 +170,6 @@
 			var temp = denoise (trainingData)
 			temp = kmeans(temp, M)
 			var result = baumwelch (temp)
-			hyper.log (result[0])
-			hyper.log (result[1])
-			hyper.log (result[2])
-			hyper.log (result[3])
-			hyper.log (result[4])
 		} 
 		
 		function recognise () {
