@@ -104,11 +104,11 @@
 
 		// ------------------------------------------ Sensor Reading ------------------------------------------
 		var string = ""
-		var updateUpperBound = 0.4	
-		var updateLowerBound = 0.1
+		var updateUpperBound = 0.4
+		var updateLowerBound = 0.025
 
-		var x_offset = -0.01
-		var y_offset = 0
+		var x_offset = -0.004
+		var y_offset = 0.005
 		var z_offset = -0.01	
 		
 		var xPrev = 0
@@ -116,6 +116,7 @@
 		var zPrev = 0
 
 		var record = ""
+		var recordLength = 0
 		var recording = false
 
 		function accelerometerHandler(data)
@@ -123,9 +124,9 @@
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
 				
-				var x = parseFloat((values.x - x_offset).toFixed(2))
-				var y = parseFloat((values.y - y_offset).toFixed(2))
-				var z = parseFloat((values.z - z_offset).toFixed(2))/-0.25 
+				var x = parseFloat((values.x - x_offset).toFixed(8))
+				var y = parseFloat((values.y - y_offset).toFixed(8))
+				var z = parseFloat(((values.z - z_offset)/-0.245).toFixed(8))
 				
 				string = 'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
 							'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
@@ -142,11 +143,15 @@
 
 				if (recording) {
 					 record += x + "," + y + "," + z + "|"
+					 recordLength++
 					 hyper.log ("moving")
 				} else {
- 					if (record != "") {
+					if (record != "") {
+						hyper.log(recordLength) 
 						hyper.log(record)
 						record = ""
+						recordLength = 0
+
 					}
 				}
 
