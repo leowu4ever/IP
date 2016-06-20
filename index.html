@@ -167,14 +167,26 @@
 		}
 				
 		// ------------------------------------------ HMM ------------------------------------------
-		N = 8
-		M = 14
+		N = 4
+		M = 7
 		dataset_1 = [[0.09372168,0.06927979,-0.16114278], [0.00198584,-0.01763428,0.35827886], [-0.09029932,-0.01952637,0.79748286], [-0.13363428,-0.03228271,1.00599888], [-0.18807764,-0.02257813,1.05681999], [-0.24581689,-0.02910889,0.98581991], [-0.28353662,0.00342285,0.96962691], [-0.27370996,0.06604492,0.88866191], [-0.24209375,0.02740967,0.65697744], [-0.23025293,-0.00799072,0.46041932], [-0.24014062,0.010625,0.33834901], [-0.23830957,-0.02031982,0.25987524]]
+		
 		DELTA = 0.001
+		var numOfKmeansIteration = 100
 
 		var filterThreshold = 0.2
 	
 		function train () {
+			var trainingResult = baumwelch(kmeans (dataset_1, M))
+			hyper.log (trainingResult[0])
+			hyper.log (trainingResult[1])
+			hyper.log ("pi")
+			hyper.log (trainingResult[2])
+			hyper.log ("A")
+			printMatrix (trainingResult[3])
+			hyper.log ("B")
+			printMatrix (trainingResult[4])
+			
 
 		} 
 		
@@ -209,7 +221,6 @@
 			return reading
 		}
 		
-		var numOfKmeansIteration = 10
 		
 		// convert the raw data to symbolised observations
 		// for baum welch, forward and backward
@@ -225,12 +236,14 @@
 				clustersGroup[i] = new Array()
 			}
 			
-			// first choose centroids by even distance
-			jumpOfCentroids = Math.round ( reading.length / (numOfClusters+1) );
+			var temp = JSON.parse(JSON.stringify(reading));
+			// first choose centroids randomly
 			for ( i = 0; i < numOfClusters; i++) {
-				centroids[i] = reading [ (i+1) * jumpOfCentroids ]
+				var random = getRandomInt (0, temp.length)
+				centroids[i] = temp [random]
+				temp.splice(random, 1)
 			}
-	
+
 			for ( iteration = 0; iteration < numOfKmeansIteration; iteration++) {
 				
 				// init each cluster 
@@ -241,16 +254,15 @@
 				
 				// actual comparison
 				// each element compare with each centroid
-				for ( i = 0; i < reading.length; i++) {	// for elemnent
+				for ( i = 0; i < reading.length; i++ ) {	// for elemnent
 					
 					var minimumDistanceIndex = -1
 					var minimumDistance = -1
 					
 					for ( j = 0; j < centroids.length; j++ ) {	// each centroid
-						
 						var dis = Math.sqrt ( Math.pow ( (reading [i][0] - centroids [j][0]), 2 ) +
 											  Math.pow ( (reading [i][1] - centroids [j][1]), 2 ) +
-											  Math.pow ( (reading [i][2] - centroids [j][2]), 2 ))
+											  Math.pow ( (reading [i][2] - centroids [j][2]), 2 ) )
 					
 						if (minimumDistanceIndex == -1) {
 							minimumDistanceIndex = j
@@ -284,7 +296,6 @@
 					centroids[i] = [ total[0], total[1], total[2] ]
 				}
 			}
-			hyper.log (observation.length)
 			return observation
 		}
 		
@@ -362,25 +373,37 @@
 			
 			var T = observation.length
 		
-			var pi = zerosScales(T)
+			var pi = zerosScales(N)
 			var A = zerosMatrix(N, N)
 			var B = zerosMatrix(N, M) 
-			var initPi = 1/N
+			//var initPi = 1/N
 
-			// 1.1 init pi, A, B
+			// 1.1 init pi, A, B 
+			// or init it as first pi = 1 and rest = 0
 			for (column = 0; column < N; column++) {
-				pi[column] = initPi
+				if (column == 0) {
+					pi[column] = 1
+				} else {
+					pi[column] = 0
+				}
 			}
+			// Init A
 			for (i = 0; i < N; i++) {
 				for (j = 0; j < N; j++) {
 					if (i == j) {
-						A[i][j] = 1 - 1/(T/N)
+						A[i][j] = 1/2
 					}
 					if (i == j - 1) {
-						A[i][j] = 1/(T/N)
-					} 
+						A[i][j] = 1/2
+					}
+
+					if (i == N-1 && j == N-1) {
+						A[i][j] = 1
+					}
 				}
 			}
+	
+			// Init B
 			for (i = 0; i < N; i++) {
 				for (j = 0; j < M; j++) {
 					B[i][j] = 1/M
@@ -395,14 +418,22 @@
 			var betas = backward_with_scale (A, B, observation, scales)
 			var gamma = computeGamma (alphas, betas, T)
 			var xi = computeXi(A, B, observation, alphas,betas)
-		
+			hyper.log ("alphas" + alphas)
+			hyper.log ("betas" + betas)
+			hyper.log ("scales" + scales)
+			hyper.log ("gamma" + gamma)
+			hyper.log ("xi" + xi)			
+			
 			var logprobinit = logprobprev
 			
-
-			while (true) {
+			// interation may be a problem 16 is recommanded
+			for (q = 0; q < 1000; q++) {
 				// 2.1 compute pi
+
+			//	hyper.log (pi)
 				for (column = 0; column < N; column++) {
-					pi[column] = 0.001 + 0.999*gamma[column][0];
+			//		hyper.log (gamma[column][0])
+					pi[column] = gamma[column][0];
 				}
 
 				// 2.2 compute transition matrix and emission matrix
@@ -417,7 +448,7 @@
 						for (time = 0; time < T-1; time++) {
 							numberatorA += xi[row][column][time]
 						}
-						A[row][column] = 0.001 + 0.999 * (numberatorA / denominatorA)
+						A[row][column] = (numberatorA / denominatorA)
 					}
 				}	// A
 
@@ -434,7 +465,7 @@
 								numeratorB += gamma[j][t]
 							}
 						}
-						B[j][k] = 0.001 + 0.999 * (numeratorB / denominatorB)
+						B[j][k] = (numeratorB / denominatorB)
 					}
 				} // B
 
@@ -450,9 +481,9 @@
 				delta = logprobcur - logprobprev
 				logprobprev = logprobcur
 			
-				if (delta <= DELTA) {
-					break
-				}
+				// if (delta <= DELTA) {
+				// 	break
+				// }
 			} // while 
 
 			logprobfinal = logprobcur
@@ -466,18 +497,18 @@
 			
 				var gamma = zerosMatrix(N, T)
 
-				for (n = 0; n < N; n++) {
-					denominator = 0;
-					for (t = 0; t < T; t++) {
+				for (t = 0; t < T; t++) {
+					denominator = 0
+					for (n = 0; n < N; n++) {
 						gamma[n][t] = alphas[n][t] * betas[n][t];
 						denominator +=  gamma[n][t];
 					}
 
-					for (t = 0; t < T; t++) {
+					for (n = 0; n < N; n++) {
 						gamma[n][t] = gamma[n][t] / denominator;
 					}
 				}
-				return gamma;
+			return gamma
 		}
 
 		// compute ξ
@@ -531,12 +562,10 @@
 					} else {
 						temp = temp + matrix[i][j]
 					}
-				}
-				if (i!=matrix.length-1) {
-					temp = temp + '|'
-				}
+				} 
+				hyper.log(temp) 
+				temp = ""
 			}
-			hyper.log(temp) 
 		}
 		
 		function zerosMatrix (row, column) {
@@ -567,6 +596,10 @@
 				sum += matrix[i][column]
 			}
 			return sum
+		}
+
+		function getRandomInt(min, max) {
+			return Math.floor(Math.random() * (max - min)) + min;
 		}
 
 		// ------------------------------------------ game ------------------------------------------
