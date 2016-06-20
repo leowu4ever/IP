@@ -418,12 +418,7 @@
 			var betas = backward_with_scale (A, B, observation, scales)
 			var gamma = computeGamma (alphas, betas, T)
 			var xi = computeXi(A, B, observation, alphas,betas)
-			hyper.log ("alphas" + alphas)
-			hyper.log ("betas" + betas)
-			hyper.log ("scales" + scales)
-			hyper.log ("gamma" + gamma)
-			hyper.log ("xi" + xi)			
-			
+	
 			var logprobinit = logprobprev
 			
 			// interation may be a problem 16 is recommanded
