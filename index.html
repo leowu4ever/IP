@@ -422,7 +422,7 @@
 		var Bs = []
 		
 		var N = 7
-		var M = 14
+		var M = 11
 		var kmeansIteration = 100
 		var trainingInteration = 100
 		var filterThreshold = 0.2
@@ -506,9 +506,7 @@
 				hyper.log(PIs)
 				hyper.log(As)
 				hyper.log(Bs)
-
 			}
-		
 		} 
 
 		function recognise (reading) {
@@ -525,7 +523,7 @@
 			recogniseResult [9] = forward_with_scale (PIs[9], As[9], Bs[9], classify (reading, centroidsArray[9]))[0]
 			
 			hyper.log (recogniseResult)
-			hyper.log (indexOfSmallest (recogniseResult))
+			hyper.log (indexOfMax (recogniseResult))
 		}
 
 		// get rid of uncontributed inputs
@@ -952,12 +950,22 @@
 			return Math.floor(Math.random() * (max - min)) + min;
 		}
 
-		function indexOfSmallest(a) {
- 			var lowest = 0;
- 			for (var i = 1; i < a.length; i++) {
-  				if (a[i] < a[lowest]) lowest = i;
+		function indexOfMax(arr) {
+			if (arr.length === 0) {
+				return -1;
 			}
-			return lowest;
+
+			var max = arr[0];
+			var maxIndex = 0;
+
+			for (var i = 1; i < arr.length; i++) {
+				if (arr[i] > max) {
+					maxIndex = i;
+					max = arr[i];
+				}
+			}
+
+			return maxIndex;
 		}
 		// ------------------------------------------ game ------------------------------------------
 		var background
