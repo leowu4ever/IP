@@ -127,8 +127,7 @@
 		var readingArray = new Array()
 
 		function accelerometerHandler(data)
-		{
-			var values = sensortag.getAccelerometerValues(data)
+		{			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
 				
 				var x = parseFloat((values.x - x_offset).toFixed(8))
@@ -139,7 +138,7 @@
 							'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
 							'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' 
 				displayValue('AccelerometerData', string)	
-						
+					
 				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) > updateUpperBound) {
 					recording = true
 				} 
