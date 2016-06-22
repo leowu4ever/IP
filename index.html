@@ -124,6 +124,8 @@
 		var recordStartSecond = 0.0
 		var recordID = 0
 
+		var readingArray = new Array()
+
 		function accelerometerHandler(data)
 		{
 			var values = sensortag.getAccelerometerValues(data)
@@ -154,15 +156,24 @@
 					 record += "[" + x + "," + y + "," + z + "], "
 					 recordLength++
 					 
+					 readingArray.push ([x, y, z])
+					 
 				} else {
 					if (record != "") {
 						hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartSecond) + "\n" + recordLength + " recorded" + "\n" + record)
 						record = ""
 						recordLength = 0
 						recordID++
+						
+						if (readingArray.length > 10) {
+							recognise (readingArray)
+						} else {
+							hyper.log ("try again")
+						}
+						readingArray = []
+						//readingArray.splice(0, readingArray.length);
 					}
 				}
-
 				xPrev = x
 				yPrev = y
 				zPrev = z
@@ -543,10 +554,9 @@
 
 		var N = 4
 		var M = 7
-		var numOfKmeansIteration = 500
+		var kmeansIteration = 1000
+		var trainingInteration = 1000
 		var filterThreshold = 0.2
-
-		// var testReading = [[-0.23574609,-0.01146973,1.11436743], [-0.31368799,-0.14678467,1.42900989], [-0.26785059,-0.26287354,1.05781649], [-0.20535059,-0.27660645,0.55658084], [-0.13839502,-0.21380127,0.15624004], [-0.02511377,-0.0732373,-0.02910754], [-0.0529458,-0.01165283,0.07726802], [-0.07040186,0.05725586,0.35952447], [-0.05819482,0.12256348,0.80645129], [-0.15768213,0.03461182,1.3256238], [-0.26376123,0.05414307,1.57624163], [-0.27303857,-0.04448975,1.18412189], [-0.23055811,-0.08910645,0.82862325], [-0.19900293,-0.10119141,0.58448262], [-0.17251367,-0.08965576,0.45394212], [-0.17330713,-0.08422363,0.57651068], [-0.16982812,-0.08281982,0.65971779]]
 
 		function train () {
 			var trainingResult = baumwelch (kmeans (denoise (datasets[9]), M))
@@ -634,7 +644,7 @@
 				temp.splice(random, 1)
 			}
 
-			for ( iteration = 0; iteration < numOfKmeansIteration; iteration++) {
+			for ( iteration = 0; iteration < kmeansIteration; iteration++) {
 				
 				// init each cluster 
 				for ( i = 0; i < clustersGroup.length; i++ ) {
@@ -812,7 +822,7 @@
 			var logprobinit = logprobprev
 			
 			// interation may be a problem 16 is recommanded
-			for (q = 0; q < 500; q++) {
+			for (q = 0; q < trainingInteration; q++) {
 				// 2.1 compute pi
  
 			//	hyper.log (pi)
