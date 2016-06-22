@@ -420,27 +420,70 @@
 		var As = []
 		var Bs = []
 
-		var N = 4
-		var M = 7
+		var N = 7
+		var M = 10
 		var kmeansIteration = 1000
 		var trainingInteration = 1000
 		var filterThreshold = 0.2
 
 		function train () {
+			var trainingResult_0 = baumwelch (kmeans (datasets[0], M))
+			PIs[0] = trainingResult_0[2]
+			As[0] = trainingResult_0[3]
+			Bs[0] = trainingResult_0[4]
+			
+			var trainingResult_1 = baumwelch (kmeans (datasets[1], M))
+			PIs[1] = trainingResult_1[2]
+			As[1] = trainingResult_1[3]
+			Bs[1] = trainingResult_1[4]
+
+			var trainingResult_2 = baumwelch (kmeans (datasets[2], M))
+			PIs[2] = trainingResult_2[2]
+			As[2] = trainingResult_2[3]
+			Bs[2] = trainingResult_2[4]
+
+			var trainingResult_3 = baumwelch (kmeans (datasets[3], M))
+			PIs[3] = trainingResult_3[2]
+			As[3] = trainingResult_3[3]
+			Bs[3] = trainingResult_3[4]
+
+			var trainingResult_4 = baumwelch (kmeans (datasets[4], M))
+			PIs[4] = trainingResult_4[2]
+			As[4] = trainingResult_4[3]
+			Bs[4] = trainingResult_4[4]
+
+			var trainingResult_5 = baumwelch (kmeans (datasets[5], M))
+			PIs[5] = trainingResult_5[2]
+			As[5] = trainingResult_5[3]
+			Bs[5] = trainingResult_5[4]
+
+			var trainingResult_6 = baumwelch (kmeans (datasets[6], M))
+			PIs[6] = trainingResult_6[2]
+			As[6] = trainingResult_6[3]
+			Bs[6] = trainingResult_6[4]
+
+			var trainingResult_7 = baumwelch (kmeans (datasets[7], M))
+			PIs[7] = trainingResult_7[2]
+			As[7] = trainingResult_7[3]
+			Bs[7] = trainingResult_7[4]
+
+			var trainingResult_8 = baumwelch (kmeans (datasets[8], M))
+			PIs[8] = trainingResult_8[2]
+			As[8] = trainingResult_8[3]
+			Bs[8] = trainingResult_8[4]
+
+			var trainingResult_9 = baumwelch (kmeans (datasets[9], M))
+			PIs[9] = trainingResult_9[2]
+			As[9] = trainingResult_9[3]
+			Bs[9] = trainingResult_9[4]
+
 			for (i = 0; i < datasets.length; i++) {
-				hyper.log (datasets)
-				baumwelch ()
+				hyper.log (PIs[i])
+				hyper.log (As[i])
+				hyper.log (Bs[i])
 			}
 		} 
 
-		function printTrainingResult () {
-
-			for (i = 0; i < datasets.length; i++) {
-
-			}
-
-		}
-		
 		function recognise (testReading) {
 			var kmean = kmeans ( denoise (testReading), M)
 			var recogniseResult = new Array () 
@@ -515,7 +558,6 @@
 				
 				// init each cluster 
 				for ( i = 0; i < clustersGroup.length; i++ ) {
-					
 					clustersGroup[i] = []
 				}
 				
