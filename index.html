@@ -535,11 +535,9 @@
 		[-0.102262205,-0.061365970000000006,1.956777145],
 		[-0.22587874666666666,-0.11541259999999999,1.1793055133333332],
 		[-0.05044335999999999,-0.070075684,-0.17409717800000002]]	
-		
 
-		
 		var datasets = [dataset_0, dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6, dataset_7, dataset_8, dataset_9]
-		var centroidsArray = [centroids_0]
+		var centroidsArray = [centroids_0, centroids_1, centroids_2, centroids_3, centroids_4, centroids_5, centroids_6, centroids_7, centroids_8, centroids_9]
 		var PIs = []
 		var As = []
 		var Bs = []
@@ -551,23 +549,23 @@
 		var filterThreshold = 0.2
 
 		function train () {
-			printMatrix (kmeans (datasets[9], M)[1])
-
+			hyper.log (classify (datasets[0], centroidsArray[2]))
 		} 
 
-		function recognise (testReading) {
-			var kmean = kmeans ( denoise (testReading), M)
+		function recognise (reading) {
 			var recogniseResult = new Array () 
-			recogniseResult [0] = forward_with_scale (PIs[0], As[0], Bs[0], kmean)[0]
-			recogniseResult [1] = forward_with_scale (PIs[1], As[1], Bs[1], kmean)[0]
-			recogniseResult [2] = forward_with_scale (PIs[2], As[2], Bs[2], kmean)[0]
-			recogniseResult [3] = forward_with_scale (PIs[3], As[3], Bs[3], kmean)[0]
-			recogniseResult [4] = forward_with_scale (PIs[4], As[4], Bs[4], kmean)[0]
-			recogniseResult [5] = forward_with_scale (PIs[5], As[5], Bs[5], kmean)[0]
-			recogniseResult [6] = forward_with_scale (PIs[6], As[6], Bs[6], kmean)[0]
-			recogniseResult [7] = forward_with_scale (PIs[7], As[7], Bs[7], kmean)[0]
-			recogniseResult [8] = forward_with_scale (PIs[8], As[8], Bs[8], kmean)[0]
-			recogniseResult [9] = forward_with_scale (PIs[9], As[9], Bs[9], kmean)[0]
+			recogniseResult [0] = forward_with_scale (PIs[0], As[0], Bs[0], classify (reading, centroidsArray[0]))[0]
+			recogniseResult [1] = forward_with_scale (PIs[1], As[1], Bs[1], classify (reading, centroidsArray[1]))[0]
+			recogniseResult [2] = forward_with_scale (PIs[2], As[2], Bs[2], classify (reading, centroidsArray[2]))[0]
+			recogniseResult [3] = forward_with_scale (PIs[3], As[3], Bs[3], classify (reading, centroidsArray[3]))[0]
+			recogniseResult [4] = forward_with_scale (PIs[4], As[4], Bs[4], classify (reading, centroidsArray[4]))[0]
+			recogniseResult [5] = forward_with_scale (PIs[5], As[5], Bs[5], classify (reading, centroidsArray[5]))[0]
+			recogniseResult [6] = forward_with_scale (PIs[6], As[6], Bs[6], classify (reading, centroidsArray[6]))[0]
+			recogniseResult [7] = forward_with_scale (PIs[7], As[7], Bs[7], classify (reading, centroidsArray[7]))[0]
+			recogniseResult [8] = forward_with_scale (PIs[8], As[8], Bs[8], classify (reading, centroidsArray[8]))[0]
+			recogniseResult [9] = forward_with_scale (PIs[9], As[9], Bs[9], classify (reading, centroidsArray[9]))[0]
+			
+			hyper.log ("?????")
 			hyper.log (recogniseResult)
 			hyper.log (indexOfSmallest (recogniseResult))
 		}
