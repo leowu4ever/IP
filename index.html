@@ -19,6 +19,7 @@
 	</script>
    	
 	<script type="text/javascript" src="libs/jscharts.js"></script>
+   	<script src="libs/plotly-latest.min.js"></script>
     <script src="libs/crafty.js"></script>
 	<script src="cordova.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
@@ -41,7 +42,7 @@
 	<p>
 		<span id="AccelerometerData">[Waiting for value]</span>
 	</p>
-	
+	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
 	<div id="game"></div>
 
 	<script>
@@ -420,15 +421,15 @@
 		var PIs = []
 		var As = []
 		var Bs = []
+		var averageProbArray = []
 		
 		var N = 7
 		var M = 11
-		var kmeansIteration = 100
-		var trainingInteration = 100
+		var kmeansIteration = 500
+		var trainingInteration = 500
 		var filterThreshold = 0.2
 
 		function train () {
-			
 
 			var kmeans_0 = kmeans (datasets[0], M)
 			centroidsArray[0] = kmeans_0[1]
@@ -436,77 +437,89 @@
 			PIs[0] = trainingResult_0[2]
 			As[0] = trainingResult_0[3]
 			Bs[0] = trainingResult_0[4]
+			averageProbArray[0] = trainingResult_0[5]
 
 			var kmeans_1 = kmeans (datasets[1], M)
 			centroidsArray[1] = kmeans_1[1]
 			var trainingResult_1 = baumwelch (classify (datasets[1], centroidsArray[1]))
-			PIs[1] = trainingResult_0[2]
-			As[1] = trainingResult_0[3]
-			Bs[1] = trainingResult_0[4]
+			PIs[1] = trainingResult_1[2]
+			As[1] = trainingResult_1[3]
+			Bs[1] = trainingResult_1[4]
+			averageProbArray[1] = trainingResult_1[5]
 
 			var kmeans_2 = kmeans (datasets[2], M)
 			centroidsArray[2] = kmeans_2[1]
 			var trainingResult_2 = baumwelch (classify (datasets[2], centroidsArray[2]))
-			PIs[2] = trainingResult_0[2]
-			As[2] = trainingResult_0[3]
-			Bs[2] = trainingResult_0[4]
+			PIs[2] = trainingResult_2[2]
+			As[2] = trainingResult_2[3]
+			Bs[2] = trainingResult_2[4]
+			averageProbArray[2] = trainingResult_2[5]
 
 			var kmeans_3 = kmeans (datasets[3], M)
 			centroidsArray[3] = kmeans_3[1]
 			var trainingResult_3 = baumwelch (classify (datasets[3], centroidsArray[3]))
-			PIs[3] = trainingResult_0[2]
-			As[3] = trainingResult_0[3]
-			Bs[3] = trainingResult_0[4]
+			PIs[3] = trainingResult_3[2]
+			As[3] = trainingResult_3[3]
+			Bs[3] = trainingResult_3[4]
+			averageProbArray[3] = trainingResult_3[5]
 
 			var kmeans_4 = kmeans (datasets[4], M)
 			centroidsArray[4] = kmeans_4[1]
 			var trainingResult_4 = baumwelch (classify (datasets[4], centroidsArray[4]))
-			PIs[4] = trainingResult_0[2]
-			As[4] = trainingResult_0[3]
-			Bs[4] = trainingResult_0[4]	
+			PIs[4] = trainingResult_4[2]
+			As[4] = trainingResult_4[3]
+			Bs[4] = trainingResult_4[4]	
+			averageProbArray[4] = trainingResult_4[5]
 			
 			var kmeans_5 = kmeans (datasets[5], M)
 			centroidsArray[5] = kmeans_5[1]
 			var trainingResult_5 = baumwelch (classify (datasets[5], centroidsArray[5]))
-			PIs[5] = trainingResult_0[2]
-			As[5] = trainingResult_0[3]
-			Bs[5] = trainingResult_0[4]
+			PIs[5] = trainingResult_5[2]
+			As[5] = trainingResult_5[3]
+			Bs[5] = trainingResult_5[4]
+			averageProbArray[5] = trainingResult_5[5]
 			
 			var kmeans_6 = kmeans (datasets[6], M)
 			centroidsArray[6] = kmeans_6[1]
 			var trainingResult_6 = baumwelch (classify (datasets[6], centroidsArray[6]))
-			PIs[6] = trainingResult_0[2]
-			As[6] = trainingResult_0[3]
-			Bs[6] = trainingResult_0[4]
+			PIs[6] = trainingResult_6[2]
+			As[6] = trainingResult_6[3]
+			Bs[6] = trainingResult_6[4]
+			averageProbArray[6] = trainingResult_6[5]
 
 			var kmeans_7 = kmeans (datasets[7], M)
 			centroidsArray[7] = kmeans_7[1]
 			var trainingResult_7 = baumwelch (classify (datasets[7], centroidsArray[7]))
-			PIs[7] = trainingResult_0[2]
-			As[7] = trainingResult_0[3]
-			Bs[7] = trainingResult_0[4]
+			PIs[7] = trainingResult_7[2]
+			As[7] = trainingResult_7[3]
+			Bs[7] = trainingResult_7[4]
+			averageProbArray[7] = trainingResult_7[5]
 			
 			var kmeans_8 = kmeans (datasets[8], M)
 			centroidsArray[8] = kmeans_8[1]
 			var trainingResult_8 = baumwelch (classify (datasets[8], centroidsArray[8]))
-			PIs[8] = trainingResult_0[2]
-			As[8] = trainingResult_0[3]
-			Bs[8] = trainingResult_0[4]
+			PIs[8] = trainingResult_8[2]
+			As[8] = trainingResult_8[3]
+			Bs[8] = trainingResult_8[4]
+			averageProbArray[8] = trainingResult_8[5]
 
 			var kmeans_9 = kmeans (datasets[9], M)
 			centroidsArray[9] = kmeans_9[1]
 			var trainingResult_9 = baumwelch (classify (datasets[9], centroidsArray[9]))
-			PIs[9] = trainingResult_0[2]
-			As[9] = trainingResult_0[3]
-			Bs[9] = trainingResult_0[4]
+			PIs[9] = trainingResult_9[2]
+			As[9] = trainingResult_9[3]
+			Bs[9] = trainingResult_9[4]
+			averageProbArray[9] = trainingResult_9[5]
 
-			for (i = 0; i < datasets.length; i++) {
-				hyper.log(i)
-				hyper.log(centroidsArray)
-				hyper.log(PIs)
-				hyper.log(As)
-				hyper.log(Bs)
-			}
+			// for (i = 0; i < datasets.length; i++) {
+			// 	hyper.log(i)
+			// 	hyper.log(centroidsArray[i])
+			// 	hyper.log(PIs[i])
+			// 	hyper.log(As[i])
+			// 	hyper.log(Bs[i])
+			// }
+
+			printMatrix (As[0])
 		} 
 
 		function recognise (reading) {
@@ -521,9 +534,32 @@
 			recogniseResult [7] = forward_with_scale (PIs[7], As[7], Bs[7], classify (reading, centroidsArray[7]))[0]
 			recogniseResult [8] = forward_with_scale (PIs[8], As[8], Bs[8], classify (reading, centroidsArray[8]))[0]
 			recogniseResult [9] = forward_with_scale (PIs[9], As[9], Bs[9], classify (reading, centroidsArray[9]))[0]
-			
+			var probSum = 0
+			for (i = 0; i < datasets.length; i++) {
+				probSum += recogniseResult[i]
+			}
+
+			for (i = 0; i < datasets.length; i++) {
+				recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * recogniseResult[i]) 
+			}
+
 			hyper.log (recogniseResult)
 			hyper.log (indexOfMax (recogniseResult))
+
+			var data = [{
+				y : recogniseResult,
+				type: 'bar'
+			}]
+
+			Plotly.newPlot('myDiv', data)
+
+
+			var sum = 0
+			for (i = 0; i < datasets.length; i++) {
+				sum += recogniseResult[i]
+
+			}
+			hyper.log("sum here" + sum)
 		}
 
 		// get rid of uncontributed inputs
@@ -733,6 +769,7 @@
 			var pi = zerosScales(N)
 			var A = zerosMatrix(N, N)
 			var B = zerosMatrix(N, M) 
+			
 			//var initPi = 1/N
 
 			// 1.1 init pi, A, B 
@@ -778,10 +815,12 @@
 	
 			var logprobinit = logprobprev
 			
+			var probTemp = 0
+
 			// interation may be a problem 16 is recommanded
 			for (q = 0; q < trainingInteration; q++) {
 				// 2.1 compute pi
- 
+ 				probTemp += logprobprev
 			//	hyper.log (pi)
 				for (column = 0; column < N; column++) {
 			//		hyper.log (gamma[column][0])
@@ -800,7 +839,7 @@
 						for (time = 0; time < T-1; time++) {
 							numberatorA += xi[row][column][time]
 						}
-						A[row][column] = 0.001 + 0.999 * (numberatorA / denominatorA)
+						A[row][column] = 0.0001 + 0.9999 * (numberatorA / denominatorA)
 					}
 				}	// A
 
@@ -817,7 +856,7 @@
 								numeratorB += gamma[j][t]
 							}
 						}
-						B[j][k] = 0.001 + 0.999 * (numeratorB / denominatorB)
+						B[j][k] = 0.0001 + 0.9999 * (numeratorB / denominatorB)
 					}
 				} // B
 
@@ -835,8 +874,9 @@
 			} 
 
 			logprobfinal = logprobcur
-			
-			return [logprobinit, logprobfinal, pi, A, B]
+			probTemp /= trainingInteration
+
+			return [logprobinit, logprobfinal, pi, A, B, probTemp]
 		}
 
 		// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
