@@ -1,1035 +1,198 @@
 <!DOCTYPE html>
-
+<!--
+Demonstration of the TI SensorTag accelerometer.
+-->
 <html>
+
 <head>
 	<meta charset="utf-8" />
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="viewport" content="width=device-width, user-scalable=no,
 		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<title>TI SensorTag CC2650 &amp; CC2541 Sensors</title>
+	<title>TI SensorTag CC2650 &amp; CC2541 Accelerometer</title>
 
 	<style>
-		@import 'ui/css/evothings-app.css';
+	@import 'ui/css/evothings-app.css';
+
+	#sprite
+	{
+		position: absolute;
+		width: 300px;
+		height: auto;
+		top: 0px;
+		left: 0px;
+		z-index: 1000;
+		display: none;
+	}
 	</style>
 
 	<script>
-	// Redirect console.log to Evothings Workbench.	
-		if (window.hyper && window.hyper.log) { console.log = hyper.log}
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
 	</script>
-   	
-	<script type="text/javascript" src="libs/jscharts.js"></script>
-   	<script src="libs/plotly-latest.min.js"></script>
-    <script src="libs/crafty.js"></script>
+
+</head>
+
+<body>
+
+	<header>
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg" />
+		</button>
+
+		<img class="logotype" src="ui/images/logo.svg" alt="Evothings" />
+
+		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+	</header>
+
+	<h1>TI SensorTag CC2650 &amp; CC2541 Accelerometer</h1>
+
+	<img src="TISensorTagCC2650.png"
+		style="float:right;width:120px;height:auto;"/>
+
+	<p>
+		This example works with the <strong>TI SensorTag CC2650</strong>. It
+		also works with the TI SensorTag CC2541 if you modify file index.html.
+		Activate the SensorTag and press Connect to begin. Tilt the SensorTag to
+		move the Evothings Logo.
+	</p>
+
+	<p id="upgradeNotice" class="hidden">
+		<span class="color_softred">Please upgrade the firmware of your SensorTag.</span>
+	</p>
+
+	<button onclick="connect()" class="green">
+		Connect
+	</button>
+
+	<button onclick="disconnect()" class="charcoal">
+		Disconnect
+	</button>
+
+	<p><strong>Status:</strong> <span id="status">Ready</span></p>
+
+	<img id="sprite" src="sprite.svg" />
+
 	<script src="cordova.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="libs/evothings/ui/ui.js"></script>
 	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
-</head>
-
-<body>
-	<button onclick="connect()" class="green">Connect</button>
-	<button onclick="disconnect()" class="yellow">Disconnect</button>
-	<button onclick="train()" class="blue">Train</button>
-	<button onclick="recognise()" class="blue">Recognise</button>
-
-	<p>
-		<strong>Status:</strong> 
-		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
-	</p>
-
-	<h2>Accelerometer:</h2>
-	<p>
-		<span id="AccelerometerData">[Waiting for value]</span>
-	</p>
-	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
-	<div id="game"></div>
+	<script src="SpriteManager.js"></script>
 
 	<script>
-		var sensortag
+	// Globals.
+	var sprite
+	var sensortag
 
-		function initialiseSensorTag()
+	function initialise()
+	{
+		initialiseSprite()
+		initialiseSensorTag()
+	}
+
+	function initialiseSprite()
+	{
+		sprite = SpriteManager.makeSprite()
+		sprite.setDOMElement(document.getElementById('sprite'))
+	}
+
+	function displaySprite()
+	{
+		sprite.whenLoaded(function()
 		{
-			// Create SensorTa	g CC2650 instance.
-			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-			sensortag.statusCallback(statusHandler)
-					 .errorCallback(errorHandler)
-				     .accelerometerCallback(accelerometerHandler, 100)
-		}
+			sprite.show()
+			sprite.setCenterX(SpriteManager.getPlayfieldWidth() / 2)
+			sprite.setCenterY(SpriteManager.getPlayfieldHeight() / 2)
+		})
+	}
 
-		function connect()
+	function moveSprite(dx, dy)
+	{
+		var x = sprite.getCenterX() + dx
+		var y = sprite.getCenterY() - dy
+
+		x = Math.min(x, SpriteManager.getPlayfieldWidth())
+		x = Math.max(x, 0)
+
+		y = Math.min(y, SpriteManager.getPlayfieldHeight())
+		y = Math.max(y, 0)
+
+		sprite.setCenterX(x)
+		sprite.setCenterY(y)
+	}
+
+	function initialiseSensorTag()
+	{
+		// Create SensorTag CC2650 instance.
+		sensortag = evothings.tisensortag.createInstance(
+			evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+
+		// Uncomment to use SensorTag CC2541.
+		//sensortag = evothings.tisensortag.createInstance(
+		//	evothings.tisensortag.CC2541_BLUETOOTH_SMART)
+
+		// Set up callbacks and sensors.
+		sensortag
+			.statusCallback(statusHandler)
+			.errorCallback(errorHandler)
+			.accelerometerCallback(accelerometerHandler, 100)
+	}
+
+	function connect()
+	{
+		sensortag.connectToNearestDevice()
+	}
+
+	function disconnect()
+	{
+		sensortag.disconnectDevice()
+		displayStatus('Disconnected')
+		sprite.hide()
+	}
+
+	function statusHandler(status)
+	{
+		displayStatus(status)
+
+		if (evothings.tisensortag.ble.status.SENSORTAG_ONLINE == status)
 		{
-			//startGame()
-			sensortag.connectToNearestDevice()
+			displaySprite()
 		}
+	}
 
-		function disconnect()
+	function errorHandler(error)
+	{
+		if (evothings.easyble.error.DISCONNECTED == error)
 		{
-			sensortag.disconnectDevice()
-			resetSensorDisplayValues()
-			
+			displayStatus('Disconnected')
+			sprite.hide()
 		}
-		
-		function statusHandler(status)
+		else
 		{
-			displayValue('StatusData', status)
+			displayStatus('Error: ' + error)
 		}
-
-		function errorHandler(error)
-		{
-			console.log('Error: ' + error)
-
-			if (evothings.easyble.error.DISCONNECTED == error)
-			{
-				resetSensorDisplayValues()
-			}
-			else
-			{
-				displayValue('StatusData', 'Error: ' + error)
-			}
-		}
-
-		function resetSensorDisplayValues()
-		{
-			var blank = '[Waiting for value]'
-			displayValue('StatusData', 'Press Connect to find a SensorTag')
-			displayValue('AccelerometerData', blank)
-		}
-		
-		function displayValue(elementId, value)
-		{
-			document.getElementById(elementId).innerHTML = value
-		}
-		
-		document.addEventListener(
-			'deviceready',
-			function() { evothings.scriptsLoaded(initialiseSensorTag) },
-			false)	
-
-		// ------------------------------------------ Sensor Reading ------------------------------------------
-		var string = ""
-		var updateUpperBound = 0.4
-		var updateLowerBound = 0.025
-
-		var x_offset = -0.004
-		var y_offset = 0.005
-		var z_offset = -0.01	
-		
-		var xPrev = 0
-		var yPrev = 0
-		var zPrev = 0
-
-		var record = ""
-		var recordLength = 0
-		var recording = false
-		var recordStartSecond = 0.0
-		var recordID = 0
-
-		var readingArray = new Array()
-
-		function accelerometerHandler(data)
-		{			var values = sensortag.getAccelerometerValues(data)
-			if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
-				
-				var x = parseFloat((values.x - x_offset).toFixed(8))
-				var y = parseFloat((values.y - y_offset).toFixed(8))
-				var z = parseFloat(((values.z - z_offset)/-0.245).toFixed(8))
-				//var pitch = Math.atan(x/Math.sqrt(Math.pow(y,2) + Math.pow(z,2))) * (180.0/Math.PI)
-
-				var pitch = Math.atan2 (-x, Math.sqrt (y*y, z*z)) * (180/Math.PI)
-				var roll = Math.atan2 (y, z) * (180/Math.PI)
-
-			//	var roll = Math.atan(y/Math.sqrt(Math.pow(x,2) + Math.pow(z,2))) * (180.0/Math.PI)
-			
-				string = 'X ' + (x >= 0 ? '+' : '') + x + 'G</br>' +
-						 'Y ' + (y >= 0 ? '+' : '') + y + 'G</br>' +
-					 	 'Z ' + (z >= 0 ? '+' : '') + z + 'G</br>' + 
-						 'Pitch ' + pitch + ' ' +
-						 'Roll ' + roll
-
-				displayValue('AccelerometerData', string)	
-					
-				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) > updateUpperBound) {
-					recording = true
-				} 
-
-				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) < updateLowerBound) {
-					recording = false
-				} 
-
-				if (recording) {
-					if (record == "") {
-						 hyper.log ("No."+ recordID + " Recording")
-						 recordStartSecond = Date.now()/1000
-					 }
-					 record += "[" + x + "," + y + "," + z + "], "
-					 recordLength++
-					 
-					 readingArray.push ([x, y, z])
-					 
-				} else {
-					if (record != "") {
-						hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartSecond) + "\n" + recordLength + " recorded" + "\n" + record)
-						record = ""
-						recordLength = 0
-						recordID++
-						
-						if (readingArray.length > 10) {
-							recognise (readingArray)
-						} else {
-							hyper.log ("try again")
-						}
-						readingArray = []
-						//readingArray.splice(0, readingArray.length);
-					}
-				}
-				xPrev = x
-				yPrev = y
-				zPrev = z
-			}
-		}
-				
-		// ------------------------------------------ HMM ------------------------------------------
-		var dataset_0 = 
-		[[-0.05587549,-0.04094971,1.13155692], 
-		[-0.07107324,-0.10192383,1.64848732], 
-		[-0.08846826,-0.34850586,1.53837492], 
-		[-0.08181543,-0.34704102,0.82388991], 
-		[-0.06319971,-0.2451123,0.15125757], 
-		[-0.023771,-0.10088623,-0.13772521], 
-		[-0.02175684,0.00024902,-0.04853914], 
-		[-0.00869531,0.03796875,0.27880859], 
-		[-0.09567041,0.08429443,0.72399155], 
-		[-0.22140283,0.03345215,1.45217833], 
-		[-0.32357568,-0.00750244,1.81888752], 
-		[-0.29134912,-0.1310376,1.26334303], 
-		[-0.20046777,-0.20318115,0.71402663], 
-		[-0.13686914,-0.14123047,0.42753508], 
-		[-0.06985254,-0.09002197,0.53117028], 
-		[-0.04269189,-0.08428467,0.75886878], 
-		[-0.04610986,-0.0841626,0.92229353]]
-
-		var dataset_1 = 
-		[[0.09372168,0.06927979,-0.16114278], 
-		[0.00198584,-0.01763428,0.35827886], 
-		[-0.09029932,-0.01952637,0.79748286], 
-		[-0.13363428,-0.03228271,1.00599888], 
-		[-0.18807764,-0.02257813,1.05681999], 
-		[-0.24581689,-0.02910889,0.98581991], 
-		[-0.28353662,0.00342285,0.96962691], 
-		[-0.27370996,0.06604492,0.88866191], 
-		[-0.24209375,0.02740967,0.65697744], 
-		[-0.23025293,-0.00799072,0.46041932], 
-		[-0.24014062,0.010625,0.33834901], 
-		[-0.23830957,-0.02031982,0.25987524]]
-		
-		var dataset_2 = 
-		[[-0.17104883,-0.06395996,1.54161352], 
-		[-0.25521631,0.1257373,1.69283123], 
-		[-0.16531152,0.12195312,1.36448701], 
-		[-0.18960352,0.21521484,0.70455995], 
-		[-0.19955225,0.21631348,-0.0998585], 
-		[-0.07833643,0.11804687,-0.4506238], 
-		[-0.02749414,-0.03844727,-0.45735013], 
-		[-0.16641016,-0.22204102,0.3587771], 
-		[-0.11288232,-0.43621338,1.19209383], 
-		[-0.2291543,-0.24663818,1.76756816], 
-		[-0.29366846,-0.04149902,1.83981386], 
-		[-0.24819727,0.1825,1.33284837], 
-		[-0.19265527,0.21796143,0.69135643], 
-		[-0.17837305,0.17828857,0.5087492], 
-		[-0.31210107,0.02185547,0.65498445], 
-		[-0.25655908,-0.24914063,0.96589007], 
-		[-0.1031167,-0.16033447,0.73943718], 
-		[-0.1187417,0.01788818,0.77655652], 
-		[-0.13638086,0.04144775,0.85328643], 
-		[-0.13693018,0.05597412,0.82787588], 
-		[-0.14077539,0.04144775,0.78253548], 
-		[-0.13369531,0.04248535,0.83036711], 
-		[-0.14364404,0.02393066,0.79225128]]
-		
-		var dataset_3 = 
-		[[0.04562598,-0.26830566,1.55930126], 
-		[0.04733496,-0.12432373,2.01444914], 
-		[-0.06069727,-0.09118164,1.36922034], 
-		[-0.26608057,0.14227783,0.79000917], 
-		[-0.21273584,0.0607959,-0.57543447], 
-		[-0.00539941,-0.083125,-0.89481027], 
-		[0.06253271,-0.30608643,0.24368224], 
-		[0.08700781,-0.46850098,1.57300303], 
-		[-0.14419336,-0.11168945,2.74637277], 
-		[-0.31600732,0.41095459,1.70155054], 
-		[-0.18746729,0.22131836,0.47362285], 
-		[-0.13265771,-0.02276123,-0.14594627], 
-		[-0.1824624,-0.31225098,-0.3502272], 
-		[-0.17745752,-0.58153809,1.15298151], 
-		[-0.31539697,-0.13463867,1.9115613], 
-		[-0.27328271,0.02698242,1.25238162], 
-		[-0.1666543,0.01550781,0.64203005], 
-		[-0.12490625,-0.05376709,0.73395647], 
-		[-0.12270898,-0.14068115,0.77805126], 
-		[-0.11178369,-0.12584961,0.82712851], 
-		[-0.10580225,-0.11565674,0.79947585], 
-		[-0.10848779,-0.11382568,0.75762317]]
-
-		var dataset_4 = 
-		[[-0.19576807,-0.2883252,1.14276746], 
-		[-0.13967676,-0.40288818,1.22447983], 
-		[-0.03085107,-0.20501221,0.15075933], 
-		[0.06552344,-0.02691162,-0.35072545], 
-		[-0.03866357,0.02539551,-0.799147], 
-		[-0.12930078,0.0061084,-0.65540298], 
-		[-0.29385156,-0.08819092,-0.33303771], 
-		[-0.4614541,-0.55425537,2.50621811], 
-		[-0.22042627,-0.01891602,2.13925981], 
-		[-0.10934229,0.20636475,0.96813217], 
-		[-0.20309229,0.1142627,0.53490713], 
-		[-0.28512354,0.05511963,0.40635961], 
-		[-0.38912744,-0.08031738,0.82463728], 
-		[-0.21169824,-0.33635986,1.12233937], 
-		[-0.15139551,-0.27221191,1.625568], 
-		[-0.12161035,-0.19750488,1.52168367], 
-		[0.03946143,-0.02697266,0.35155254], 
-		[-0.02871484,0.03314697,-0.70622409], 
-		[-0.13100977,0.02716553,-0.9620735], 
-		[-0.17812891,0.00891602,-0.19751475], 
-		[-0.5137002,-0.16979492,1.21625877], 
-		[-0.54440088,0.11682617,1.66791893], 
-		[-0.33456201,0.09003174,1.24191845], 
-		[-0.27895898,-0.04644287,0.59793527], 
-		[-0.21798486,-0.09044922,0.24891382], 
-		[-0.22543115,-0.06664551,0.23994539], 
-		[-0.25082178,-0.03142822,0.23097696]]
-		
-		var dataset_5 = 
-		[[0.16592627,0.12848389,-0.06473214], 
-		[0.05075293,0.03204834,-0.40702726], 
-		[-0.06496973,-0.00854004,-0.1128129], 
-		[-0.16287012,-0.11718262,1.04760244], 
-		[-0.29446191,0.15009033,3.0607661], 
-		[-0.20730371,0.25500977,1.88465601], 
-		[-0.12301416,0.10327637,0.74118104], 
-		[-0.0762002,-0.04796875,0.11787508], 
-		[-0.07223291,-0.12456787,-0.00120576], 
-		[-0.14681787,-0.26049316,0.45842634], 
-		[-0.14053125,-0.31499756,1.3288624], 
-		[-0.29549951,-0.08581055,1.90907007], 
-		[-0.28805322,0.03497803,1.67638911], 
-		[-0.06356592,-0.01659668,1.06180246], 
-		[0.0777915,-0.04876221,0.59768614], 
-		[0.02298193,0.08789551,0.55682996], 
-		[-0.01724023,0.22253906,0.46938776], 
-		[0.03805762,0.14868652,0.47686145], 
-		[0.01004248,-0.10454834,1.01172871], 
-		[0.16617041,-0.12993896,0.86723732], 
-		[0.19229346,0.02545654,0.84930046], 
-		[0.16244727,0.04022705,0.763353], 
-		[0.14468604,0.0430957,0.80271445], 
-		[0.13974219,0.02899658,0.78054249], 
-		[0.13968115,0.04834473,0.84058115], 
-		[0.14175635,0.05035889,0.80495655]]
-		
-		var dataset_6 = 
-		[[-0.08944482,-0.15209473,1.56577846], 
-		[-0.00082178,-0.26970947,1.75785236], 
-		[0.03848486,-0.32885254,0.49106146], 
-		[-0.03371973,-0.11260498,-0.4904835], 
-		[0.01712256,0.06537354,-0.82655054], 
-		[-0.07278223,0.0542041,-0.26104114], 
-		[-0.27792139,-0.16344727,0.35728237], 
-		[-0.40688867,-0.1867627,1.69009088], 
-		[-0.32797021,-0.17663086,2.37966358], 
-		[-0.27578516,-0.25524414,1.52243104], 
-		[-0.24068994,-0.32750977,0.64452129], 
-		[-0.19296045,-0.30382813,0.14278739], 
-		[-0.11581201,-0.18255127,-0.14893575], 
-		[-0.04824609,-0.03466309,-0.13647959], 
-		[-0.05343408,0.06110107,0.05185746], 
-		[-0.13894434,0.10962402,0.78876355], 
-		[-0.15853662,-0.05376709,1.56154337], 
-		[-0.1668374,0.03333008,1.67439613], 
-		[-0.11990137,0.03168213,1.14899554], 
-		[-0.10940332,-0.03917969,0.77904775], 
-		[-0.0864541,-0.0508374,0.72747927], 
-		[-0.08797998,-0.04314697,0.85303731], 
-		[-0.09475488,-0.03643311,0.9716199]]
-		
-		var dataset_7 = 
-		[[0.23391943,0.08643066,1.19632892], 
-		[0.19369727,0.20551025,1.59567323], 
-		[0.01718359,0.21161377,0.97635324], 
-		[-0.077604,0.14532959,0.41084383], 
-		[0.02353125,-0.03045166,0.24716996], 
-		[0.13192969,-0.35137451,0.16545759], 
-		[0.12472754,-0.32830322,0.20456991], 
-		[0.06576758,-0.08629883,0.61537388], 
-		[-0.14523096,0.32874023,1.30569396], 
-		[-0.20791406,0.13342773,0.85104432], 
-		[-0.11727686,-0.01781738,0.50850008], 
-		[-0.08077783,0.01050293,0.25539102], 
-		[0.01333838,-0.02093018,0.03915218], 
-		[0.10653906,0.00372803,0.40611049], 
-		[0.29208594,0.0943042,1.69009088], 
-		[0.26535254,0.05829346,1.74988042], 
-		[0.20083838,-0.00268066,1.23643774], 
-		[0.19613867,0.05554688,0.77356704], 
-		[0.18844824,0.05218994,0.53216677]]
-		
-		var dataset_8 = 
-		[[0.12814551,-0.22967041,0.93425143], 
-		[0.15976172,-0.24608887,1.06429369], 
-		[0.20596533,-0.09087646,0.99030413], 
-		[0.19681006,0.07935059,0.69011081], 
-		[0.15768652,0.2673999,0.70331433], 
-		[0.13913184,0.25574219,0.85204082], 
-		[0.18277197,0.19537842,0.94521285], 
-		[0.27444678,0.1109668,1.23593949], 
-		[0.31607275,-0.01690186,1.18362364], 
-		[0.17898779,-0.10735596,0.84805485], 
-		[0.15024023,0.05988037,0.99628308], 
-		[0.08078223,0.23834717,1.10963409], 
-		[-0.01174707,0.2663623,0.80694954], 
-		[-0.06625146,0.23871338,0.45170002], 
-		[-0.0998208,0.15948975,0.22848573], 
-		[-0.09371729,0.06793701,0.22325415], 
-		[-0.08163232,-0.03533447,0.38169643], 
-		[-0.061979,-0.17290771,0.83933554], 
-		[-0.08370752,-0.17882813,1.1141183], 
-		[-0.08797998,-0.09795654,1.01994978],
-		[-0.10012598,-0.06414307,0.83659518], 
-		[-0.11788721,-0.06389893,0.77257055], 
-		[-0.117521,-0.07555664,0.80595305], 
-		[-0.12283105,-0.07018555,0.84207589]]
-		
-		var dataset_9 = 
-		[[-0.18417139,-0.08050049,0.84307239], 
-		[-0.15743799,-0.19933594,1.1734096], 
-		[-0.19277734,-0.38518799,0.87147242], 
-		[-0.16763086,-0.41112793,0.4666474], 
-		[-0.15957422,-0.30828369,-0.07096022], 
-		[-0.09689111,-0.09185303,-0.30862364], 
-		[-0.04464502,0.03015625,-0.16612524], 
-		[-0.06966943,0.08508789,0.60491071], 
-		[-0.06765527,0.3321582,1.28725885], 
-		[-0.08157129,0.12640869,1.95939294], 
-		[-0.12295312,-0.24914063,1.95416135], 
-		[-0.01998682,-0.18731201,1.00873924], 
-		[0.0118125,-0.05651367,0.2616191], 
-		[0.02261572,-0.00249756,-0.21943758], 
-		[0.02627783,0.02209961,-0.10533921], 
-		[-0.03762598,-0.03484619,0.47760882], 
-		[-0.26150293,-0.08684814,1.43772919], 
-		[-0.26962061,-0.08330811,1.26533602], 
-		[-0.25057764,-0.06359375,1.09917092], 
-		[-0.21401758,-0.05510986,0.70256696], 
-		[-0.20217676,-0.06084717,0.51223693], 
-		[-0.21523828,-0.07494629,0.45718072]]
-		
-		var datasets = [dataset_0, dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6, dataset_7, dataset_8, dataset_9]
-		var centroidsArray = []
-		var PIs = []
-		var As = []
-		var Bs = []
-		var averageProbArray = []
-		
-		var N = 4
-		var M = 10
-		var kmeansIteration = 100
-		var trainingInteration = 100
-		var filterThreshold = 0.2
-
-		function train () {
-
-			var kmeans_0 = kmeans (datasets[0], M)
-			centroidsArray[0] = kmeans_0[1]
-			var trainingResult_0 = baumwelch (classify (datasets[0], centroidsArray[0]))
-			PIs[0] = trainingResult_0[2]
-			As[0] = trainingResult_0[3]
-			Bs[0] = trainingResult_0[4]
-			averageProbArray[0] = trainingResult_0[5]
-
-			var kmeans_1 = kmeans (datasets[1], M)
-			centroidsArray[1] = kmeans_1[1]
-			var trainingResult_1 = baumwelch (classify (datasets[1], centroidsArray[1]))
-			PIs[1] = trainingResult_1[2]
-			As[1] = trainingResult_1[3]
-			Bs[1] = trainingResult_1[4]
-			averageProbArray[1] = trainingResult_1[5]
-
-			var kmeans_2 = kmeans (datasets[2], M)
-			centroidsArray[2] = kmeans_2[1]
-			var trainingResult_2 = baumwelch (classify (datasets[2], centroidsArray[2]))
-			PIs[2] = trainingResult_2[2]
-			As[2] = trainingResult_2[3]
-			Bs[2] = trainingResult_2[4]
-			averageProbArray[2] = trainingResult_2[5]
-
-			var kmeans_3 = kmeans (datasets[3], M)
-			centroidsArray[3] = kmeans_3[1]
-			var trainingResult_3 = baumwelch (classify (datasets[3], centroidsArray[3]))
-			PIs[3] = trainingResult_3[2]
-			As[3] = trainingResult_3[3]
-			Bs[3] = trainingResult_3[4]
-			averageProbArray[3] = trainingResult_3[5]
-
-			var kmeans_4 = kmeans (datasets[4], M)
-			centroidsArray[4] = kmeans_4[1]
-			var trainingResult_4 = baumwelch (classify (datasets[4], centroidsArray[4]))
-			PIs[4] = trainingResult_4[2]
-			As[4] = trainingResult_4[3]
-			Bs[4] = trainingResult_4[4]	
-			averageProbArray[4] = trainingResult_4[5]
-			
-			var kmeans_5 = kmeans (datasets[5], M)
-			centroidsArray[5] = kmeans_5[1]
-			var trainingResult_5 = baumwelch (classify (datasets[5], centroidsArray[5]))
-			PIs[5] = trainingResult_5[2]
-			As[5] = trainingResult_5[3]
-			Bs[5] = trainingResult_5[4]
-			averageProbArray[5] = trainingResult_5[5]
-			
-			var kmeans_6 = kmeans (datasets[6], M)
-			centroidsArray[6] = kmeans_6[1]
-			var trainingResult_6 = baumwelch (classify (datasets[6], centroidsArray[6]))
-			PIs[6] = trainingResult_6[2]
-			As[6] = trainingResult_6[3]
-			Bs[6] = trainingResult_6[4]
-			averageProbArray[6] = trainingResult_6[5]
-
-			var kmeans_7 = kmeans (datasets[7], M)
-			centroidsArray[7] = kmeans_7[1]
-			var trainingResult_7 = baumwelch (classify (datasets[7], centroidsArray[7]))
-			PIs[7] = trainingResult_7[2]
-			As[7] = trainingResult_7[3]
-			Bs[7] = trainingResult_7[4]
-			averageProbArray[7] = trainingResult_7[5]
-			
-			var kmeans_8 = kmeans (datasets[8], M)
-			centroidsArray[8] = kmeans_8[1]
-			var trainingResult_8 = baumwelch (classify (datasets[8], centroidsArray[8]))
-			PIs[8] = trainingResult_8[2]
-			As[8] = trainingResult_8[3]
-			Bs[8] = trainingResult_8[4]
-			averageProbArray[8] = trainingResult_8[5]
-
-			var kmeans_9 = kmeans (datasets[9], M)
-			centroidsArray[9] = kmeans_9[1]
-			var trainingResult_9 = baumwelch (classify (datasets[9], centroidsArray[9]))
-			PIs[9] = trainingResult_9[2]
-			As[9] = trainingResult_9[3]
-			Bs[9] = trainingResult_9[4]
-			averageProbArray[9] = trainingResult_9[5]
-
-			// for (i = 0; i < datasets.length; i++) {
-			// 	hyper.log(i)
-			// 	hyper.log(centroidsArray[i])
-			// 	hyper.log(PIs[i])
-			// 	hyper.log(As[i])
-			// 	hyper.log(Bs[i])
-			// }
-
-			printMatrix (As[0])
-		} 
-
-		function recognise (reading) {
-			var recogniseResult = new Array () 
-			recogniseResult [0] = forward_with_scale (PIs[0], As[0], Bs[0], classify (reading, centroidsArray[0]))[0]
-			recogniseResult [1] = forward_with_scale (PIs[1], As[1], Bs[1], classify (reading, centroidsArray[1]))[0]
-			recogniseResult [2] = forward_with_scale (PIs[2], As[2], Bs[2], classify (reading, centroidsArray[2]))[0]
-			recogniseResult [3] = forward_with_scale (PIs[3], As[3], Bs[3], classify (reading, centroidsArray[3]))[0]
-			recogniseResult [4] = forward_with_scale (PIs[4], As[4], Bs[4], classify (reading, centroidsArray[4]))[0]
-			recogniseResult [5] = forward_with_scale (PIs[5], As[5], Bs[5], classify (reading, centroidsArray[5]))[0]
-			recogniseResult [6] = forward_with_scale (PIs[6], As[6], Bs[6], classify (reading, centroidsArray[6]))[0]
-			recogniseResult [7] = forward_with_scale (PIs[7], As[7], Bs[7], classify (reading, centroidsArray[7]))[0]
-			recogniseResult [8] = forward_with_scale (PIs[8], As[8], Bs[8], classify (reading, centroidsArray[8]))[0]
-			recogniseResult [9] = forward_with_scale (PIs[9], As[9], Bs[9], classify (reading, centroidsArray[9]))[0]
-			var probSum = 0
-			for (i = 0; i < datasets.length; i++) {
-				probSum += recogniseResult[i]
-			}
-
-			for (i = 0; i < datasets.length; i++) {
-				recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * averageProbArray[i]) 
-			}
-
-			hyper.log (recogniseResult)
-			hyper.log (indexOfMax (recogniseResult))
-
-			var data = [{
-				y : recogniseResult,
-				type: 'bar'
-			}]
-
-			Plotly.newPlot('myDiv', data)
-
-
-			var sum = 0
-			for (i = 0; i < datasets.length; i++) {
-				sum += recogniseResult[i]
-
-			}
-			hyper.log("sum here" + sum)
-		}
-
-		// get rid of uncontributed inputs
-		function denoise (reading) {
-			for (i = 0; i<reading.length; i++) {
-				if (i != 0) {
-					if (Math.sqrt (Math.pow (reading[i][0] - reading[i-1][0], 2) +
-								   Math.pow (reading[i][1] - reading[i-1][1], 2) +
-								   Math.pow (reading[i][2] - reading[i-1][2], 2)) < filterThreshold ) {
-									   
-									   reading.splice (i,1)
-								   }
-				} else {
-					if (Math.sqrt (Math.pow (reading[i][0] - 0, 2) +
-								   Math.pow (reading[i][1] - 0, 2) +
-								   Math.pow (reading[i][2] - 0, 2)) < filterThreshold ) {
-									   
-									   reading.splice (i,1)
-								   }
-				}	
-			}
-			// double checks
-			return reading
-		}	
-
-		function classify (reading, centroids) {
-
-			var observation = new Array ()
-
-			for ( i = 0; i < reading.length; i++ ) {	// for elemnent
-					
-				var minimumDistanceIndex = -1
-				var minimumDistance = -1
-
-				for ( j = 0; j < centroids.length; j++ ) {	// each centroid
-					var dis = Math.sqrt ( Math.pow ( (reading [i][0] - centroids [j][0]), 2 ) +
-											Math.pow ( (reading [i][1] - centroids [j][1]), 2 ) +
-											Math.pow ( (reading [i][2] - centroids [j][2]), 2 ) )
-				
-					if (minimumDistanceIndex == -1) {
-						minimumDistanceIndex = j
-						minimumDistance = dis
-					} else {
-						if (dis <= minimumDistance) {
-							minimumDistanceIndex = j
-							minimumDistance = dis
-						}							
-					}
-				}	
-				observation[i] = minimumDistanceIndex
-			}		
-			return observation
-		}
-		
-		// convert the raw data to symbolised observations
-		// for baum welch, forward and backward
-		
-		function kmeans( reading, numOfClusters ) {
-			
-			var observation = new Array ()
-			var clustersGroup = new Array()
-			var centroids = new Array()
-			
-			// init 14 empty clusters group
-			for ( i = 0; i < numOfClusters; i++) {
-				clustersGroup[i] = new Array()
-			}
-			
-			var temp = reading.slice()
-			// first choose centroids randomly
-			for ( i = 0; i < numOfClusters; i++) {
-				var random = getRandomInt (0, temp.length)
-				centroids[i] = temp [random]
-				temp.splice(random, 1)
-			}
-
-			for ( iteration = 0; iteration < kmeansIteration; iteration++) {
-				
-				// init each cluster 
-				for ( i = 0; i < clustersGroup.length; i++ ) {
-					clustersGroup[i] = []
-				}
-				
-
-				// actual comparison
-				// each element compare with each centroid
-				for ( i = 0; i < reading.length; i++ ) {	// for elemnent
-					
-					var minimumDistanceIndex = -1
-					var minimumDistance = -1
-					
-					for ( j = 0; j < centroids.length; j++ ) {	// each centroid
-
-						var dis = Math.sqrt ( Math.pow ( (reading [i][0] - centroids [j][0]), 2 ) +
-											  Math.pow ( (reading [i][1] - centroids [j][1]), 2 ) +
-											  Math.pow ( (reading [i][2] - centroids [j][2]), 2 ) )
-					
-						if (minimumDistanceIndex == -1) {
-							minimumDistanceIndex = j
-							minimumDistance = dis
-						} else {
-							if ( dis <= minimumDistance) {
-								minimumDistanceIndex = j
-								minimumDistance = dis
-							}							
-						}
-					}
-					// put the element in the clusters group
-					observation[i] = minimumDistanceIndex
-					
-					clustersGroup [minimumDistanceIndex].push(reading[i])
-				}	
-				
-				// recalculate centroids
-				for (i = 0; i < numOfClusters; i++) {
-					var total = [0, 0, 0]
-					for ( j = 0; j < clustersGroup[i].length; j++ ){
-						total[0] += clustersGroup[i][j][0]
-						total[1] += clustersGroup[i][j][1]
-						total[2] += clustersGroup[i][j][2]
-					}
-				
-					total[0] = total[0] / clustersGroup[i].length
-					total[1] = total[1] / clustersGroup[i].length
-					total[2] = total[2] / clustersGroup[i].length
-					
-					centroids[i] = [ total[0], total[1], total[2] ]
-				}
-			}
-			return [observation, centroids]
-		}
-		
-		// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
-		function forward_with_scale (pi, A, B, observation) {
-		
-			var T = observation.length
-			
-			var alphas = zerosMatrix (N,T)
-			var scales = zerosScales (T)
-		
-	
-			// t = 0
-			for (n = 0; n < N; n++) {
-				alphas[n][0] = pi[n] * B[n][observation[0]]
-			} 
-			scales[0] = sumOfColumn (alphas, 0)
-
-			for (n = 0; n < N; n++) {
-				
-				alphas[n][0] /= scales[0]
-
-			}
-			// t = 1 ~ T - 1
-			for (t = 1; t < T; t++) {
-				for (n = 0; n < N; n++) {
-					var sumOfAlpha = 0
-					for (a = 0; a < N; a++) {
-						sumOfAlpha += alphas[a][t-1] * A[a][n]
-					} // for sum
-					alphas[n][t] = sumOfAlpha * B[n][observation[t]]
-
-				}
-				scales[t] = sumOfColumn (alphas, t)
-				
-				for (i = 0; i < N; i++) {
-					alphas[i][t] /= scales[t]
-				}
-			}
-
-			// calculate log prob
-			var logprob = 0
-			for (t = 0; t < T; t++) {
-				logprob += Math.log(scales[t])
-			}
-			return [logprob, alphas, scales]
-		}
-	
-		function backward_with_scale (A, B, observation, scales) {
-			var T = observation.length
-			
-			var betas = zerosMatrix (N, T)
-			
-			// from the last one t = T-1
-			for (n = 0; n < N; n++) {
-				betas[n][T-1] = 1 / scales[T-1]
-			} 
-			
-			// now loop backwards from T-1 to 1
-			for (t = T-2; t >= 0; t--) {
-				for (n = 0; n < N; n++) {
-					var sumOfBeta = 0
-					for (i = 0; i < N; i++) {
-						sumOfBeta +=  A[n][i] * B[i][observation[t+1]] * betas[i][t+1]
-					}
-					betas[n][t] = sumOfBeta / scales[t]
-				}
-			}
-			return betas
-		}
-
-		// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
-		// Expectation - Maximization approach
-		function baumwelch (observation) {
-			
-			var T = observation.length
-		
-			var pi = zerosScales(N)
-			var A = zerosMatrix(N, N)
-			var B = zerosMatrix(N, M) 
-			
-			//var initPi = 1/N
-
-			// 1.1 init pi, A, B 
-			// or init it as first pi = 1 and rest = 0
-			for (column = 0; column < N; column++) {
-				if (column == 0) {
-					pi[column] = 1
-				} else {
-					pi[column] = 0
-				}
-			}
-			// Init A
-			for (i = 0; i < N; i++) {
-				for (j = 0; j < N; j++) {
-					if (i == j) {
-						A[i][j] = 1/2
-					}
-					if (i == j - 1) {
-						A[i][j] = 1/2
-					}
-
-					if (i == N-1 && j == N-1) {
-						A[i][j] = 1
-					}
-				}
-			}
-	
-			// Init B
-			for (i = 0; i < N; i++) {
-				for (j = 0; j < M; j++) {
-					B[i][j] = 1/M
-				}
-			}
-	
-			var f = forward_with_scale (pi, A, B, observation)
-			var logprobprev = f[0]
-			var alphas = f[1]
-			var scales = f[2]
-
-			var betas = backward_with_scale (A, B, observation, scales)
-			var gamma = computeGamma (alphas, betas, T)
-			var xi = computeXi(A, B, observation, alphas,betas)
-	
-			var logprobinit = logprobprev
-			
-			var probTemp = 0
-
-			// interation may be a problem 16 is recommanded
-			for (q = 0; q < trainingInteration; q++) {
-				// 2.1 compute pi
- 				probTemp += logprobprev
-			//	hyper.log (pi)
-				for (column = 0; column < N; column++) {
-			//		hyper.log (gamma[column][0])
-					pi[column] = gamma[column][0];
-				}
-
-				// 2.2 compute transition matrix and emission matrix
-				for (row = 0; row < N; row++) {
-					var denominatorA = 0;
-					for (time = 0; time < T-1; time++) {
-						denominatorA += gamma[row][time];
-					}
-
-					for (column = 0; column < N; column++) {
-						var numberatorA = 0;
-						for (time = 0; time < T-1; time++) {
-							numberatorA += xi[row][column][time]
-						}
-						A[row][column] = 0.0001 + 0.9999 * (numberatorA / denominatorA)
-					}
-				}	// A
-
-				for (j = 0; j < N; j++) {
-					var denominatorB = 0
-					for (time = 0; time < T; time++) {
-						denominatorB += gamma[j][time]
-					}
-
-					for (k = 0; k < M; k++) {
-						numeratorB = 0.0
-						for (t = 0; t < T; t++) {
-							if (observation[t] == k) {
-								numeratorB += gamma[j][t]
-							}
-						}
-						B[j][k] = 0.0001 + 0.9999 * (numeratorB / denominatorB)
-					}
-				} // B
-
-				f = forward_with_scale (pi, A, B, observation)
-				logprobcur = f[0]
-				alphas = f[1]
-				scales = f[2]
-				
-				betas = backward_with_scale (A, B, observation, scales)
-				gamma = computeGamma (alphas, betas, T)
-				xi = computeXi(A, B, observation, alphas,betas)
-
-				delta = logprobcur - logprobprev
-				logprobprev = logprobcur
-			} 
-
-			logprobfinal = logprobcur
-			probTemp /= trainingInteration
-
-			return [logprobinit, logprobfinal, pi, A, B, probTemp]
-		}
-
-		// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
-		// compute γ
-		function computeGamma (alphas, betas, T) {
-			
-				var gamma = zerosMatrix(N, T)
-
-				for (t = 0; t < T; t++) {
-					denominator = 0
-					for (n = 0; n < N; n++) {
-						gamma[n][t] = alphas[n][t] * betas[n][t];
-						denominator +=  gamma[n][t];
-					}
-
-					for (n = 0; n < N; n++) {
-						gamma[n][t] = gamma[n][t] / denominator;
-					}
-				}
-			return gamma
-		}
-
-		// compute ξ
-		function computeXi (A, B, observation, alphas, betas) {
-			
-			var xi = [];
-			var T = observation.length;
-			
-			// init xi[i][j][t]
-			var columnI, columnJ, time, sum;
-			for (columnI = 0; columnI < N; columnI++) {
-				xi[columnI] = [];
-				for(columnJ = 0; columnJ < N; columnJ++) {
-					xi[columnI][columnJ] = [];
-					for (time = 0; time < T; time++) {
-						xi[columnI][columnJ][time] = [];
-					}
-				}
-			}
-			
-			for (time = 0; time < T - 1; time++) {
-				sum = 0;
-				for (columnI = 0; columnI < N; columnI++) {
-					for (columnJ = 0; columnJ < N; columnJ++) {
-					
-						xi[columnI][columnJ][time] = alphas[columnI][time] 
-												   * A[columnI][columnJ] 
-												   * betas[columnJ][time+1]
-												   * B[columnJ][observation[time+1]];
-												
-						sum += xi[columnI][columnJ][time];
-					}
-				}
-
-				for (columnI = 0; columnI < N; columnI++) {
-					for (columnJ = 0; columnJ < N; columnJ++) {
-						xi[columnI][columnJ][time] = xi[columnI][columnJ][time] / sum;
-					}
-				}
-			}
-			return xi
-		}
-
-		function printMatrix (matrix) {
-			var temp = ""
-			
-			for( i = 0; i < matrix.length; i++) {
-				for( j = 0; j < matrix[i].length; j++) {
-					if (j!=matrix[i].length-1) {
-						temp = temp + matrix[i][j] + "," 
-					} else {
-						temp = temp + matrix[i][j]
-					}
-				} 
-				hyper.log(temp) 
-				temp = ""
-			}
-		}
-		
-		function zerosMatrix (row, column) {
-			var matrix = new Array (row)
-			for (i = 0; i < row; i++) {
-				matrix[i] = new Array (column)
-			}
-
-			for (i = 0; i < row; i++) {
-				for (j = 0; j < column; j++) {
-					matrix [i][j] = 0
-				}
-			}
-			return matrix
-		}
-
-		function zerosScales (length) {
-			var scales = new Array (length)
-			for (i = 0; i < length; i++) {
-				scales[i] = 0
-			}
-			return scales
-		}
-
-		function sumOfColumn (matrix, column) {
-			var sum = 0
-			for (i = 0; i < matrix.length; i++) {
-				sum += matrix[i][column]
-			}
-			return sum
-		}
-
-		function getRandomInt(min, max) {
-			return Math.floor(Math.random() * (max - min)) + min;
-		}
-
-		function indexOfMax(arr) {
-			if (arr.length === 0) {
-				return -1;
-			}
-
-			var max = arr[0];
-			var maxIndex = 0;
-
-			for (var i = 1; i < arr.length; i++) {
-				if (arr[i] > max) {
-					maxIndex = i;
-					max = arr[i];
-				}
-			}
-
-			return maxIndex;
-		}
-		// ------------------------------------------ game ------------------------------------------
-		var background
-		var fish
-		var score
-		var speed = 10
-		
-		function startGame () {
-			Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'))
-			
-			background = Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center')
-			fish = Crafty.e("2D, DOM, Image").image("Graphics/fish.png").origin("center")
-			score = Crafty.e("2D, DOM, Text").attr({x:100, y: 10}).text("score text")
-			//Crafty.e("2D, DOM, Image").image("Graphics/number_one.png").origin("center")
-		}	
+	}
+
+	function accelerometerHandler(data)
+	{
+		var values = sensortag.getAccelerometerValues(data)
+		var dx = values.x * 50
+		var dy = values.y * 50 * -1
+		moveSprite(dx, dy)
+	}
+
+	function displayStatus(status)
+	{
+		document.getElementById('status').innerHTML = status
+	}
+
+	document.addEventListener(
+		'deviceready',
+		function() { evothings.scriptsLoaded(initialise) },
+		false)
 	</script>
+
 </body>
+
 </html>
