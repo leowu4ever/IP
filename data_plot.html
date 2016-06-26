@@ -14,7 +14,7 @@
     // Redirect console.log to Evothings Workbench.	
     if (window.hyper && window.hyper.log) { console.log = hyper.log}
     </script>
-
+   	<script src="libs/plotly-latest.min.js"></script>
     <script src="cordova.js"></script>
     <script src="crafty.js"></script>
     <script src="libs/evothings/evothings.js"></script>
@@ -28,15 +28,20 @@
 	       Back
 	   </button>
      
-      <button onclick="startGame()" class="green">
-	       Start Game
+      <button onclick="plot()" class="green">
+	       plot
 	   </button>
      
      <div id="game"></div>
-   
+   	 <div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
+
      <script>
-  
-       function startGame () {
+      
+      function plot () {
+          
+      }
+      
+      function startGame () {
          Crafty.init(Crafty.viewport.width, Crafty.viewport.height, document.getElementById('game'));
          
          Crafty.background('#FFFFFF url(Graphics/ocean.png) repeat center center');

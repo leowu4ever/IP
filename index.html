@@ -423,10 +423,10 @@
 		var Bs = []
 		var averageProbArray = []
 		
-		var N = 7
-		var M = 11
-		var kmeansIteration = 500
-		var trainingInteration = 500
+		var N = 4
+		var M = 10
+		var kmeansIteration = 100
+		var trainingInteration = 100
 		var filterThreshold = 0.2
 
 		function train () {
@@ -540,7 +540,7 @@
 			}
 
 			for (i = 0; i < datasets.length; i++) {
-				recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * recogniseResult[i]) 
+				recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * averageProbArray[i]) 
 			}
 
 			hyper.log (recogniseResult)
