@@ -49,18 +49,6 @@
 		disconnect
 	</button>
 
-	<button onclick="startRecord()" class="yellow">
-		start record
-	</button>
-
-	<button onclick="finishRecord()" class="red">
-		finish record
-	</button>
-
-	<button onclick="denoise()" class="black">
-		denoise
-	</button>
-
 	<p>
 		<strong>Status:</strong> <span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	</p>
@@ -161,6 +149,9 @@
 		displayValue('AccelerometerData', blank)
 		// Reset screen color.
 	}
+	var updateUpperBound = 0.4
+	var updateLowerBound = 0.025
+
 	var x_offset = -0.004
 	var y_offset = 0.005
 	var z_offset = -0.01
@@ -173,25 +164,17 @@
 	var y_record = []
 	var z_record = []
 
+	var recordStartTime = 0.0
 	var recording = false
-
-	function startRecord () {
-		hyper.log ("start record")
-		recording = true
-	}
-
-	function finishRecord () {
-		hyper.log ("stop record")
-		recording = false
-	}
+	var record = []
 
 	function accelerometerHandler (data)
 	{	
 		var values = sensortag.getAccelerometerValues(data)
 		if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
-			var x = parseFloat ((values.x - x_offset).toFixed(1))
-			var y = parseFloat ((values.y - y_offset).toFixed(1))
-			var z = parseFloat (((values.z - z_offset)/-0.245).toFixed(1))
+			var x = parseFloat ((values.x - x_offset).toFixed(4))
+			var y = parseFloat ((values.y - y_offset).toFixed(4))
+			var z = parseFloat (((values.z - z_offset)/-0.245).toFixed(4))
 		
 			// Prepare the information to display.
 			string =	'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' +
@@ -200,34 +183,37 @@
 
 			// Update the value displayed.
 			displayValue('AccelerometerData', string)
-
-			if (recording) {
-				if (x != x_prev) {
-					x_record.push (x)
-					x_prev = x
-				} 
-				if (y != y_prev) {
-					y_record.push (y)
-					y_prev = y
-				} 
-				if (z != z_prev) {
-					z_record.push (z)
-					z_prev = z
-				} 								
+			var difference = Math.sqrt (Math.pow ((x - x_prev), 2) + Math.pow ((y - y_prev), 2) + Math.pow ((z - z_prev), 2))
+            if ( difference > updateUpperBound) { recording = true }
+            if ( difference < updateLowerBound) { recording = false }
+            if (recording) {
+                if (record.length == 0) {
+                    hyper.log ("Recording start")
+                    recordStartTime = Date.now()/1000
+                }
+                record.push ([x, y, z])
 			} else {
-				if (x_record.length != 0) {
-					var log = "\n" + x_record + "\n" + y_record + "\n" + z_record + "\n"
-					hyper.log (log)
-					refreshRecords ()
+				if (record.length != 0) {
+					hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + "\n" + record.length + " recorded" + "\n" + record)
+					record = []	
+					refreshPrevs ()
+					// for recognision
+					// if (record.length > 5) { recognise (record) } 
+					// else { hyper.log ("try again") }
 				}
-			}
+            }
+			updatePrevs (x, y, z)
 		}
 	}
 
-	function refreshRecords () {
-		x_record = []
-		y_record = []
-		z_record = []
+	function updatePrevs (x, y, z) {
+		x_prev = x
+        y_prev = y
+    	z_prev = z
+	}
+
+	function refreshPrevs () {
+		updatePrevs (0, 0, 0)
 	}
 
 	function displayValue (elementId, value)
