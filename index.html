@@ -49,8 +49,16 @@
 		disconnect
 	</button>
 
-	<button onclick="initTrainer()" class="red">
-	init trainer
+	<button onclick="startRecord()" class="yellow">
+		start record
+	</button>
+
+	<button onclick="finishRecord()" class="red">
+		finish record
+	</button>
+
+	<button onclick="denoise()" class="black">
+		denoise
 	</button>
 
 	<p>
@@ -69,7 +77,6 @@
 	</p>
 
 	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
-
 
 	<script>
 	// SensorTag object.
@@ -154,89 +161,76 @@
 		displayValue('AccelerometerData', blank)
 		// Reset screen color.
 	}
-	
-	var updateUpperBound = 0.4
-	var updateLowerBound = 0.025
-
 	var x_offset = -0.004
 	var y_offset = 0.005
 	var z_offset = -0.01
 
-	var xPrev = 0
-	var yPrev = 0
-	var zPrev = 0	
+	var x_prev = 0
+	var y_prev = 0
+	var z_prev = 0	
 
-	var record = []
-	var gestureBaseSize = 3
-	var gestureBase = []
+	var x_record = []
+	var y_record = []
+	var z_record = []
 
-	var recordForTrain = false
-	var recordForRecognise = false
+	var recording = false
 
-	function initTrainer () {
-		recordForTrain = true
-		hyper.log ("start training")
+	function startRecord () {
+		hyper.log ("start record")
+		recording = true
 	}
 
-	function accelerometerHandler(data)
+	function finishRecord () {
+		hyper.log ("stop record")
+		recording = false
+	}
+
+	function accelerometerHandler (data)
 	{	
-		if (recordForTrain || recordForRecognise) {		
+		var values = sensortag.getAccelerometerValues(data)
+		if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
+			var x = parseFloat ((values.x - x_offset).toFixed(1))
+			var y = parseFloat ((values.y - y_offset).toFixed(1))
+			var z = parseFloat (((values.z - z_offset)/-0.245).toFixed(1))
 		
-			var values = sensortag.getAccelerometerValues(data)
-			if (!isNaN(values.x) && !isNaN(values.y) && !isNaN(values.z)) {
-				var x = parseFloat((values.x - x_offset).toFixed(8))
-				var y = parseFloat((values.y - y_offset).toFixed(8))
-				var z = parseFloat(((values.z - z_offset)/-0.245).toFixed(8))
-			
-				// Prepare the information to display.
-				string =	'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' +
-							'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' +
-							'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
+			// Prepare the information to display.
+			string =	'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' +
+						'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' +
+						'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
 
-				// Update the value displayed.
-				displayValue('AccelerometerData', string)
-			
-				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) > updateUpperBound) {
-					recording = true
+			// Update the value displayed.
+			displayValue('AccelerometerData', string)
+
+			if (recording) {
+				if (x != x_prev) {
+					x_record.push (x)
+					x_prev = x
 				} 
-
-				if (Math.sqrt (Math.pow ((x - xPrev), 2) + Math.pow ((y - yPrev), 2) + Math.pow ((z - zPrev), 2)) < updateLowerBound) {
-					recording = false
+				if (y != y_prev) {
+					y_record.push (y)
+					y_prev = y
 				} 
-
-				if (recording) {
-					record.push([x, y, x])
-				} else {
-					if (record.length > 15) {
-					
-						hyper.log (record)
-						//  for training record 
-						if (gestureBase.length < gestureBaseSize && recordForTrain) {
-							gestureBase[gestureBase.length] = record
-							hyper.log ("Record successfully No." + gestureBase.length + "gestures")
-
-							if (gestureBase.length == gestureBaseSize) {
-								recordForTrain = false
-								hyper.log ("Completely finish record for train")
-							}
-						}
-
-						// fresh temp record
-						record = []
-					}
+				if (z != z_prev) {
+					z_record.push (z)
+					z_prev = z
+				} 								
+			} else {
+				if (x_record.length != 0) {
+					var log = "\n" + x_record + "\n" + y_record + "\n" + z_record + "\n"
+					hyper.log (log)
+					refreshRecords ()
 				}
-
-				xPrev = x
-				yPrev = y
-				zPrev = z
-
 			}
 		}
 	}
 
-	
+	function refreshRecords () {
+		x_record = []
+		y_record = []
+		z_record = []
+	}
 
-	function displayValue(elementId, value)
+	function displayValue (elementId, value)
 	{
 		document.getElementById(elementId).innerHTML = value
 	}
