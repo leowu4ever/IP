@@ -81,14 +81,11 @@
 	function initialiseSensorTag()
 	{
 		// Create SensorTag CC2650 instance.
-		sensortag = evothings.tisensortag.createInstance(
-			evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-
-		sensortag
-			.statusCallback(statusHandler)
-			.errorCallback(errorHandler)
-			.keypressCallback(keypressHandler)
-			.accelerometerCallback(accelerometerHandler, 100)
+		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+		sensortag.statusCallback(statusHandler)
+				 .errorCallback(errorHandler)
+				 .keypressCallback(keypressHandler)
+			 	 .accelerometerCallback(accelerometerHandler, 100)
 	}
 
 	function connect()
@@ -173,10 +170,6 @@
 	var y_offset = 0.005
 	var z_offset = -0.01
 
-	var x_prev = 0
-	var y_prev = 0
-	var z_prev = 0	
-
 	var x_record = []
 	var y_record = []
 	var z_record = []
@@ -198,13 +191,17 @@
 				var y = parseFloat ((values.y - y_offset).toFixed(8))
 				var z = parseFloat (((values.z - z_offset)/-0.245).toFixed(8))
 				record.push ([x, y, z])
+				x_record.push (x)
+				y_record.push (y)
+				z_record.push (z)
 				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
 				displayValue('AccelerometerData', string)
 			}
 		} else {
 			if(record.length != 0) {
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				printReading (record)				
+				printReading (record)
+				hyper.log ("\n" + "x: " + "[" + x_record + "]" + "\n" + "y: " + "[" + y_record + "]" + "\n" + "z: " + "[" + z_record + "]")	
 				record = []	
 			}
 		}
