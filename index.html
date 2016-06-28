@@ -247,7 +247,7 @@
 			recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * averageProbArray[i]) 
 		}
 		hyper.log (recogniseResult)
-		hyper.log (indexOfMax (recogniseResult))
+		hyper.log (minIndex (recogniseResult))
 	}
 
 	function train () {
@@ -278,7 +278,7 @@
 
  	function test () {
 		 train ()
-		 recognise (data_circle)
+		 recognise (data_square)
 	 }
 
 	var smoothThreshold = 0.3
@@ -686,19 +686,20 @@
 	function getRandomInt(min, max) {
 		return Math.floor(Math.random() * (max - min)) + min;
 	}
-	function indexOfMax(arr) {
-		if (arr.length === 0) {
+
+	function minIndex(arr) {
+		if (!arr || arr.length === 0) {
 			return -1;
 		}
-		var max = arr[0];
-		var maxIndex = 0;
-		for (var i = 1; i < arr.length; i++) {
-			if (arr[i] > max) {
-				maxIndex = i;
-				max = arr[i];
+		var min = arr[0];
+		var minIndex = 0;
+		for (var len = arr.length; len > 0; len--) {
+			if (arr[len] < min) {
+				min = arr[len];
+				minIndex = len;
 			}
 		}
-		return maxIndex;
+		return minIndex;
 	}
 
 	function displayValue (elementId, value)
