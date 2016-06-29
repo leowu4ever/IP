@@ -271,6 +271,17 @@
 		averageProbArray[2] = trainingResult_circle[5]
 	}
 
+	function segmentData (reading) {
+		var temp = []
+		var keep = false
+		for (i = 0; i < reading.length; i++) {
+			if (getDistance (reading[i], reading[i+1]) > 0.3) { keep = true } 
+			if (getDistance (reading[i], reading[i+1]) < 0.1) { keep = false }
+			if (keep) { temp.push (reading[i])}
+			return temp
+		}
+	}
+	
 	var smoothThreshold = 0.3
 	function smoothData (reading) {
 		var smoothReading = []
