@@ -49,11 +49,7 @@
 		disconnect
 	</button>
 
-	<button onclick="train()" class="charcoal">
-		train
-	</button>
-
-	<button onclick="test()" class="charcoal">
+	<button onclick="test1()" class="charcoal">
 		test
 	</button>
 
@@ -170,10 +166,6 @@
 	var y_offset = 0.005
 	var z_offset = -0.01
 
-	var x_record = []
-	var y_record = []
-	var z_record = []
-
 	var recordStartTime = 0.0
 	var record = []
 	
@@ -191,9 +183,6 @@
 				var y = parseFloat ((values.y - y_offset).toFixed(8))
 				var z = parseFloat (((values.z - z_offset)/-0.245).toFixed(8))
 				record.push ([x, y, z])
-				x_record.push (x)
-				y_record.push (y)
-				z_record.push (z)
 				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
 				displayValue('AccelerometerData', string)
 			}
@@ -202,11 +191,20 @@
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
 				printReading (record)
 				hyper.log ("\n" + "x: " + "[" + x_record + "]" + "\n" + "y: " + "[" + y_record + "]" + "\n" + "z: " + "[" + z_record + "]")	
-				record = []	
+				record = []
+
 			}
 		}
 	}
 
+	function getAxis (reading, axis) {
+        var axis_record = []
+        for (i = 0; i < reading.length; i++) {
+          axis_record.push (reading[i][axis])
+        }
+        return axis_record
+    }
+	
 	var medoidsArray = []
 	var PIs = []
 	var As = []
@@ -271,17 +269,19 @@
 		averageProbArray[2] = trainingResult_circle[5]
 	}
 
+	var segmentUpperBound = 0.3
+	var segmentLowerBound = 0.1
 	function segmentData (reading) {
 		var temp = []
 		var keep = false
 		for (i = 0; i < reading.length; i++) {
-			if (getDistance (reading[i], reading[i+1]) > 0.3) { keep = true } 
-			if (getDistance (reading[i], reading[i+1]) < 0.1) { keep = false }
+			if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
+			if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
 			if (keep) { temp.push (reading[i])}
 			return temp
 		}
 	}
-	
+
 	var smoothThreshold = 0.3
 	function smoothData (reading) {
 		var smoothReading = []

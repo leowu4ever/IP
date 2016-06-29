@@ -32,14 +32,64 @@
 	       plot
 	   </button>
      
-     <div id="game"></div>
-   	 <div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
+   	 <div id="myDiv" style="width: 1000px; height: 1000px;"><!-- Plotly chart will be drawn inside this DIV --></div>
 
      <script>
+      data_1 = [[-0.00295801,0.00067627,1.00101642],[-0.00338525,-0.00036133,1.00176379],[-0.00289697,0.00061523,1.00475327],[-0.00234766,-0.00042236,1.00201291],[-0.00546045,-0.01903809,1.00101642],[-0.00332422,-0.00091064,0.99254624],[-0.00600977,-0.00652588,1.00276028],[-0.0025918,-0.00341309,0.99877431],[-0.00668115,-0.00463379,0.99827607],[-0.00753564,-0.00548828,1.00699538],[-0.00478906,-0.00585449,1.00276028],[-0.00765771,-0.00701416,1.00774275],[-0.00448389,-0.00036133,1.00898836],[-0.0072915,-0.00890625,1.01073222],[-0.00985498,0.00049316,1.01596381],[-0.00558252,-0.00347412,0.99603396],[-0.01186914,0.00452148,1.00026905],[-0.01235742,0.01239502,0.9878129],[-0.00546045,0.00378906,0.9910515],[-0.00405664,-0.00463379,1.00699538],[-0.01186914,0.00537598,0.99902344],[-0.008146,0.00415527,0.99404098],[-0.00088281,-0.00078857,0.99927256],[-0.0060708,0.00018799,1.00325853],[-0.00423975,-0.00347412,0.98631816],[-0.0048501,0.01312744,1.00923748],[-0.00301904,0.00049316,1.0104831],[-0.00472803,-0.00261963,1.0072445]]
       
-      function plot () {
-          
+      var segmentUpperBound = 0.3
+      var segmentLowerBound = 0.1
+      function segmentData (reading) {
+        var temp = []
+        var keep = false
+        for (i = 0; i < reading.length; i++) {
+          if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
+          if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
+          if (keep) { temp.push (reading[i])}
+          return temp
+        }
       }
+
+      var smoothThreshold = 0.3
+      function smoothData (reading) {
+        var smoothReading = []
+        for (i = 0; i < reading.length; i++) {
+          v_x = reading[i][0]
+          v_y = reading[i][1]
+          v_z = reading[i][2]
+          if (i == 0) {
+            smoothReading.push ([v_x, v_y, v_z])
+          } else {
+            s_x = smoothReading[i-1][0]
+            s_y = smoothReading[i-1][1]
+            s_z = smoothReading[i-1][2]
+            smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
+          }
+        }
+        return smoothReading
+      }
+      
+      function getAxis (reading, axis) {
+        var axis_record = []
+        for (i = 0; i < reading.length; i++) {
+          axis_record.push (reading[i][axis])
+        }
+        return axis_record
+      }
+
+      function plot () {
+        var xbefore = getAxis (data_1, 0)
+        var xafter = getAxis (segmentData(data_1), 0)
+        var trace1 = { y: xbefore, type: 'scatter' }
+        var trace2 = { y: xafter, type: 'scatter' }
+        var data = [trace1, trace2];
+        Plotly.newPlot('myDiv', data);
+      }
+
+      function getDistance (v1, v2) {
+		    return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
+	    }
+
      </script>
    </body>
 </html>
