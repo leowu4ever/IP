@@ -1,0 +1,153 @@
+<html>
+  <head>
+    
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, user-scalable=no,
+      shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+      
+    <style>
+      @import 'ui/css/evothings-app.css';
+    </style>
+
+    <script>
+    // Redirect console.log to Evothings Workbench.	
+    if (window.hyper && window.hyper.log) { console.log = hyper.log}
+    </script>
+   	<script src="libs/plotly-latest.min.js"></script>
+    <script src="cordova.js"></script>
+    <script src="crafty.js"></script>
+    <script src="libs/evothings/evothings.js"></script>
+    <script src="libs/evothings/ui/ui.js"></script>
+  	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+    
+  </head>
+   
+   <body>
+    <div>
+     <button onclick="window.location.href='index.html'" class="green">
+	       Back
+	   </button>
+      <button onclick="plot()" class="green">
+	       plot
+	   </button>
+    </div>
+    
+   	 <div id="x" style="width: 500px; height: 500px; float:left"><!-- Plotly chart will be drawn inside this DIV --></div>
+     <div id="z" style="width: 500px; height: 500px; float:right"><!-- Plotly chart will be drawn inside this DIV --></div>
+   	 <div id="y" style="width: 500px; height: 500px; margin: 0 auto"><!-- Plotly chart will be drawn inside this DIV --></div>
+     <div id="myDiv" style="width: 500px ;height: 500px"></div>
+
+     <script>
+      data_1 = [[-0.00295801,0.00067627,1.00101642],[-0.00338525,-0.00036133,1.00176379],[-0.00289697,0.00061523,1.00475327],[-0.00234766,-0.00042236,1.00201291],[-0.00546045,-0.01903809,1.00101642],[-0.00332422,-0.00091064,0.99254624],[-0.00600977,-0.00652588,1.00276028],[-0.0025918,-0.00341309,0.99877431],[-0.00668115,-0.00463379,0.99827607],[-0.00753564,-0.00548828,1.00699538],[-0.00478906,-0.00585449,1.00276028],[-0.00765771,-0.00701416,1.00774275],[-0.00448389,-0.00036133,1.00898836],[-0.0072915,-0.00890625,1.01073222],[-0.00985498,0.00049316,1.01596381],[-0.00558252,-0.00347412,0.99603396],[-0.01186914,0.00452148,1.00026905],[-0.01235742,0.01239502,0.9878129],[-0.00546045,0.00378906,0.9910515],[-0.00405664,-0.00463379,1.00699538],[-0.01186914,0.00537598,0.99902344],[-0.008146,0.00415527,0.99404098],[-0.00088281,-0.00078857,0.99927256],[-0.0060708,0.00018799,1.00325853],[-0.00423975,-0.00347412,0.98631816],[-0.0048501,0.01312744,1.00923748],[-0.00301904,0.00049316,1.0104831],[-0.00472803,-0.00261963,1.0072445]]
+      
+      var segmentUpperBound = 0.3
+      var segmentLowerBound = 0.1
+      function segmentData (reading) {
+        var temp = []
+        var keep = false
+        for (i = 0; i < reading.length; i++) {
+          if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
+          if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
+          if (keep) { temp.push (reading[i])}
+          return temp
+        }
+      }
+      
+      var truncationThreshold = 0.22
+      function truncateData (reading) {
+        var limit = truncationThreshold * Math.sqrt (getSD(reading))
+
+        for (i = 0; i < reading; i++) {
+          if (reading[i] < limit) { reading.splice(i, 1) }
+        }
+        return reading
+      }
+
+      function getSD (reading) {
+        var mean
+        for (i = 0; i < reading.length; i++) {
+          mean += getMagnitude(reading[i])
+        }
+        mean /= reading.length
+
+        var sumOfDifference
+        for (j = 0; j < reading.length; j++) {
+          sumOfDifference += (getMagnitude(reading[j]) - mean) * (getMagnitude(reading[j]) - mean)
+        }
+
+        var sd = Math.sqrt (sumOfDifference)
+        return sd
+      }
+
+      function getMagnitude (data) { return Math.sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]) }
+
+      var smoothThreshold = 0.3
+      function smoothData (reading) {
+        var smoothReading = []
+        for (i = 0; i < reading.length; i++) {
+          v_x = reading[i][0]
+          v_y = reading[i][1]
+          v_z = reading[i][2]
+          if (i == 0) {
+            smoothReading.push ([v_x, v_y, v_z])
+          } else {
+            s_x = smoothReading[i-1][0]
+            s_y = smoothReading[i-1][1]
+            s_z = smoothReading[i-1][2]
+            smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
+          }
+        }
+        return smoothReading
+      }
+      
+      function getAxis (reading, axis) {
+        var axis_record = []
+        for (i = 0; i < reading.length; i++) {
+          axis_record.push (reading[i][axis])
+        }
+        return axis_record
+      }
+
+      function plot () {
+        var tempdata = data_1
+
+        var x_before = getAxis (tempdata, 0)
+        var x_after = getAxis (truncateData(tempdata), 0)
+        var trace1_x = { y: x_before, mode: 'lines+markers' }
+        var trace2_x = { y: x_after, mode: 'lines+markers' }
+        var data_x = [trace1_x, trace2_x]
+        var layout_x = {title:'x smooth' + 'before ' + x_before.length + ' after ' + x_after.length}
+        Plotly.newPlot('x', data_x, layout_x)
+
+        var y_before = getAxis (tempdata, 1)
+        var y_after = getAxis (truncateData(tempdata), 1)
+        var trace1_y = { y: y_before, mode: 'lines+markers' }
+        var trace2_y = { y: y_after, mode: 'lines+markers' }
+        var data_y = [trace1_y, trace2_y]
+        var layout_y = {title:'y smooth'}
+        Plotly.newPlot('y', data_y, layout_y)
+
+        var z_before = getAxis (tempdata, 2)
+        var z_after = getAxis (truncateData(tempdata), 2)
+        var trace1_z = { y: z_before, mode: 'lines+markers' }
+        var trace2_z = { y: z_after, mode: 'lines+markers' }
+        var data_z = [trace1_z, trace2_z]
+        var layout_z = {title:'z smooth'}
+        Plotly.newPlot('z', data_z, layout_z)
+
+        var trace1 = { x: x_before, y: y_before, z: z_before,  mode: 'lines', type: 'scatter3d'}
+        var trace2 = { x: x_after, y: y_after, z: z_after,  mode: 'lines', type: 'scatter3d'}
+        var data = [trace1, trace2]
+        var layout= {title:'3d trace ' + x_before.length + 'long'}
+
+        Plotly.newPlot('myDiv', data, layout)
+      }
+
+      function getDistance (v1, v2) {
+		    return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
+	    }
+
+     </script>
+   </body>
+</html>
