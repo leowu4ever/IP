@@ -54,10 +54,14 @@
         }
       }
       
+      var truncationThreshold = 0.22
       function truncateData (reading) {
-      
+        var limit = truncationThreshold * Math.sqrt (getSD(reading))
 
-        
+        for (i = 0; i < reading; i++) {
+          if (reading[i] < limit) { reading.splice(i, 1) }
+        }
+        return reading
       }
 
       function getSD (reading) {
@@ -109,15 +113,15 @@
         var tempdata = data_1
 
         var x_before = getAxis (tempdata, 0)
-        var x_after = getAxis (smoothData(tempdata), 0)
+        var x_after = getAxis (truncateData(tempdata), 0)
         var trace1_x = { y: x_before, mode: 'lines+markers' }
         var trace2_x = { y: x_after, mode: 'lines+markers' }
         var data_x = [trace1_x, trace2_x]
-        var layout_x = {title:'x smooth'}
+        var layout_x = {title:'x smooth' + 'before ' + x_before.length + '  after ' + x_after.length}
         Plotly.newPlot('x', data_x, layout_x)
 
         var y_before = getAxis (tempdata, 1)
-        var y_after = getAxis (smoothData(tempdata), 1)
+        var y_after = getAxis (truncateData(tempdata), 1)
         var trace1_y = { y: y_before, mode: 'lines+markers' }
         var trace2_y = { y: y_after, mode: 'lines+markers' }
         var data_y = [trace1_y, trace2_y]
@@ -125,7 +129,7 @@
         Plotly.newPlot('y', data_y, layout_y)
 
         var z_before = getAxis (tempdata, 2)
-        var z_after = getAxis (smoothData(tempdata), 2)
+        var z_after = getAxis (truncateData(tempdata), 2)
         var trace1_z = { y: z_before, mode: 'lines+markers' }
         var trace2_z = { y: z_after, mode: 'lines+markers' }
         var data_z = [trace1_z, trace2_z]
