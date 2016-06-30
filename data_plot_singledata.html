@@ -162,7 +162,7 @@
         Plotly.newPlot('y', data_y, layout_y)
 
         var z_before = getAxis (tempdata, 2)
-        var z_after = getAxis (interpolate(segment(smooth(tempdata))), 2)
+        var z_after = getAxis (interpolate(segment(smooth(tempdata))), 2  )
         var trace1_z = { y: z_before, mode: 'lines+markers' }
         var trace2_z = { y: z_after, mode: 'lines+markers' }
         var data_z = [trace1_z, trace2_z]

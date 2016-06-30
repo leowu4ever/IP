@@ -96,6 +96,7 @@
         return axis_record
       }
 
+      // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
       var interpolateThreshold = 100
       function linearInterpolate(before, after, atPoint) {
 	      return before + (after - before) * atPoint;
@@ -133,11 +134,11 @@
     
       function plot () {
         
-        var d1 = interpolate(segment(data_1))
-        var d2 = interpolate(segment(data_2))
-        var d3 = interpolate(segment(data_3))
-        var d4 = interpolate(segment(data_4))
-        var d5 = interpolate(segment(data_5))
+        var d1 = interpolate(segment(smooth(data_1)))
+        var d2 = interpolate(segment(smooth(data_2)))
+        var d3 = interpolate(segment(smooth(data_3)))
+        var d4 = interpolate(segment(smooth(data_4)))
+        var d5 = interpolate(segment(smooth(data_5)))
         
         var x1 = getAxis (d1, 0)
         var x2 = getAxis (d2, 0)
