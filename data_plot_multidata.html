@@ -44,47 +44,6 @@
       data_4 = [[0,0,0.99],[0,0,1],[0,0,0.99],[-0.01,0.01,1],[-0.01,0.01,1],[0,0.01,1],[-0.01,0,0.99],[-0.01,0,0.99],[-0.01,0,0.99],[0,0.01,0.99],[-0.01,0,1],[-0.01,-0.01,1],[-0.01,0.01,0.99],[-0.01,0,1],[-0.01,-0.01,0.99],[-0.01,0.02,0.99],[-0.01,0,1],[0,0,1],[-0.01,0,0.99]]
       data_5 = [[0,0,0.99],[0,0,1],[0,0,0.99],[-0.01,0.01,0.99],[0,0.01,1],[0,0.01,0.99],[-0.01,-0.01,0.99],[-0.01,0.01,1],[-0.01,0.02,0.99],[0,0,1],[-0.01,0,0.98],[-0.01,0,0.99],[-0.01,0.01,1],[0,-0.01,0.99],[-0.01,0,0.99],[-0.01,0,1],[-0.01,0.01,0.99],[0,-0.01,0.99],[-0.01,-0.01,0.99],[-0.01,0,1]]
 
-      var segmentUpperBound = 0.3
-      var segmentLowerBound = 0.1
-      function segmentData (reading) {
-        var temp = []
-        var keep = false
-        for (i = 0; i < reading.length; i++) {
-          if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
-          if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
-          if (keep) { temp.push (reading[i])}
-          return temp
-        }
-      }
-      
-      var truncationThreshold = 0.22
-      function truncateData (reading) {
-        var limit = truncationThreshold * Math.sqrt (getSD(reading))
-
-        for (i = 0; i < reading; i++) {
-          if (reading[i] < limit) { reading.splice(i, 1) }
-        }
-        return reading
-      }
-
-      function getSD (reading) {
-        var mean
-        for (i = 0; i < reading.length; i++) {
-          mean += getMagnitude(reading[i])
-        }
-        mean /= reading.length
-
-        var sumOfDifference
-        for (j = 0; j < reading.length; j++) {
-          sumOfDifference += (getMagnitude(reading[j]) - mean) * (getMagnitude(reading[j]) - mean)
-        }
-
-        var sd = Math.sqrt (sumOfDifference)
-        return sd
-      }
-
-      function getMagnitude (data) { return Math.sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]) }
-
       var smoothThreshold = 0.3
       function smoothData (reading) {
         var smoothReading = []
