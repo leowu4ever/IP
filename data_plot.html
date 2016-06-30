@@ -63,13 +63,16 @@
       function getSD (reading) {
         var mean
         for (i = 0; i < reading.length; i++) {
-          mean += getMagnitude[reading[i]
+          mean += getMagnitude(reading[i])
         }
         mean /= reading.length
 
-        sumOfDifference
-        
+        var sumOfDifference
+        for (j = 0; j < reading.length; j++) {
+          sumOfDifference += (getMagnitude(reading[j]) - mean) * (getMagnitude(reading[j]) - mean)
+        }
 
+        var sd = Math.sqrt (sumOfDifference)
         return sd
       }
 
