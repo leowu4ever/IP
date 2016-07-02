@@ -1,415 +1,88 @@
-<!DOCTYPE html>
-<!--
-	Demonstration of the TI SensorTag JavaScript library.
-<--></-->
 <html>
+  <head>
+    
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, user-scalable=no,
+      shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+      
+    <style>
+      @import 'ui/css/evothings-app.css';
+    </style>
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="format-detection" content="telephone=no" />
-	<meta name="viewport" content="width=device-width, user-scalable=no,
-		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
-
-	<title>TI SensorTag CC2650 &amp; CC2541 Sensors</title>
-
-	<style>
-		@import 'ui/css/evothings-app.css';
-	</style>
-
-	<script>
-	// Redirect console.log to Evothings Workbench.
-	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	</script>
+    <script>
+    // Redirect console.log to Evothings Workbench.	
+    if (window.hyper && window.hyper.log) { console.log = hyper.log}
+    </script>
    	<script src="libs/plotly-latest.min.js"></script>
-	<script src="cordova.js"></script>
-	<script src="libs/evothings/evothings.js"></script>
-	<script src="libs/evothings/ui/ui.js"></script>
-	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
-</head>
+    <script src="cordova.js"></script>
+    <script src="crafty.js"></script>
+    <script src="libs/evothings/evothings.js"></script>
+    <script src="libs/evothings/ui/ui.js"></script>
+  	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+    
+  </head>
+   
+   <body>
+    <div>
+     <button onclick="getMeanData()" class="green">
+	       getMeanData
+	   </button>
+    </div>
+    
+   	 <div id="x" style="width: 500px; height: 500px; float:left"><!-- Plotly chart will be drawn inside this DIV --></div>
+     <div id="z" style="width: 500px; height: 500px; float:right"><!-- Plotly chart will be drawn inside this DIV --></div>
+   	 <div id="y" style="width: 500px; height: 500px; margin: 0 auto"><!-- Plotly chart will be drawn inside this DIV --></div>
 
-<body>
+     <script>
+      var data_0 = [[0,0,1],[0,0,1],[0,0.01,0.99],[-0.01,0,1.01],[0.01,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[0.01,0.01,1.01],[0,0.01,1.02],[-0.02,0.01,1],[-0.01,0,1.01],[0,0.02,1],[-0.01,0,0.99],[-0.01,0.01,1],[0,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[0,-0.01,1.01],[-0.01,-0.01,1.01],[-0.01,-0.01,1.01],[-0.01,0,1.01],[0,0,1],[0,0,1],[0,0,1.01],[0.01,0.01,1],[0.01,0.01,1],[0,0.01,1.02],[0,0.01,1.01],[0,0.01,1],[0,0.01,1],[-0.02,0,1],[0,0,1],[-0.01,0,1],[0,0,1.01],[0,0,1.01],[0,0,1]]
 
-	<header>
-		<button class="back" onclick="history.back()">
-			<img src="ui/images/arrow-left.svg" />
-		</button>
-		<img class="logotype" src="ui/images/logo.svg" alt="Evothings" />
-		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
-	</header>
+      var data_1 = [[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[-0.01,0.01,1.01],[-0.01,0,1],[0,0.01,1],[0,0.01,0.99],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0.01,0.99],[0,0,1.01],[-0.01,0,1],[-0.01,0,1],[-0.01,0.01,1],[-0.01,-0.01,1],[0,0,1],[-0.01,0.01,1.01],[-0.01,0,1],[-0.02,0,1.01],[0,0,1.01],[0,0,1],[0,-0.01,1],[-0.01,-0.01,1],[-0.02,-0.02,1],[0,0,1],[0,-0.01,0.99],[0.01,0.01,0.99],[0.01,0.01,1],[0,0.01,0.98],[0,0.02,0.99],[0,0,0.99],[-0.01,0.01,0.98],[0,0,0.99],[0,0,1],[-0.01,0,1],[-0.01,-0.01,1.01],[-0.01,0,1]]
+      
+      var data_2 = [[0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0,1],[-0.01,0,1.01],[0.01,0,1],[-0.01,0,1],[0,0,1.01],[0,0.01,1],[0,0,1],[0,0.01,1],[-0.01,0,1],[-0.01,0,1.01],[-0.01,0,1],[0,0.01,1],[0,0.01,1.01],[-0.01,0,0.99],[0,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,0.99],[-0.01,0,1],[-0.01,-0.01,1],[0,-0.01,0.99],[0,0,1],[-0.01,0,1],[-0.01,0,1],[0,0,1],[0,0,0.99],[-0.01,0,1.01],[0,0,1],[0,0,0.99],[0,0,1.01],[-0.01,-0.01,1],[0,0,1.01],[0,0.01,1.01],[-0.01,-0.01,1.02],[0,0,1.01],[0,0,1.01],[0,0,0.99],[0,0,0.99],[-0.01,0.01,1.01],[0,0,1],[0,0,1],[0,0,1],[-0.01,0,1],[0,0,1],[-0.01,0,1],[-0.01,0,0.99],[0,0,1],[0,0,1]]
+      
+      var data_3 = [[0,0,1],[-0.01,0,1],[-0.01,0,1],[0.01,0,1],[-0.01,0.01,1],[0,0.01,1.01],[-0.02,0,1],[0,0,0.99],[0,0.01,1],[0,0.01,1],[-0.01,0,1],[-0.01,0,1],[0,0,1],[0,0.02,1],[-0.01,0.01,0.99],[-0.01,0,1],[-0.01,0.01,0.98],[0,0.01,1.01],[-0.01,0.01,0.99],[-0.01,0,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.01,0,1],[0.01,0,1.02],[0.01,-0.01,0.99],[-0.01,-0.01,1],[0,-0.01,1.01],[0,-0.01,0.99],[0.01,0,0.99],[0,0.01,0.99],[-0.01,0,1.01],[0,0,1.01],[-0.01,0.01,1],[0,0.01,0.99],[-0.02,0.01,1],[-0.01,0,1],[-0.01,0,0.99],[0,0,1],[-0.01,0,1]]
+      
+      
+      var data_4 = [[0,0,0.99],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[-0.01,-0.01,1.01],[-0.01,0,1],[0,0,1.01],[0,0.01,1],[0,0,1],[-0.01,0,1],[-0.01,0.01,1.02],[-0.01,0,1],[-0.01,0.01,1],[0,0.01,0.99],[-0.01,0,1],[0,0,1.01],[-0.01,0.01,0.99],[0,0.01,1],[-0.01,0.01,1],[-0.01,0,1.01],[-0.01,0,1],[-0.01,0,0.99],[-0.01,0,1.01],[0,-0.01,1.01],[-0.01,0,0.98],[-0.02,0,1],[-0.01,-0.01,0.99],[-0.01,-0.01,1],[-0.01,-0.01,0.99],[0,-0.01,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0,0.99],[0,0,1],[0,0.01,0.99],[0,0.01,0.98],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1]]
 
-	<p id="upgradeNotice" class="hidden">
-		<span class="color_softred">Please upgrade the firmware of your SensorTag.</span>
-	</p>
+      var data_5 = [[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[-0.01,0,1],[-0.01,0,1],[0,0,1.01],[0,0.01,1],[0,0.01,0.99],[0,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0.01,0.99],[-0.01,0,1],[0,0,0.99],[-0.01,0,0.99],[-0.01,0,0.98],[-0.01,0.01,1.01],[-0.01,0.01,0.99],[-0.01,0,1.01],[-0.01,-0.01,1],[-0.01,0,1],[-0.01,0,0.99],[-0.01,0,1],[-0.01,-0.01,0.99],[0,0,1.01],[0,-0.01,0.99],[0,0,1.01],[0,-0.01,1],[-0.01,0,1.01],[0,0,1],[0,0,1],[0,0.01,0.99],[0,0,0.98],[0,0.01,1],[-0.01,0.01,1],[-0.02,0.01,1.01],[-0.01,0,1],[-0.01,0,1],[-0.04,-0.01,1],[0,0,0.98]]
 
-	<button onclick="connect()" class="green">
-		connect
-	</button>
+      var data_6 = [[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[-0.01,0,1],[0,0.01,0.99],[0,0.01,1],[-0.01,0,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[0,0.01,1.01],[-0.01,0,1],[-0.01,0,1.01],[-0.01,0,0.99],[-0.01,0,0.99],[-0.01,0,1],[0,0,1.01],[-0.01,0,1],[0,0,1],[0,-0.01,1.01],[0,0,1],[0,0,1],[0,0,1.01],[0,0,1],[0,0.01,1.01],[-0.01,0.01,1],[0,-0.01,0.99],[0,0.01,0.99],[0,0.02,1],[0,0,1],[0,0,1],[0,0.01,1.01],[-0.01,0,1],[-0.01,0.01,1.01],[-0.01,0.01,1.01],[0,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1]]
 
-	<button onclick="disconnect()" class="charcoal">
-		disconnect
-	</button>
+      var data_7 = [[0,0,0.99],[0,0,1.01],[0,0,1],[0,-0.01,1],[0,0.01,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.01,1.01],[0.01,0.01,0.99],[-0.01,0,1.01],[-0.01,0.01,1],[0,0.01,1],[0,0.01,0.99],[-0.01,0.01,1.01],[-0.01,0,1.01],[-0.01,0,1.01],[-0.01,0,0.99],[-0.01,0,1],[-0.01,0,1.01],[-0.01,0,1],[0,-0.01,0.99],[0,-0.01,1],[0,0,1],[-0.01,-0.01,1.01],[-0.01,0,1.01],[-0.01,0,0.99],[0,0.01,1],[-0.01,0,0.99],[0,0,1.01],[0,0,1],[0,0,1],[0,0,1],[0,0,0.99],[0,0.01,1.01],[0,0.01,1],[0.01,0.01,0.99],[0,0,0.99],[-0.01,0,1],[0,0,1],[-0.03,-0.01,1]]
 
-	<button onclick="test()" class="charcoal">
-		test
-	</button>
+      var data_8 = [[0,0,1],[0,0,1],[-0.01,0,1],[0,0,1],[0,0,0.99],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.01,0.99],[0,0.01,0.99],[-0.01,0,0.99],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,0.99],[-0.01,0,1.02],[-0.01,0,0.99],[-0.01,0.01,0.99],[0,0,0.99],[-0.01,0,1.01],[-0.01,0,1],[-0.01,-0.01,1],[0,0,1],[-0.01,0,1.01],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[0,-0.01,1],[-0.01,-0.01,1],[0,0,0.98],[0,0.01,1],[0,0.01,1],[-0.01,0,0.99],[0,0.01,1],[0,0,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[0,0,0.99]]
+      
+      var data_9 = [[0,0,1],[-0.01,0,1],[-0.01,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1.01],[0,0,1],[0,0.01,0.99],[-0.01,0,1.01],[-0.01,0,1],[-0.02,0,1.01],[-0.01,0,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0.01,1.02],[-0.01,0.01,1.01],[-0.01,0,0.98],[-0.01,-0.01,1],[-0.01,0,1],[-0.01,0,1.01],[-0.01,0,0.99],[-0.01,-0.01,1.01],[-0.01,0,1],[-0.01,0,1],[0,0,0.99],[-0.01,0,0.99],[0,0,1],[0,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1.01],[-0.01,0,1],[0,0,1],[-0.01,0,1],[-0.01,0,0.99],[-0.01,0,1],[0,0,1.01],[0,0,1],[0,0,1],[0,0.01,0.99],[0,0.02,1],[0,0,1.01],[0,0,0.99],[-0.01,0.01,1],[0,0,1.01],[0,0,1.01],[-0.01,0,1],[-0.01,0,1]]
 
-	<p>
-		<strong>Status:</strong> <span id="StatusData">Press Connect to find the nearest SensorTag</span>
-	</p>
+      var dataset = [data_0, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9]
 
-	<h2>Accelerometer:</h2>
-	<p>
-		<span id="AccelerometerData">[Waiting for value]</span>
-	</p>
-
-	<h2>Device info:</h2>
-	<p>
-		SensorTag device model: <span id="DeviceModel">?</span><br />
-		Firmware version: <span id="FirmwareData">?</span>
-	</p>
-
-	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
-
-	<script>
-	// SensorTag object.
-	var sensortag
-
-	function initialiseSensorTag()
-	{
-		// Create SensorTag CC2650 instance.
-		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-		sensortag.statusCallback(statusHandler)
-				 .errorCallback(errorHandler)
-				 .keypressCallback(keypressHandler)
-			 	 .accelerometerCallback(accelerometerHandler, 100)
-	}
-
-	function connect()
-	{
-		sensortag.connectToNearestDevice()
-		train()
-	}
-
-	function disconnect()
-	{
-		sensortag.disconnectDevice()
-		resetSensorDisplayValues()
-	}
-
-	function statusHandler(status)
-	{
-		if ('DEVICE_INFO_AVAILABLE' == status)
-		{
-			var upgradeNotice = document.getElementById('upgradeNotice')
-			if ('CC2541' == sensortag.getDeviceModel() &&
-				parseFloat(sensortag.getFirmwareString()) < 1.5)
-			{
-				upgradeNotice.classList.remove('hidden')
-			}
-			else
-			{
-				upgradeNotice.classList.add('hidden')
-			}
-
-			// Show device model and firmware version.
-			displayValue('DeviceModel', sensortag.getDeviceModel())
-			displayValue('FirmwareData', sensortag.getFirmwareString())
-
-			// Show which sensors are not supported by the connected SensorTag.
-			if (!sensortag.isLuxometerAvailable())
-			{
-				document.getElementById('Luxometer').style.display = 'none'
-			}
-		}
-
-		displayValue('StatusData', status)
-	}
-
-	function errorHandler(error)
-	{
-		console.log('Error: ' + error)
-
-		if (evothings.easyble.error.DISCONNECTED == error)
-		{
-			resetSensorDisplayValues()
-		}
-		else
-		{
-			displayValue('StatusData', 'Error: ' + error)
-		}
-	}
-	var recording = false
-
-	function keypressHandler(data)
-	{
-		// Update background color.
-		if(data[0] == 1) {
-			recording = !recording
-			if (recording) {hyper.log("Start recording...")} else {hyper.log ("Done recording...")}
-		}
-	}
-
-	function resetSensorDisplayValues()
-	{
-		// Clear current values.
-		var blank = '[Waiting for value]'
-		displayValue('StatusData', 'Press Connect to find a SensorTag')
-		displayValue('DeviceModel', '?')
-		displayValue('FirmwareData', '?')
-		displayValue('AccelerometerData', blank)
-		// Reset screen color.
-	}
-	var updateUpperBound = 0.2
-	var updateLowerBound = 0.025
-
-	var x_offset = -0.004
-	var y_offset = 0.0
-	var z_offset = -0.01
-
-	var recordStartTime = 0.0
-	var record = []
-	
-
-
-	var testData = [[-0.0479,-0.0201,0.1498],[-0.1176,-0.0176,0.638],[-0.2567,-0.144,1.1717],[-0.3317,-0.0093,1.5227],[-0.3042,0.0326,1.277],[-0.2466,0.006,1.0434],[-0.2226,-0.0172,0.7738],[-0.2306,-0.0432,0.5389],[-0.238,0.0549,0.4769],[-0.2854,0.1255,0.5083],[-0.3018,0.0521,0.4315],[-0.2264,-0.0594,0.3578],[-0.1366,-0.1212,0.4639],[-0.1441,-0.0248,0.723],[-0.1632,-0.0049,1.4527],[-0.1979,0.0456,1.4315],[-0.1679,0.0123,1.2701],[-0.1446,0.0225,1.0825],[-0.0407,0.0107,0.4014],[0.0703,0.0603,-0.1036],[0.0981,0.0404,0.4659],[0.1183,-0.0548,1.153],[0.0871,-0.1007,1.158],[0.075,-0.1063,0.932],[-0.0139,-0.0666,0.9278],[-0.107,0.0813,0.9873],[-0.0507,0.2318,0.8137],[-0.0381,0.2163,0.8618],[-0.0161,0.1638,0.8794],[0.0085,0.1086,0.9034]]
-	
-
-	function test () {
-		hyper.log (testData.length)
-		hyper.log (segmentData (testData).length)
-	}
-
-	function accelerometerHandler (data)
-	{	
-		if (recording) { // if it is recording 
-			var values = sensortag.getAccelerometerValues(data)
-			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
-				if (record.length == 0) {
-					recordStartTime = Date.now()/1000
-				}
-				var x = parseFloat ((values.x - x_offset).toFixed(2))
-				var y = parseFloat ((values.y - y_offset).toFixed(2))
-				var z = parseFloat (((values.z - z_offset)/0.2585).toFixed(2))
-				record.push ([x, y, z])
-				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
-				displayValue('AccelerometerData', string)
-			}
-		} else {
-			if(record.length != 0) {
-				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				printReading (record)
-				record = []
-			}
-		}
-	}
-
-	function getAxis (reading, axis) {
-        var axis_record = []
-		
-        for (i = 0; i < reading.length; i++) {
-          axis_record.push (reading[i][axis])
+      function getMeanData () {
+        var ds = [] 
+        for (a = 0; a < dataset.length; a++) {
+          ds[a] = interpolate(segment(smooth(dataset[a])))
         }
-        return axis_record
-    }
-	
-	var medoidsArray = []
-	var PIs = []
-	var As = []
-	var Bs = []
-	var averageProbArray = []
-	var N = 4
-	var M = 8
-	var gestureBaseSize = 1
-	var trainingInteration = 100
-	
-	var data_square = [[0.1701,0.0287,-0.0179],[0.05,0.0254,0.0705],[-0.0454,-0.0668,0.4258],[-0.131,-0.1188,0.8715],[-0.2075,-0.1005,1.515],[-0.2279,-0.0193,1.6976],[-0.2163,0.0543,1.2599],[-0.1966,0.0408,0.6774],[-0.2159,0.0546,0.4392],[-0.2569,0.0021,0.4647],[-0.2794,-0.0838,0.7469],[-0.1933,-0.171,0.9208],[-0.1537,-0.0682,1.371],[-0.1999,0.0457,1.6094],[-0.2084,0.0557,1.422],[-0.1638,0.0336,1.0536],[-0.0778,0.029,0.4776],[0.0578,0.0293,0.0038],[0.1127,0.0471,0.4066],[0.107,-0.0275,0.9811],[0.0891,-0.1175,1.0287],[0.0499,-0.0382,0.927],[-0.0082,0.1513,0.9131],[-0.0194,0.2573,0.6667],[0.0129,0.2645,0.6585],[0.0332,0.1733,0.8289],[0.0509,0.1244,0.8647]]
-	var data_triangle = [[0.211,-0.0135,0.0511],[0.1285,-0.11,0.0177],[-0.0559,-0.2371,0.1582],[-0.1756,-0.1696,0.6141],[-0.3138,-0.0393,1.7758],[-0.26,0.0001,1.8341],[-0.1567,0.1445,1.2078],[-0.1635,0.0692,0.6029],[-0.1997,0.0316,0.4193],[-0.2942,0.0002,0.5753],[-0.3582,-0.0779,0.7883],[-0.2585,-0.1385,0.792],[-0.1764,-0.1026,0.9009],[-0.136,-0.037,0.9629],[-0.1268,-0.0252,1.0852],[-0.145,-0.0115,1.2499],[-0.1593,0.0053,1.286],[-0.1518,0.0549,1.2586],[-0.1469,0.1041,1.1654],[-0.0898,0.101,0.657],[0.0008,0.1005,0.2579],[0.0708,0.134,0.2262],[0.1002,0.1626,0.304],[0.1095,0.1674,0.4522],[0.1153,0.1638,0.5621],[0.1227,0.1642,0.639]]
-	var data_circle = [[0.1443,-0.0402,0.4898],[0.0824,0.0187,0.292],[0.0099,0.0376,0.5282],[-0.101,0.0234,0.4629],[-0.1872,0.1054,0.9699],[-0.2434,0.1044,1.2462],[-0.3297,0.1089,1.0354],[-0.3419,0.0494,0.8147],[-0.378,0.0327,1.005],[-0.3277,-0.0229,1.209],[-0.2458,-0.0243,1.2506],[-0.1726,0.0046,1.1106],[-0.1107,0.0124,1.0548],[-0.0472,0.0187,0.8605],[0.0047,0.0259,0.5855],[0.0333,0.0338,0.4131],[0.045,0.0805,0.3246],[0.0643,0.1535,0.2208],[0.0558,0.2316,0.158],[0.0167,0.215,0.4759],[0.0243,0.1864,0.8],[-0.015,0.2363,1.0239],[-0.0172,0.195,1.0461],[-0.0152,0.1638,0.9138],[-0.0104,0.1423,0.8466]]
-	var datasets = [data_square, data_triangle, data_circle]
+        var temp = []
 
-	function recognise (reading) {
-		var recogniseResult = new Array () 
-		recogniseResult [0] = forward_with_scale (PIs[0], As[0], Bs[0], classify (smoothData (reading), medoidsArray[0]))[0]
-		recogniseResult [1] = forward_with_scale (PIs[1], As[1], Bs[1], classify (smoothData (reading), medoidsArray[1]))[0]
-		recogniseResult [2] = forward_with_scale (PIs[2], As[2], Bs[2], classify (smoothData (reading), medoidsArray[2]))[0]
-		
-		var probSum = 0
-		for (i = 0; i < datasets.length; i++) {
-			probSum += recogniseResult[i]
-		}
-		for (i = 0; i < datasets.length; i++) {
-			recogniseResult[i] = (recogniseResult[i] * averageProbArray[i]) / (probSum * averageProbArray[i]) 
-		}
-		hyper.log (recogniseResult)
-		hyper.log (minIndex (recogniseResult))
-
-		var data = [{
-				y : recogniseResult,
-				type: 'bar'
-		}]
-		Plotly.newPlot('myDiv', data)
-	}
-
-	function train () {
-		var k_square = kmedoids (smoothData (datasets[0]), M)
-		var trainingResult_square = baumwelch (k_square[0])
-		medoidsArray[0] = k_square[1]
-		PIs[0] = trainingResult_square[2]
-		As[0] = trainingResult_square[3]
-		Bs[0] = trainingResult_square[4]
-		averageProbArray[0] = trainingResult_square[5]
-
-		var k_triangle= kmedoids (smoothData (datasets[1]), M)
-		var trainingResult_triangle = baumwelch (k_triangle[0])
-		medoidsArray[1] = k_triangle[1]
-		PIs[1] = trainingResult_triangle[2]
-		As[1] = trainingResult_triangle[3]
-		Bs[1] = trainingResult_triangle[4]
-		averageProbArray[1] = trainingResult_triangle[5]
-
-		var k_circle = kmedoids (smoothData (datasets[2]), M)
-		var trainingResult_circle = baumwelch (k_circle[0])
-		medoidsArray[2] = k_circle[1]
-		PIs[2] = trainingResult_circle[2]
-		As[2] = trainingResult_circle[3]
-		Bs[2] = trainingResult_circle[4]
-		averageProbArray[2] = trainingResult_circle[5]
-	}
-
-	var segmentUpperBound = 0.3
-	var segmentLowerBound = 0.1
-	function segmentData (reading) {
-		var temp = []
-		var keep = false
-		for (i = 0; i < reading.length; i++) {
-			if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
-			if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
-			if (keep) { temp.push (reading[i])}
-			return temp
-		}
-	}
-
-	var smoothThreshold = 0.3
-	function smoothData (reading) {
-		var smoothReading = []
-		for (i = 0; i < reading.length; i++) {
-			v_x = reading[i][0]
-			v_y = reading[i][1]
-			v_z = reading[i][2]
-			if (i == 0) {
-				smoothReading.push ([v_x, v_y, v_z])
-			} else {
-				s_x = smoothReading[i-1][0]
-				s_y = smoothReading[i-1][1]
-				s_z = smoothReading[i-1][2]
-				smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
-			}
-		}
-		return smoothReading
-	}
-
-	var testMedoids = [[-0.22225373,-0.019978049999999994,0.9767240799999999],[0.04087080859427723,-0.027287009892885124,0.8590724814935765],[-0.0479,-0.0201,0.1498],[-0.1956816974285041,-0.027106931288326346,0.5675729346939565],[-0.026964903199559825,0.10642304324730278,0.8815369919646254]]
-	function classify (reading, medoids) {
-		var observation = []
-		// for each reading element
-		for (i = 0; i < reading.length; i++) {
-			var minimumDistanceIndex = -1
-			var minimumDistance = -1
-			// for each medoids
-			for (j = 0; j < medoids.length; j++) {
-				var dis = getDistance (reading[i], medoids[j])
-				if (minimumDistanceIndex == -1) {
-					minimumDistanceIndex = j
-					minimumDistance = dis
-				} else {
-					if ( dis <= minimumDistance) {
-						minimumDistanceIndex = j
-						minimumDistance = dis
-					}							
-				}					
-			} // j
-			observation[i] = minimumDistanceIndex
-		}
-		return observation
-	}
-
-	// for training
-	var maxKmedoidsIteration = 10
-	function kmedoids (reading, numOfCluster) {
-		var observation = []
-		var clusterGroup = []
-		var medoids = []
-	
-		var temp = reading.slice()
-		// init 
-		for ( i = 0; i < numOfCluster; i++) {
-			var random = getRandomInt (0, temp.length)
-			medoids[i] = temp [random]
-			temp.splice(random, 1)
-		}
-		
-		// looping optimisation
-		for (iteration = 0; iteration < maxKmedoidsIteration; iteration++) {
-			// init 14 empty clusters as a group
-			for (i = 0; i < numOfCluster; i++) {
-				clusterGroup[i] = []
-			}
-
-			// for each reading element
-			for (i = 0; i < reading.length; i++) {
-				var minimumDistanceIndex = -1
-				var minimumDistance = -1
-				// for each medoids
-				for (j = 0; j < medoids.length; j++) {
-					var dis = getDistance (reading[i], medoids[j])
-					if (minimumDistanceIndex == -1) {
-						minimumDistanceIndex = j
-						minimumDistance = dis
-					} else {
-						if ( dis <= minimumDistance) {
-							minimumDistanceIndex = j
-							minimumDistance = dis
-						}							
-					}					
-				} // j
-				observation[i] = minimumDistanceIndex
-				clusterGroup [minimumDistanceIndex].push(reading[i])
-			} // i
-			// recompute medoids
-			for (clusterIndex = 0; clusterIndex < numOfCluster; clusterIndex++) {
-				var minMedoidIndex = -1
-				var minMedoidDistance = -1
-				var cost = 0.0
-				for (n = 0; n < clusterGroup[clusterIndex].length; n++) {
-					cost = 0.0
-					for (m = 0; m < clusterGroup[clusterIndex].length; m++) {
-						cost += getDistance (clusterGroup[clusterIndex][n], clusterGroup[clusterIndex][m])
-					}
-					if (minMedoidIndex == -1) {
-						minMedoidIndex = n
-						minMedoidDistance = cost
-					} else {
-						if (cost < minMedoidDistance) {
-							minMedoidIndex = n
-							minMedoidDistance = cost	
-						}
-					}
-				}
-				medoids[clusterIndex] = clusterGroup[clusterIndex][minMedoidIndex]
-			}	// recompute medoids
-		} // iteration
-		return [observation, medoids]
-	}
-
-	function getDistance (v1, v2) {
-		return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
-	}
-
-	function getRandomInt(min, max) {
-		return Math.floor(Math.random() * (max - min)) + min;
-	}
-
-	function printReading (reading) {
+        for (i = 0; i < ds[0].length; i++) {
+          var x = 0.0
+          var y = 0.0
+          var z = 0.0
+          for (j = 0; j < ds.length; j++) {
+            x += ds[j][i][0]
+            y += ds[j][i][1]
+            z += ds[j][i][2]
+          }
+          x /= ds.length
+          y /= ds.length
+          z /= ds.length
+          temp[i] = [x, y, z]
+        }
+        printReading(temp)
+        return temp
+      } 
+      	function printReading (reading) {
 		var log = ""
 		for (i = 0; i < reading.length; i++) {
 			if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
@@ -417,300 +90,206 @@
 		}
 		hyper.log (log)
 	}
+      function getReadingDistance (r1, r2) {
+        var dis;
+        for (i = 0; i < r1.length; i++) {
+          dis += getDistance (r1[i], r2[i])
+        }
+        return dis
+      }
 
-	// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
-	function forward_with_scale (pi, A, B, observation) {
-	
-		var T = observation.length
-		var alphas = zerosMatrix (N,T)
-		var scales = zerosScales (T)
-		// t = 0
-		for (n = 0; n < N; n++) {
-			alphas[n][0] = pi[n] * B[n][observation[0]]
-		} 
-		scales[0] = sumOfColumn (alphas, 0)
-		for (n = 0; n < N; n++) {
-			
-			alphas[n][0] /= scales[0]
-		}
-		// t = 1 ~ T - 1
-		for (t = 1; t < T; t++) {
-			for (n = 0; n < N; n++) {
-				var sumOfAlpha = 0
-				for (a = 0; a < N; a++) {
-					sumOfAlpha += alphas[a][t-1] * A[a][n]
-				} // for sum
-				alphas[n][t] = sumOfAlpha * B[n][observation[t]]
-			}
-			scales[t] = sumOfColumn (alphas, t)
-			
-			for (i = 0; i < N; i++) {
-				alphas[i][t] /= scales[t]
-			}
-		}
-		// calculate log prob
-		var logprob = 0
-		for (t = 0; t < T; t++) {
-			logprob += Math.log(scales[t])
-		}
-		return [logprob, alphas, scales]
-	}
+      // among classes
+      function getReadingMean (reading) {
+         var mean = [0, 0, 0]
+         for (i = 0; i < reading.length; i++) {
+           mean[0] += reading[i][0]
+           mean[1] += reading[i][1]
+           mean[2] += reading[i][2]
+         }
+         mean[0] /= reading.length
+         mean[1] /= reading.length
+         mean[2] /= reading.length
+         return mean
+      }
+      
+      // remove the first two and last two data
+      var segmentThreshold = 3
+      function segment(reading) {
+        var temp = reading.slice()
+        for (i = 0; i < segmentThreshold; i++){
+          temp.splice(0, 1)
+          temp.splice(temp.length-1, 1)
+        }
+          return temp
+      }
 
-	function backward_with_scale (A, B, observation, scales) {
-		var T = observation.length
-		var betas = zerosMatrix (N, T)
-		
-		// from the last one t = T-1
-		for (n = 0; n < N; n++) {
-			betas[n][T-1] = 1 / scales[T-1]
-		} 
-		
-		// now loop backwards from T-1 to 1
-		for (t = T-2; t >= 0; t--) {
-			for (n = 0; n < N; n++) {
-				var sumOfBeta = 0
-				for (i = 0; i < N; i++) {
-					sumOfBeta +=  A[n][i] * B[i][observation[t+1]] * betas[i][t+1]
-				}
-				betas[n][t] = sumOfBeta / scales[t]
-			}
-		}
-		return betas
-	}
-	// http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
-	// Expectation - Maximization approach
-	function baumwelch (observation) {
-		
-		var T = observation.length
-	
-		var pi = zerosScales(N)
-		var A = zerosMatrix(N, N)
-		var B = zerosMatrix(N, M) 
-		
-		//var initPi = 1/N
-		// 1.1 init pi, A, B 
-		// or init it as first pi = 1 and rest = 0
-		for (column = 0; column < N; column++) {
-			if (column == 0) {
-				pi[column] = 1
-			} else {
-				pi[column] = 0
-			}
-		}
-		// Init A
-		for (i = 0; i < N; i++) {
-			for (j = 0; j < N; j++) {
-				if (i == j) {
-					A[i][j] = 1/2
-				}
-				if (i == j - 1) {
-					A[i][j] = 1/2
-				}
-				if (i == N-1 && j == N-1) {
-					A[i][j] = 1
-				}
-			}
-		}
+      var smoothThreshold = 0.3
+      function smooth (reading) {
+        var smoothReading = []
+        for (i = 0; i < reading.length; i++) {
+          v_x = reading[i][0]
+          v_y = reading[i][1]
+          v_z = reading[i][2]
+          if (i == 0) {
+            smoothReading.push ([v_x, v_y, v_z])
+          } else {
+            s_x = smoothReading[i-1][0]
+            s_y = smoothReading[i-1][1]
+            s_z = smoothReading[i-1][2]
+            smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
+          }
+        }
+        return smoothReading
+      }
+      
+      function getAxis (reading, axis) {
+        var axis_record = []
+        for (i = 0; i < reading.length; i++) {
+          axis_record.push (reading[i][axis])
+        }
+        return axis_record
+      }
 
-		// Init B
-		for (i = 0; i < N; i++) {
-			for (j = 0; j < M; j++) {
-				B[i][j] = 1/M
-			}
-		}
+      // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
+      var interpolateThreshold = 100
+      function linearInterpolate(before, after, atPoint) {
+	      return before + (after - before) * atPoint;
+      }
 
-		var f = forward_with_scale (pi, A, B, observation)
-		var logprobprev = f[0]
-		var alphas = f[1]
-		var scales = f[2]
-		var betas = backward_with_scale (A, B, observation, scales)
-		var gamma = computeGamma (alphas, betas, T)
-		var xi = computeXi(A, B, observation, alphas,betas)
+      function interpolateArray(data, fitCount) {
+        var newData = new Array();
+        var springFactor = new Number((data.length - 1) / (fitCount - 1));
+        newData[0] = data[0]; // for new allocation
+        for ( var i = 1; i < fitCount - 1; i++) {
+          var tmp = i * springFactor;
+          var before = new Number(Math.floor(tmp)).toFixed();
+          var after = new Number(Math.ceil(tmp)).toFixed();
+          var atPoint = tmp - before;
+          newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
+        }
+        newData[fitCount - 1] = data[data.length - 1]; // for new allocation
+        return newData;
+      }
 
-		var logprobinit = logprobprev
-		
-		var probTemp = 0
-		// interation may be a problem 16 is recommanded
-		for (q = 0; q < trainingInteration; q++) {
-			// 2.1 compute pi
-			probTemp += logprobprev
-		//	hyper.log (pi)
-			for (column = 0; column < N; column++) {
-		//		hyper.log (gamma[column][0])
-				pi[column] = gamma[column][0];
-			}
-			// 2.2 compute transition matrix and emission matrix
-			for (row = 0; row < N; row++) {
-				var denominatorA = 0;
-				for (time = 0; time < T-1; time++) {
-					denominatorA += gamma[row][time];
-				}
-				for (column = 0; column < N; column++) {
-					var numberatorA = 0;
-					for (time = 0; time < T-1; time++) {
-						numberatorA += xi[row][column][time]
-					}
-					A[row][column] = 0.0001 + 0.9999 * (numberatorA / denominatorA)
-				}
-			}	// A
-			for (j = 0; j < N; j++) {
-				var denominatorB = 0
-				for (time = 0; time < T; time++) {
-					denominatorB += gamma[j][time]
-				}
-				for (k = 0; k < M; k++) {
-					numeratorB = 0.0
-					for (t = 0; t < T; t++) {
-						if (observation[t] == k) {
-							numeratorB += gamma[j][t]
-						}
-					}
-					B[j][k] = 0.0001 + 0.9999 * (numeratorB / denominatorB)
-				}
-			} // B
-			f = forward_with_scale (pi, A, B, observation)
-			logprobcur = f[0]
-			alphas = f[1]
-			scales = f[2]
-			
-			betas = backward_with_scale (A, B, observation, scales)
-			gamma = computeGamma (alphas, betas, T)
-			xi = computeXi(A, B, observation, alphas,betas)
-			delta = logprobcur - logprobprev
-			logprobprev = logprobcur
-		} 
-		logprobfinal = logprobcur
-		probTemp /= trainingInteration
-		return [logprobinit, logprobfinal, pi, A, B, probTemp]
-	}
-	// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
-	// compute γ
-	function computeGamma (alphas, betas, T) {
-		
-			var gamma = zerosMatrix(N, T)
-			for (t = 0; t < T; t++) {
-				denominator = 0
-				for (n = 0; n < N; n++) {
-					gamma[n][t] = alphas[n][t] * betas[n][t];
-					denominator +=  gamma[n][t];
-				}
-				for (n = 0; n < N; n++) {
-					gamma[n][t] = gamma[n][t] / denominator;
-				}
-			}
-		return gamma
-	}
-	// compute ξ
-	function computeXi (A, B, observation, alphas, betas) {
-		
-		var xi = [];
-		var T = observation.length;
-		
-		// init xi[i][j][t]
-		var columnI, columnJ, time, sum;
-		for (columnI = 0; columnI < N; columnI++) {
-			xi[columnI] = [];
-			for(columnJ = 0; columnJ < N; columnJ++) {
-				xi[columnI][columnJ] = [];
-				for (time = 0; time < T; time++) {
-					xi[columnI][columnJ][time] = [];
-				}
-			}
-		}
-		
-		for (time = 0; time < T - 1; time++) {
-			sum = 0;
-			for (columnI = 0; columnI < N; columnI++) {
-				for (columnJ = 0; columnJ < N; columnJ++) {
-				
-					xi[columnI][columnJ][time] = alphas[columnI][time] 
-												* A[columnI][columnJ] 
-												* betas[columnJ][time+1]
-												* B[columnJ][observation[time+1]];
-											
-					sum += xi[columnI][columnJ][time];
-				}
-			}
-			for (columnI = 0; columnI < N; columnI++) {
-				for (columnJ = 0; columnJ < N; columnJ++) {
-					xi[columnI][columnJ][time] = xi[columnI][columnJ][time] / sum;
-				}
-			}
-		}
-		return xi
-	}
-	function printMatrix (matrix) {
-		var temp = ""
-		
-		for( i = 0; i < matrix.length; i++) {
-			for( j = 0; j < matrix[i].length; j++) {
-				if (j!=matrix[i].length-1) {
-					temp = temp + matrix[i][j] + "," 
-				} else {
-					temp = temp + matrix[i][j]
-				}
-			} 
-			hyper.log(temp) 
-			temp = ""
-		}
-	}
-	
-	function zerosMatrix (row, column) {
-		var matrix = new Array (row)
-		for (i = 0; i < row; i++) {
-			matrix[i] = new Array (column)
-		}
-		for (i = 0; i < row; i++) {
-			for (j = 0; j < column; j++) {
-				matrix [i][j] = 0
-			}
-		}
-		return matrix
-	}
-	function zerosScales (length) {
-		var scales = new Array (length)
-		for (i = 0; i < length; i++) {
-			scales[i] = 0
-		}
-		return scales
-	}
-	function sumOfColumn (matrix, column) {
-		var sum = 0
-		for (i = 0; i < matrix.length; i++) {
-			sum += matrix[i][column]
-		}
-		return sum
-	}
-	function getRandomInt(min, max) {
-		return Math.floor(Math.random() * (max - min)) + min;
-	}
+      function interpolate (reading) {
+        var xnew = interpolateArray(getAxis(reading, 0), interpolateThreshold)
+        var ynew = interpolateArray(getAxis(reading, 1), interpolateThreshold)
+        var znew = interpolateArray(getAxis(reading, 2), interpolateThreshold )
+        return assemblyReading (xnew, ynew, znew)
+      }
 
-	function minIndex(arr) {
-		if (!arr || arr.length === 0) {
-			return -1;
-		}
-		var min = arr[0];
-		var minIndex = 0;
-		for (var len = arr.length; len > 0; len--) {
-			if (arr[len] < min) {
-				min = arr[len];
-				minIndex = len;
-			}
-		}
-		return minIndex;
-	}
+      function assemblyReading (x, y, z) {
+        var temp = []
+        for (i = 0; i < x.length; i++) {
+          temp[i] = [x[i], y[i], z[i]]
+        }
+        return temp
+      }
+    
+      function plot () {
+        
+        var d0 = interpolate(segment(smooth(data_0)))
+        var d1 = interpolate(segment(smooth(data_1)))
+        var d2 = interpolate(segment(smooth(data_2)))
+        var d3 = interpolate(segment(smooth(data_3)))
+        var d4 = interpolate(segment(smooth(data_4)))
+        var d5 = interpolate(segment(smooth(data_5)))
+        var d6 = interpolate(segment(smooth(data_6)))
+        var d7 = interpolate(segment(smooth(data_7)))
+        var d8 = interpolate(segment(smooth(data_8)))
+        var d9 = interpolate(segment(smooth(data_9)))
+        var dmean = getMeanData ()
 
-	function displayValue (elementId, value)
-	{
-		document.getElementById(elementId).innerHTML = value
-	}
+        var x0 = getAxis (d0, 0)
+        var x1 = getAxis (d1, 0)
+        var x2 = getAxis (d2, 0)
+        var x3 = getAxis (d3, 0)
+        var x4 = getAxis (d4, 0)
+        var x5 = getAxis (d5, 0)
+        var x6 = getAxis (d6, 0)
+        var x7 = getAxis (d7, 0)
+        var x8 = getAxis (d8, 0)
+        var x9 = getAxis (d9, 0)
+        var xmean = getAxis (dmean, 0)
+        
+        var trace0_x = { y: x0, mode: 'lines+markers' }
+        var trace1_x = { y: x1, mode: 'lines+markers' }
+        var trace2_x = { y: x2, mode: 'lines+markers' }
+        var trace3_x = { y: x3, mode: 'lines+markers' }
+        var trace4_x = { y: x4, mode: 'lines+markers' }
+        var trace5_x = { y: x5, mode: 'lines+markers' }
+        var trace6_x = { y: x6, mode: 'lines+markers' }
+        var trace7_x = { y: x7, mode: 'lines+markers' }
+        var trace8_x = { y: x8, mode: 'lines+markers' }
+        var trace9_x = { y: x9, mode: 'lines+markers' }
+        var trace_mean_x = {y: xmean, mode: 'lines+markers'}
 
-	document.addEventListener(
-		'deviceready',
-		function() { evothings.scriptsLoaded(initialiseSensorTag) },
-		false)
-	</script>
+        var data_x = [trace0_x, trace1_x, trace2_x, trace3_x, trace4_x, trace5_x, trace6_x, trace7_x, trace8_x, trace9_x, trace_mean_x]
+        var layout_x = {title:'x '}
+        Plotly.newPlot('x', data_x, layout_x)
 
-</body>
+        var y0 = getAxis (d0, 1)
+        var y1 = getAxis (d1, 1)
+        var y2 = getAxis (d2, 1)
+        var y3 = getAxis (d3, 1)
+        var y4 = getAxis (d4, 1)
+        var y5 = getAxis (d5, 1)
+        var y6 = getAxis (d6, 1)
+        var y7 = getAxis (d7, 1)
+        var y8 = getAxis (d8, 1)
+        var y9 = getAxis (d9, 1)
+        var ymean = getAxis (dmean, 1)
 
+        var trace0_y = { y: y0, mode: 'lines+markers' }
+        var trace1_y = { y: y1, mode: 'lines+markers' }
+        var trace2_y = { y: y2, mode: 'lines+markers' }
+        var trace3_y = { y: y3, mode: 'lines+markers' }
+        var trace4_y = { y: y4, mode: 'lines+markers' }
+        var trace5_y = { y: y5, mode: 'lines+markers' }
+        var trace6_y = { y: y6, mode: 'lines+markers' }
+        var trace7_y = { y: y7, mode: 'lines+markers' }
+        var trace8_y = { y: y8, mode: 'lines+markers' }
+        var trace9_y = { y: y9, mode: 'lines+markers' }
+        var trace_mean_y = {y: ymean, mode: 'lines+markers'}
+
+        var data_y = [trace0_y, trace1_y, trace2_y, trace3_y, trace4_y, trace5_y, trace6_y, trace7_y, trace8_y, trace9_y, trace_mean_y]
+        var layout_y = {title:'y '}
+        Plotly.newPlot('y', data_y, layout_y)
+
+        var z0 = getAxis (d0, 2)
+        var z1 = getAxis (d1, 2)
+        var z2 = getAxis (d2, 2)
+        var z3 = getAxis (d3, 2)
+        var z4 = getAxis (d4, 2)
+        var z5 = getAxis (d5, 2)
+        var z6 = getAxis (d6, 2)
+        var z7 = getAxis (d7, 2)
+        var z8 = getAxis (d8, 2)
+        var z9 = getAxis (d9, 2)
+        var zmean = getAxis (dmean, 2)
+
+        var trace0_z = { y: z0, mode: 'lines+markers' }        
+        var trace1_z = { y: z1, mode: 'lines+markers' }
+        var trace2_z = { y: z2, mode: 'lines+markers' }
+        var trace3_z = { y: z3, mode: 'lines+markers' }
+        var trace4_z = { y: z4, mode: 'lines+markers' }
+        var trace5_z = { y: z5, mode: 'lines+markers' }
+        var trace6_z = { y: z6, mode: 'lines+markers' }
+        var trace7_z = { y: z7, mode: 'lines+markers' }
+        var trace8_z = { y: z8, mode: 'lines+markers' }
+        var trace9_z = { y: z9, mode: 'lines+markers' }
+        var trace_mean_z = {y: zmean, mode: 'lines+markers'}
+       
+
+        var data_z = [trace0_z, trace1_z, trace2_z, trace3_z, trace4_z, trace5_z, trace6_z, trace7_z, trace8_z, trace9_z, trace_mean_z]
+        var layout_z = {title:'z '}
+        Plotly.newPlot('z', data_z, layout_z)
+      }
+
+      function getDistance (v1, v2) {
+		    return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
+	    }
+
+     </script>
+   </body>
 </html>
