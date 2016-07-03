@@ -138,20 +138,6 @@
         }
         return dis
       }
-
-      // among classes
-      function getReadingMean (reading) {
-         var mean = [0, 0, 0]
-         for (i = 0; i < reading.length; i++) {
-           mean[0] += reading[i][0]
-           mean[1] += reading[i][1]
-           mean[2] += reading[i][2]
-         }
-         mean[0] /= reading.length
-         mean[1] /= reading.length
-         mean[2] /= reading.length
-         return mean
-      }
       
       // remove the first two and last two data
       var segmentThreshold = 3
