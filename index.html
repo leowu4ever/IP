@@ -244,8 +244,6 @@
 	function recognise (reading) {
 		var recogniseResult = new Array () 
 		recogniseResult [0] = forward_with_scale (PIs[0], As[0], Bs[0], classify (smoothData (reading), medoidsArray[0]))[0]
-		recogniseResult [1] = forward_with_scale (PIs[1], As[1], Bs[1], classify (smoothData (reading), medoidsArray[1]))[0]
-		recogniseResult [2] = forward_with_scale (PIs[2], As[2], Bs[2], classify (smoothData (reading), medoidsArray[2]))[0]
 		
 		var probSum = 0
 		for (i = 0; i < datasets.length; i++) {
@@ -256,12 +254,6 @@
 		}
 		hyper.log (recogniseResult)
 		hyper.log (minIndex (recogniseResult))
-
-		var data = [{
-				y : recogniseResult,
-				type: 'bar'
-		}]
-		Plotly.newPlot('myDiv', data)
 	}
 
 	function train () {
@@ -272,57 +264,8 @@
 		As[0] = trainingResult_square[3]
 		Bs[0] = trainingResult_square[4]
 		averageProbArray[0] = trainingResult_square[5]
-
-		var k_triangle= kmedoids (smoothData (datasets[1]), M)
-		var trainingResult_triangle = baumwelch (k_triangle[0])
-		medoidsArray[1] = k_triangle[1]
-		PIs[1] = trainingResult_triangle[2]
-		As[1] = trainingResult_triangle[3]
-		Bs[1] = trainingResult_triangle[4]
-		averageProbArray[1] = trainingResult_triangle[5]
-
-		var k_circle = kmedoids (smoothData (datasets[2]), M)
-		var trainingResult_circle = baumwelch (k_circle[0])
-		medoidsArray[2] = k_circle[1]
-		PIs[2] = trainingResult_circle[2]
-		As[2] = trainingResult_circle[3]
-		Bs[2] = trainingResult_circle[4]
-		averageProbArray[2] = trainingResult_circle[5]
 	}
 
-	var segmentUpperBound = 0.3
-	var segmentLowerBound = 0.1
-	function segmentData (reading) {
-		var temp = []
-		var keep = false
-		for (i = 0; i < reading.length; i++) {
-			if (getDistance (reading[i], reading[i+1]) > segmentUpperBound) { keep = true } 
-			if (getDistance (reading[i], reading[i+1]) < segmentLowerBound) { keep = false }
-			if (keep) { temp.push (reading[i])}
-			return temp
-		}
-	}
-
-	var smoothThreshold = 0.3
-	function smoothData (reading) {
-		var smoothReading = []
-		for (i = 0; i < reading.length; i++) {
-			v_x = reading[i][0]
-			v_y = reading[i][1]
-			v_z = reading[i][2]
-			if (i == 0) {
-				smoothReading.push ([v_x, v_y, v_z])
-			} else {
-				s_x = smoothReading[i-1][0]
-				s_y = smoothReading[i-1][1]
-				s_z = smoothReading[i-1][2]
-				smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
-			}
-		}
-		return smoothReading
-	}
-
-	var testMedoids = [[-0.22225373,-0.019978049999999994,0.9767240799999999],[0.04087080859427723,-0.027287009892885124,0.8590724814935765],[-0.0479,-0.0201,0.1498],[-0.1956816974285041,-0.027106931288326346,0.5675729346939565],[-0.026964903199559825,0.10642304324730278,0.8815369919646254]]
 	function classify (reading, medoids) {
 		var observation = []
 		// for each reading element
@@ -415,13 +358,7 @@
 		return [observation, medoids]
 	}
 
-	function getDistance (v1, v2) {
-		return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
-	}
-
-	function getRandomInt(min, max) {
-		return Math.floor(Math.random() * (max - min)) + min;
-	}
+	function getDistance (v1, v2) { return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 )) }
 
 	function printReading (reading) {
 		var log = ""
@@ -695,9 +632,7 @@
 		}
 		return sum
 	}
-	function getRandomInt(min, max) {
-		return Math.floor(Math.random() * (max - min)) + min;
-	}
+	function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min }
 
 	function minIndex(arr) {
 		if (!arr || arr.length === 0) {
