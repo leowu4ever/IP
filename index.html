@@ -59,7 +59,7 @@
 	</p>
 
 	<p>
-		<strong>Result:</strong> <span id="Result"></span>
+		<strong>Result:</strong> <span id="Result">Not recording</span>
 	</p>
 
 	
@@ -274,6 +274,8 @@
 		// Clear current values.
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
 		displayValue('AccelerometerData', '[Waiting for value]')
+		displayValue('Result', 'Not recording')
+
 		// Reset screen color.
 	}
 	var x_offset = -0.004
