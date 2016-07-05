@@ -316,7 +316,7 @@
 				}
 				var x = parseFloat ((values.x - x_offset).toFixed(2))
 				var y = parseFloat ((values.y - y_offset).toFixed(2))
-				var z = parseFloat (((values.z - z_offset)/0.2585).toFixed(2))
+				var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
 				record.push ([x, y, z])
 				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
 				displayValue('AccelerometerData', string)
