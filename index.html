@@ -58,6 +58,12 @@
 		<span id="AccelerometerData">[Waiting for value]</span>
 	</p>
 
+	<p>
+		<strong>Result:</strong> <span id="Result"></span>
+	</p>
+
+	
+
 	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
 
 	<script>
@@ -100,6 +106,9 @@
         var index = minIndex(result)
         hyper.log(result)
         hyper.log(index)
+
+		displayValue('Result', "Input is " + index)
+
         return index
       }
 
@@ -263,11 +272,8 @@
 	function resetSensorDisplayValues()
 	{
 		// Clear current values.
-		var blank = '[Waiting for value]'
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
-		displayValue('DeviceModel', '?')
-		displayValue('FirmwareData', '?')
-		displayValue('AccelerometerData', blank)
+		displayValue('AccelerometerData', '[Waiting for value]')
 		// Reset screen color.
 	}
 	var x_offset = -0.004
@@ -282,6 +288,7 @@
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
+					displayValue('Result', 'Recording')
 					recordStartTime = Date.now()/1000
 				}
 				var x = parseFloat ((values.x - x_offset).toFixed(2))
@@ -297,6 +304,8 @@
 				getBestMatching(record)
 				printReading (record)
 				record = []
+				displayValue('AccelerometerData', '[Waiting for value]')
+
 			}
 		}
 	}
