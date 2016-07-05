@@ -12,14 +12,8 @@
 
 	<title>TI SensorTag CC2650 &amp; CC2541 Sensors</title>
 
-	<style>
-		@import 'ui/css/evothings-app.css';
-	</style>
-
-	<script>
-	// Redirect console.log to Evothings Workbench.
-	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	</script>
+	<style>@import 'ui/css/evothings-app.css'</style>
+	<script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
    	<script src="libs/plotly-latest.min.js"></script>
 	<script src="cordova.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
@@ -28,7 +22,6 @@
 </head>
 
 <body>
-
 	<header>
 		<button class="back" onclick="history.back()">
 			<img src="ui/images/arrow-left.svg" />
@@ -67,6 +60,92 @@
 	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
 
 	<script>
+		
+		var sensortag
+		function initialiseSensorTag()
+		{
+			// Create SensorTag CC2650 instance.
+			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+			sensortag.statusCallback(statusHandler)
+					.errorCallback(errorHandler)
+					.keypressCallback(keypressHandler)
+					.accelerometerCallback(accelerometerHandler, 100)
+		}
+
+		function connect() { sensortag.connectToNearestDevice() }
+
+		function disconnect()
+		{
+			sensortag.disconnectDevice()
+			resetSensorDisplayValues()
+		}
+
+		function statusHandler(status)
+		{
+			displayValue('StatusData', status)
+		}
+
+		function errorHandler(error)
+		{
+			console.log('Error: ' + error)
+
+			if (evothings.easyble.error.DISCONNECTED == error)
+			{
+				resetSensorDisplayValues()
+			}
+			else
+			{
+				displayValue('StatusData', 'Error: ' + error)
+			}
+		}
+		var recording = false
+		function keypressHandler(data)
+		{
+			// Update background color.
+			if(data[0] == 1) {
+				recording = !recording
+				if (recording) {hyper.log("Start recording...")} else {hyper.log ("Done recording...")}
+			}
+		}
+
+		function resetSensorDisplayValues()
+		{
+			displayValue('StatusData', 'Press Connect to find a SensorTag')
+			displayValue('AccelerometerData', '[Waiting for value]')
+			displayValue('Result', 'Not recording')
+		}
+		var x_offset = -0.004
+		var y_offset = 0.0
+		var z_offset = -0.01
+		var recordStartTime = 0.0
+		var record = []
+
+		function accelerometerHandler (data)
+		{	
+			if (recording) { // if it is recording 
+				var values = sensortag.getAccelerometerValues(data)
+				if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
+					if (record.length == 0) {
+						displayValue('Result', 'Recording')
+						recordStartTime = Date.now()/1000
+					}
+					var x = parseFloat ((values.x - x_offset).toFixed(2))
+					var y = parseFloat ((values.y - y_offset).toFixed(2))
+					var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
+					record.push ([x, y, z])
+					string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
+					displayValue('AccelerometerData', string)
+				}
+			} else {
+				if(record.length != 0) {
+					hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
+					getBestMatching(record)
+					printReading (record)
+					record = []
+					displayValue('AccelerometerData', '[Waiting for value]')
+				}
+			}
+		}
 
 	  var data_0 = [[0.0010409999999999998,0.00014700000000000005,0.9963909999999998],[0.0010449333333333334,0.0001358636363636364,0.9961803333333332],[0.0010488666666666666,0.00012472727272727277,0.9959696666666666],[0.0010527999999999998,0.00011359090909090913,0.995759],[0.001058232424242424,0.00011814060606060615,0.9956778563636364],[0.0009238039393939393,0.00028570181818181816,0.9958445372727274],[0.0007811027272727272,0.0004960881818181819,0.9960182827272727],[0.0006348467878787877,0.0007852624242424245,0.9961310454545454],[0.0004008293333333333,0.0010539729090909091,0.9962864998181816],[0.00020949000000000003,0.0012170457272727274,0.9963800494545454],[-0.00004664883030303037,0.0012221949696969697,0.996553352139394],[-0.00039608440000000024,0.0011918896666666665,0.9967333423666667],[-0.0008261606999999999,0.0011755519636363636,0.9968253137636364],[-0.0012115348036363636,0.0013065974000000002,0.9968416682384849],[-0.0015418760660606062,0.0016702321727272728,0.996840587869697],[-0.0018027870254545455,0.002079321490909091,0.9967688947354546],[-0.0019222773436969698,0.002618935114545455,0.9967019190393032],[-0.0020663478637575764,0.0031733294081818185,0.9967029380890609],[-0.002274656747454546,0.0036555101127272727,0.996707837273909],[-0.0025029780553939398,0.004105258696060606,0.9967209938820909],[-0.0027121021762848484,0.0043690620315151515,0.9966707799772607],[-0.0028578561676,0.004525162990909091,0.9965834882061818],[-0.0029556808407333332,0.004742147574999999,0.9964557542278666],[-0.0030891067532363642,0.0049355739698424255,0.9963473639544999],[-0.003313155330205455,0.005073696516781819,0.9963128562199846],[-0.0035254024147321214,0.005129699419687879,0.9963006690121852],[-0.0038407200104395153,0.005042095625521212,0.9963770016675173],[-0.004046407230338183,0.00504617557647,0.9964766566294359],[-0.004245290653483819,0.005060169975021818,0.996679208572394],[-0.004437221972549019,0.0050652475411084846,0.9971119948769755],[-0.004536336009017509,0.0050050853942827265,0.9974539718976491],[-0.004585218063690668,0.0049479875521988475,0.9977193302557502],[-0.004830860965277505,0.004756747216777151,0.997642984758713],[-0.00517939541531454,0.004632769123723001,0.9975747252622602],[-0.0057176898499333925,0.004406158617914666,0.9975795426436868],[-0.006191762342876982,0.004216873876817179,0.9976900024607426],[-0.006717722567039048,0.004024080033606109,0.9977509576124334],[-0.007202058120549823,0.003825723223922749,0.9977417066645125],[-0.007619506581991203,0.003613109746079573,0.997613605993811],[-0.007926467422707934,0.0033131808448757056,0.9974528729970397],[-0.008100299283292933,0.0028172207124035073,0.9973487782130329],[-0.00828278633446108,0.0022999786720062144,0.9973297227475145],[-0.008470211343454626,0.0017729512150358646,0.9973445927836156],[-0.008586554923447525,0.0013623653254976919,0.9972562194742112],[-0.008655241936959945,0.0010434120477836781,0.9971929726462729],[-0.008706855074067514,0.0007889565388746256,0.9971116761479871],[-0.008748389213104288,0.0005668668720180289,0.9971249030647549],[-0.00878566390690767,0.0003826091965328398,0.9971068698051877],[-0.00886771109629562,0.00018028127045298018,0.9969820914436539],[-0.008967621516305571,-0.0001931799932813572,0.996830095749449],[-0.008935720145751756,-0.0006872146069740917,0.9965540931172251],[-0.00877200698463417,-0.0013018225706252248,0.9961540835469826],[-0.00855716172131563,-0.0017028905373011576,0.9956835066923555],[-0.00834453823287966,-0.0020384951597256676,0.9952226059710967],[-0.008182857919309632,-0.0022667742275903086,0.9949882059452524],[-0.008007784233577033,-0.002546172127274667,0.9949559393881675],[-0.007842958398169467,-0.0029232405982164427,0.9950435577759947],[-0.007512082173591644,-0.0032120189081632673,0.9952817845370943],[-0.007216224548979649,-0.0035410138619529933,0.9953023054569154],[-0.006956640283017702,-0.0039024733126410216,0.99522832006697],[-0.006636921275682247,-0.0042447385880259635,0.9953467683081454],[-0.006285384981565727,-0.004586876897950059,0.9953646231505662],[-0.00590312047718008,-0.004947996806008255,0.9953661590501668],[-0.005222744338451634,-0.005194702086554181,0.9953429941813713],[-0.004572353275443229,-0.005461217507284732,0.9953027580707188],[-0.0038568368481515314,-0.005732735012642373,0.9954487683799232],[-0.0032053889840976853,-0.005930025723467602,0.9956841853090526],[-0.002709261224497979,-0.006211459848563428,0.9958117959647798],[-0.0022819387165724453,-0.0063103360398186256,0.9959213688640661],[-0.001895675391404069,-0.006243921354548819,0.9959360252378688],[-0.0015842416113083673,-0.006087234061316963,0.9958924044238872],[-0.0011824570773007834,-0.005852647771983558,0.995919735471961],[-0.0008948474763807003,-0.005665553317224124,0.9959970971848904],[-0.0005259315160755155,-0.005355587453705402,0.9962444494052288],[-0.00025312778515803713,-0.00500197906165791,0.9966557438080172],[-0.000034854115021328124,-0.0045947283260028525,0.996999829355877],[0.000066364845604668,-0.004174380989739137,0.9973137375100706],[0.00015039198629782164,-0.0037987540774756814,0.9973209824043371],[0.00022582110857493517,-0.0032950291054786437,0.9973250072157877],[0.00020190140955259227,-0.0029340993587429003,0.9973664292972128],[0.00017634983334177416,-0.0024450661536713093,0.9973469916493565],[0.00016221007371084231,-0.0018597530694456949,0.9973068226422107],[0.00014845972182524707,-0.0012459776993158725,0.997144759387405],[0.00018313332796498133,-0.0006748110123912796,0.9969754573684615],[0.0002768138249147767,-0.0003609961653073169,0.9969009684112967],[0.00035840408520088725,-0.00021463971990667348,0.9968870113476246],[0.0004394960239903309,-0.00019636043339846024,0.9969541935975433],[0.0004214736830641883,-0.00004693730652451803,0.9970008838356584],[0.00038426069115288783,0.0002442467625511126,0.997211198299898],[0.00034723191796844066,0.0007513874093774686,0.9975521712942804],[0.0003131292942946806,0.0013094533113933704,0.9979386943739798],[0.0002817362298985951,0.0018022834395310847,0.9982381562305461],[0.0002556847978802082,0.002364603633395746,0.9983227213198143],[0.00023117551513949144,0.002992841485468525,0.9980636799363085],[0.0002096559648433043,0.003728569044102578,0.9977824335501897],[0.00018790861715658078,0.0044552870046314415,0.997470864431171],[0.0001702123669908948,0.005044709593436818,0.9972946462130363],[0.00015514868178356371,0.00556274918751096,0.9971917131366924],[0.0001400849965762328,0.006080788781585101,0.9970887800603485],[0.00012502131136890175,0.006598828375659241,0.9969858469840048]]
 
@@ -106,46 +185,15 @@
         var index = minIndex(result)
         hyper.log(result)
         hyper.log(index)
-
 		displayValue('Result', "Input is " + index)
-
         return index
       }
 
-	  function getMeanData () {
-        var ds = [] 
-        for (a = 0; a < dataset.length; a++) {
-          ds[a] = interpolate(segment(smooth(dataset[a])))
-        }
-        var temp = []
-
-        for (i = 0; i < ds[0].length; i++) {
-          var x = 0.0
-          var y = 0.0
-          var z = 0.0
-          for (j = 0; j < ds.length; j++) {
-            x += ds[j][i][0]
-            y += ds[j][i][1]
-            z += ds[j][i][2]
-          }
-          x /= ds.length
-          y /= ds.length
-          z /= ds.length
-          temp[i] = [x, y, z]
-        }
-        printReading(temp)
-        return temp
-      }
-
-	     function getReadingDistance (r1, r2) {
+	  function getReadingDistance (r1, r2) {
         var dis = 0.0;
-        for (i = 0; i < r1.length; i++) {
-          dis += getDistance (r1[i], r2[i])
-        }
-        return dis
+        for (i = 0; i < r1.length; i++) { dis += getDistance (r1[i], r2[i]) } return dis
       }
 
-	   // remove the first two and last two data
       var segmentThreshold = 3
       function segment(reading) {
         var temp = reading.slice()
@@ -177,17 +225,12 @@
       
       function getAxis (reading, axis) {
         var axis_record = []
-        for (i = 0; i < reading.length; i++) {
-          axis_record.push (reading[i][axis])
-        }
-        return axis_record
+        for (i = 0; i < reading.length; i++) { axis_record.push (reading[i][axis]) } return axis_record
       }
 
       // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
       var interpolateThreshold = 100
-      function linearInterpolate(before, after, atPoint) {
-	      return before + (after - before) * atPoint;
-      }
+      function linearInterpolate(before, after, atPoint) { return before + (after - before) * atPoint }
 
       function interpolateArray(data, fitCount) {
         var newData = new Array();
@@ -218,109 +261,8 @@
         }
         return temp
       }
-	  
 
-	// SensorTag object.
-	var sensortag
-	function initialiseSensorTag()
-	{
-		// Create SensorTag CC2650 instance.
-		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-		sensortag.statusCallback(statusHandler)
-				 .errorCallback(errorHandler)
-				 .keypressCallback(keypressHandler)
-			 	 .accelerometerCallback(accelerometerHandler, 100)
-	}
-
-	function connect() { sensortag.connectToNearestDevice() }
-
-	function disconnect()
-	{
-		sensortag.disconnectDevice()
-		resetSensorDisplayValues()
-	}
-
-	function statusHandler(status)
-	{
-		displayValue('StatusData', status)
-	}
-
-	function errorHandler(error)
-	{
-		console.log('Error: ' + error)
-
-		if (evothings.easyble.error.DISCONNECTED == error)
-		{
-			resetSensorDisplayValues()
-		}
-		else
-		{
-			displayValue('StatusData', 'Error: ' + error)
-		}
-	}
-	var recording = false
-
-	function keypressHandler(data)
-	{
-		// Update background color.
-		if(data[0] == 1) {
-			recording = !recording
-			if (recording) {hyper.log("Start recording...")} else {hyper.log ("Done recording...")}
-		}
-	}
-
-	function resetSensorDisplayValues()
-	{
-		// Clear current values.
-		displayValue('StatusData', 'Press Connect to find a SensorTag')
-		displayValue('AccelerometerData', '[Waiting for value]')
-		displayValue('Result', 'Not recording')
-
-		// Reset screen color.
-	}
-	var x_offset = -0.004
-	var y_offset = 0.0
-	var z_offset = -0.01
-	var recordStartTime = 0.0
-	var record = []
-
-	function accelerometerHandler (data)
-	{	
-		if (recording) { // if it is recording 
-			var values = sensortag.getAccelerometerValues(data)
-			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
-				if (record.length == 0) {
-					displayValue('Result', 'Recording')
-					recordStartTime = Date.now()/1000
-				}
-				var x = parseFloat ((values.x - x_offset).toFixed(2))
-				var y = parseFloat ((values.y - y_offset).toFixed(2))
-				var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
-				record.push ([x, y, z])
-				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G<br/>' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G<br/>' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G<br/>' 
-				displayValue('AccelerometerData', string)
-			}
-		} else {
-			if(record.length != 0) {
-				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				getBestMatching(record)
-				printReading (record)
-				record = []
-				displayValue('AccelerometerData', '[Waiting for value]')
-
-			}
-		}
-	}
-
-	function getAxis (reading, axis) {
-        var axis_record = []
-        for (i = 0; i < reading.length; i++) { axis_record.push (reading[i][axis]) }
-        return axis_record
-    }
-	
 	function getDistance (v1, v2) { return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 )) }
-
-	function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min }
 
 	function printReading (reading) {
 		var log = ""
@@ -330,57 +272,9 @@
 		}
 		hyper.log (log)
 	}
-	
-	function printMatrix (matrix) {
-		var temp = ""
-		for( i = 0; i < matrix.length; i++) {
-			for( j = 0; j < matrix[i].length; j++) {
-				if (j!=matrix[i].length-1) {
-					temp = temp + matrix[i][j] + "," 
-				} else {
-					temp = temp + matrix[i][j]
-				}
-			} 
-			hyper.log(temp) 
-			temp = ""
-		}
-	}
-	
-	function zerosMatrix (row, column) {
-		var matrix = new Array (row)
-		for (i = 0; i < row; i++) {
-			matrix[i] = new Array (column)
-		}
-		for (i = 0; i < row; i++) {
-			for (j = 0; j < column; j++) {
-				matrix [i][j] = 0
-			}
-		}
-		return matrix
-	}
-
-	function zerosScales (length) {
-		var scales = new Array (length)
-		for (i = 0; i < length; i++) {
-			scales[i] = 0
-		}
-		return scales
-	}
-
-	function sumOfColumn (matrix, column) {
-		var sum = 0
-		for (i = 0; i < matrix.length; i++) {
-			sum += matrix[i][column]
-		}
-		return sum
-	}
-
-	function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min }
 
 	function minIndex(arr) {
-		if (!arr || arr.length === 0) {
-			return -1;
-		}
+		if (!arr || arr.length === 0) { return -1 }
 		var min = arr[0];
 		var minIndex = 0;
 		for (var len = arr.length; len > 0; len--) {
