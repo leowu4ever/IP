@@ -1,5 +1,6 @@
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="width=device-width, user-scalable=no,
@@ -7,18 +8,14 @@
     <style>@import 'ui/css/evothings-app.css'</style>
     <script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
     <script src="cordova.js"></script>
-    <script src="crafty.js"></script>
+    <script src="libs/crafty.js"></script>
+    <script src="src/game.js"></script>
     <script src="libs/evothings/evothings.js"></script>
     <script src="libs/evothings/ui/ui.js"></script>
   	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
-  </head>
-   
-   <body>
-     <div id="game"></div>
-   
-     <script>
-       function startGame () {
-       }
-     </script>
-   </body>
+ 
+    <script>
+      window.addEventListener('load', Game.start)
+    </script>
+</head>
 </html>

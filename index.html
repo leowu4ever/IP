@@ -67,9 +67,10 @@
 			// Create SensorTag CC2650 instance.
 			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 			sensortag.statusCallback(statusHandler)
-					.errorCallback(errorHandler)
-					.keypressCallback(keypressHandler)
-					.accelerometerCallback(accelerometerHandler, 100)
+				     .errorCallback(errorHandler)
+					 .keypressCallback(keypressHandler)
+					 .accelerometerCallback(accelerometerHandler, 100)
+					 .connectToNearestDevice()
 		}
 
 		function connect() { sensortag.connectToNearestDevice() }
