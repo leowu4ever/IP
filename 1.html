@@ -276,10 +276,7 @@
 
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
-	document.addEventListener(
-		'deviceready',
-		function() { evothings.scriptsLoaded(initialiseSensorTag) },
-		false)
+	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
 	</script>
 
 </body>
