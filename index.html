@@ -1,20 +1,22 @@
 <html>
 <head>
-
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
     <script src="cordova.js"></script>
     <script src="libs/crafty.js"></script>
     <script src="src/game.js"></script>
+    <script src="src/game.css"></script>
     <script src="libs/evothings/evothings.js"></script>
     <script src="libs/evothings/ui/ui.js"></script>
   	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+    <script>window.addEventListener('load', Game.start)</script>
+</head>
 
     <body style="background-image:url(assets/background.png)">
-
-    <script>
-      window.addEventListener('load', Game.start)
-    </script>
-</head>
+      <button id = "test1" class="green" onclick="Game.moveLeft()">left</button>
+      <button id = "test1" class="green" onclick="moveRight()">right</button>
+      <button id = "test1" class="green" onclick="moveUp()">up</button>
+      <button id = "test1" class="green" onclick="moveDown()">down</button>
+    </body>
 </html>

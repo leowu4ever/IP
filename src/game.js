@@ -23,12 +23,6 @@ Game = {
   start: function() {
 
     Crafty.init(width, height)
-
-    // dynamic map generation 
-    // iphone 6 dependent 
-    // platform  1. normal 2. floating 3. wide  4. tall narrow
-    // task 1. diamond award 2. enemy 3. character 2 question 4. counting stars
-    
     // wave first
     wave = spawn (0, wave_y, "wave")
     // for each platform from left to right
@@ -50,12 +44,9 @@ Game = {
     spawn (platform_wide_x + 100, platform_wide_y - 34, "grass")
     spawn (platform_wide_x + 170, platform_wide_y - 30, "wood")
     spawn (platform_wide_x + 170, platform_wide_y - 80, "cloud")
-
-
-    // for transition test
-    player.tween({x: 100, y: 100}, 1000, "easeInQuad") 
-   
-  }
+    
+  },
+    moveLeft : function  () { player.tween({x: 100, y: 100}, 1000, "easeInQuad") }
 }
 
 function spawn(_x, _y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({x: _x, y: _y}).image("assets/" + name + ".png") }
