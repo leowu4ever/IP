@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8" />
 	<meta name="format-detection" content="telephone=no" />
@@ -19,102 +18,96 @@
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
-
 </body>
 
 <script>
-if (window.hyper && window.hyper.log) { console.log = hyper.log }
-window.addEventListener('load', Game.start)
-document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	window.addEventListener('load', Game.start)
+	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
 
-var sensortag
-function initialiseSensorTag() {
-	sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-	sensortag.statusCallback(statusHandler)
-				.errorCallback(errorHandler)
-				.keypressCallback(keypressHandler)
-				.accelerometerCallback(accelerometerHandler, 100)
-				.connectToNearestDevice()
-}
-
-function connect() { sensortag.connectToNearestDevice() }
-
-function disconnect() {
-	sensortag.disconnectDevice()
-	resetSensorDisplayValues()
-}
-
-function statusHandler(status) { displayValue('StatusData', status) }
-
-function errorHandler(error) {
-	console.log('Error: ' + error)
-	if (evothings.easyble.error.DISCONNECTED == error) { resetSensorDisplayValues() }
-	else { displayValue('StatusData', 'Error: ' + error) }
-}
-
-var recording = false
-function keypressHandler(data)
-{
-	if(data[0] == 1) {
-		recording = !recording
-		if (recording) {hyper.log("Start recording...")} 
-		else {hyper.log ("Done recording...")}
+	var sensortag
+	function initialiseSensorTag() {
+		sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+		sensortag.statusCallback(statusHandler)
+					.errorCallback(errorHandler)
+					.keypressCallback(keypressHandler)
+					.accelerometerCallback(accelerometerHandler, 100)
+					.connectToNearestDevice()
 	}
-}
 
-function resetSensorDisplayValues()
-{
-	displayValue('StatusData', 'Press Connect to find a SensorTag')
-	displayValue('AccelerometerData', '[Waiting for value]')
-	displayValue('Result', 'Not recording')
-}
+	function connect() { sensortag.connectToNearestDevice() }
 
-var x_offset = -0.004
-var y_offset = 0.0
-var z_offset = -0.01
-var recordStartTime = 0.0
-var record = []
-function accelerometerHandler (data)
-{	
-	if (recording) { // if it is recording 
-		var values = sensortag.getAccelerometerValues(data)
-		if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
-			if (record.length == 0) {
-				displayValue('Result', 'Recording')
-				recordStartTime = Date.now()/1000
+	function disconnect() {
+		sensortag.disconnectDevice()
+		resetSensorDisplayValues()
+	}
+
+	function statusHandler(status) { displayValue('StatusData', status) }
+
+	function errorHandler(error) {
+		console.log('Error: ' + error)
+		if (evothings.easyble.error.DISCONNECTED == error) { resetSensorDisplayValues() }
+		else { displayValue('StatusData', 'Error: ' + error) }
+	}
+
+	var recording = false
+	function keypressHandler(data)
+	{
+		if(data[0] == 1) {
+			recording = !recording
+			if (recording) {hyper.log("Start recording...")} 
+			else {hyper.log ("Done recording...")}
+		}
+	}
+
+	function resetSensorDisplayValues()
+	{
+		displayValue('StatusData', 'Press Connect to find a SensorTag')
+		displayValue('AccelerometerData', '[Waiting for value]')
+		displayValue('Result', 'Not recording')
+	}
+
+	var x_offset = -0.004
+	var y_offset = 0.0
+	var z_offset = -0.01
+	var recordStartTime = 0.0
+	var record = []
+	function accelerometerHandler (data)
+	{	
+		if (recording) { // if it is recording 
+			var values = sensortag.getAccelerometerValues(data)
+			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
+				if (record.length == 0) {
+					displayValue('Result', 'Recording')
+					recordStartTime = Date.now()/1000
+				}
+				var x = parseFloat ((values.x - x_offset).toFixed(2))
+				var y = parseFloat ((values.y - y_offset).toFixed(2))
+				var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
+				record.push ([x, y, z])
+				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G' 
+				displayValue('AccelerometerData', string)
 			}
-			var x = parseFloat ((values.x - x_offset).toFixed(2))
-			var y = parseFloat ((values.y - y_offset).toFixed(2))
-			var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
-			record.push ([x, y, z])
-			string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G' 
-			displayValue('AccelerometerData', string)
-		}
-	} else {
-		if(record.length != 0) {
-			hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-			Gesture.getBestMatching(record)
-			printReading (record)
-			record = []
-			displayValue('AccelerometerData', '[Waiting for value]')
+		} else {
+			if(record.length != 0) {
+				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
+				Gesture.getBestMatching(record)
+				printReading (record)
+				record = []
+				displayValue('AccelerometerData', '[Waiting for value]')
+			}
 		}
 	}
-}
-	
-function printReading (reading) {
-	var log = ""
-	for (i = 0; i < reading.length; i++) {
-		if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
-		else { log += "[" + reading[i] + "]" }
+		
+	function printReading (reading) {
+		var log = ""
+		for (i = 0; i < reading.length; i++) {
+			if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
+			else { log += "[" + reading[i] + "]" }
+		}
+		hyper.log (log)
 	}
-	hyper.log (log)
-}
-
-	
-function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
+	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
 </script>
-
-</body>
-
 </html>
