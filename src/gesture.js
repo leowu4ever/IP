@@ -37,18 +37,49 @@ Gesture = {
     result.push(getReadingDistance(dataset[9], temp))
 
     var index = minIndex(result)
-    if (index == 0) {
-      Game.moveLeft()
-    }
-    if (index == 1) {
-      Game.moveRight()
-    }
+    if (index == 0) { Game.moveLeft() }
+    if (index == 1) { Game.moveRight() }
     hyper.log(result)
     hyper.log(index)
     displayValue('Result', "Input is " + index)
     return index
   }
+}
 
+var segmentThreshold = 3
+function segment(reading) {
+  var temp = reading.slice()
+  for (i = 0; i < segmentThreshold; i++) {
+    temp.splice(0, 1)
+    temp.splice(temp.length - 1, 1)
+  }
+  return temp
+}
+
+var smoothThreshold = 0.3
+function smooth(reading) {
+		var smoothReading = []
+		for (i = 0; i < reading.length; i++) {
+      v_x = reading[i][0]
+      v_y = reading[i][1]
+      v_z = reading[i][2]
+      if (i == 0) {
+        smoothReading.push([v_x, v_y, v_z])
+      } else {
+        s_x = smoothReading[i - 1][0]
+        s_y = smoothReading[i - 1][1]
+        s_z = smoothReading[i - 1][2]
+        smoothReading.push([(s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z))])
+      }
+		}
+		return smoothReading
+}
+
+function interpolate(reading) {
+  var xnew = interpolateArray(getAxis(reading, 0), interpolateThreshold)
+  var ynew = interpolateArray(getAxis(reading, 1), interpolateThreshold)
+  var znew = interpolateArray(getAxis(reading, 2), interpolateThreshold)
+  return assemblyReading(xnew, ynew, znew)
 }
 
 function getReadingDistance(r1, r2) {
@@ -56,40 +87,10 @@ function getReadingDistance(r1, r2) {
   for (i = 0; i < r1.length; i++) { dis += getDistance(r1[i], r2[i]) } return dis
 }
 
-
-var segmentThreshold = 3
-function segment(reading) {
-  var temp = reading.slice()
-  for (i = 0; i < segmentThreshold; i++) {
-				temp.splice(0, 1)
-				temp.splice(temp.length - 1, 1)
-  }
-  return temp
-}
-
-
-var smoothThreshold = 0.3
-function smooth(reading) {
-		var smoothReading = []
-		for (i = 0; i < reading.length; i++) {
-    v_x = reading[i][0]
-    v_y = reading[i][1]
-    v_z = reading[i][2]
-    if (i == 0) {
-      smoothReading.push([v_x, v_y, v_z])
-    } else {
-      s_x = smoothReading[i - 1][0]
-      s_y = smoothReading[i - 1][1]
-      s_z = smoothReading[i - 1][2]
-      smoothReading.push([(s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z))])
-    }
-		}
-		return smoothReading
-}
-
 function getAxis(reading, axis) {
 		var axis_record = []
-		for (i = 0; i < reading.length; i++) { axis_record.push(reading[i][axis]) } return axis_record
+		for (i = 0; i < reading.length; i++) { axis_record.push(reading[i][axis]) } 
+    return axis_record
 }
 
 // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
@@ -101,27 +102,19 @@ function interpolateArray(data, fitCount) {
 		var springFactor = new Number((data.length - 1) / (fitCount - 1));
 		newData[0] = data[0]; // for new allocation
 		for (var i = 1; i < fitCount - 1; i++) {
-    var tmp = i * springFactor;
-    var before = new Number(Math.floor(tmp)).toFixed();
-    var after = new Number(Math.ceil(tmp)).toFixed();
-    var atPoint = tmp - before;
-    newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
+      var tmp = i * springFactor;
+      var before = new Number(Math.floor(tmp)).toFixed();
+      var after = new Number(Math.ceil(tmp)).toFixed();
+      var atPoint = tmp - before;
+      newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
 		}
 		newData[fitCount - 1] = data[data.length - 1]; // for new allocation
-		return newData;
+		return newData
 }
-
-function interpolate(reading) {
-  var xnew = interpolateArray(getAxis(reading, 0), interpolateThreshold)
-  var ynew = interpolateArray(getAxis(reading, 1), interpolateThreshold)
-  var znew = interpolateArray(getAxis(reading, 2), interpolateThreshold)
-  return assemblyReading(xnew, ynew, znew)
-}
-
 function assemblyReading(x, y, z) {
   var temp = []
   for (i = 0; i < x.length; i++) {
-				temp[i] = [x[i], y[i], z[i]]
+    temp[i] = [x[i], y[i], z[i]]
   }
   return temp
 }
@@ -134,12 +127,12 @@ function minIndex(arr) {
 		var min = arr[0];
 		var minIndex = 0;
 		for (var len = arr.length; len > 0; len--) {
-    if (arr[len] < min) {
-      min = arr[len];
-      minIndex = len;
-    }
+      if (arr[len] < min) {
+        min = arr[len];
+        minIndex = len;
+      }
 		}
 		return minIndex;
 }
-		function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
+function displayValue(elementId, value) { document.getElementById(elementId).innerHTML = value }
 
