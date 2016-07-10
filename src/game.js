@@ -68,6 +68,8 @@ Game = {
        player.tween({x: x + 10, y: y - 30}, 1000, "easeInQuad")
      }
    }
+
+   // queston type 1. counting items like diamond/star 2. simply just a question 
 }
 
 function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({x: x, y: y}).image("assets/" + name + ".png") }
