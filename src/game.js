@@ -18,10 +18,11 @@ var platform_wide_y = 0.65 * height
 var wave
 var platform_normal, platform_floating, platform_high, platform_wide
 var player 
+var pos = 2
+var platforms = []
 
 Game = {
   start: function() {
-
     Crafty.init(width, height)
     // wave first
     wave = spawn (0, wave_y, "wave")
@@ -36,7 +37,6 @@ Game = {
 
     // high
     platform_high = spawn (platform_high_x, platform_high_y, "platform_high")
-    player = spawn (platform_high_x + 20, platform_high_y - 30, "player")
 
     // wide + wood + grass + character_2 + cloud
     platform_wide = spawn (platform_wide_x, platform_wide_y, "platform_wide")
@@ -44,11 +44,32 @@ Game = {
     spawn (platform_wide_x + 100, platform_wide_y - 34, "grass")
     spawn (platform_wide_x + 170, platform_wide_y - 30, "wood")
     spawn (platform_wide_x + 170, platform_wide_y - 80, "cloud")
-    
+
+    player = spawn (platform_high_x + 10, platform_high_y - 30, "player")
+
+    platforms = [platform_normal, platform_floating, platform_high, platform_wide]
   },
-    moveLeft : function  () { player.tween({x: 100, y: 100}, 1000, "easeInQuad") }
+  
+   moveLeft : function  () {
+     var x, y
+     if (pos > 0) {
+       pos--
+       x = platforms[pos].x
+       y = platforms[pos].y
+       player.tween({x: x + 10, y: y - 30}, 1000, "easeInQuad")
+     }
+   },
+     
+   moveRight : function  () {
+     if (pos < 3) {
+       pos++
+       x = platforms[pos].x
+       y = platforms[pos].y
+       player.tween({x: x + 10, y: y - 30}, 1000, "easeInQuad")
+     }
+   }
 }
 
-function spawn(_x, _y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({x: _x, y: _y}).image("assets/" + name + ".png") }
+function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({x: x, y: y}).image("assets/" + name + ".png") }
 
 
