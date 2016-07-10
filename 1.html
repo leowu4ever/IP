@@ -1,63 +1,37 @@
 <!DOCTYPE html>
-<!--
-	Demonstration of the TI SensorTag JavaScript library.
-<--></-->
 <html>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="format-detection" content="telephone=no" />
-		<title>TI SensorTag CC2650 &amp; CC2541 Sensors</title>
-		<style>@import 'ui/css/evothings-app.css'</style>
 		<script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
 		<script src="cordova.js"></script>
+		<script src="libs/crafty.js"></script>
+   		<script src="src/game.js"></script>
+   		<script src="src/game.css"></script>
 		<script src="libs/evothings/evothings.js"></script>
 		<script src="libs/evothings/ui/ui.js"></script>
 		<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+		<script>window.addEventListener('load', Game.start)</script>
 	</head>
-<body>
-	<header>
-		<button class="back" onclick="history.back()">
-			<img src="ui/images/arrow-left.svg" />
-		</button>
-		<img class="logotype" src="ui/images/logo.svg" alt="Evothings" />
-		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
-	</header>
-
-	<p id="upgradeNotice" class="hidden">
-		<span class="color_softred">Please upgrade the firmware of your SensorTag.</span>
-	</p>
-
-	<button onclick="connect()" class="green">connect</button>
-
-	<button onclick="disconnect()" class="red">disconnect</button>
-
-	<p>
-		<strong>Status:</strong> <span id="StatusData">Press Connect to find the nearest SensorTag</span>
-	</p>
-
-	<h2>Accelerometer:</h2>
-	<p>
+    <body style="background-image:url(assets/background.png)">
+		<button onclick="connect()" class="green">connect</button>
+		<button onclick="disconnect()" class="red">disconnect</button>
+		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 		<span id="AccelerometerData">[Waiting for value]</span>
-	</p>
-
-	<p>
-		<strong>Result:</strong> <span id="Result">Not recording</span>
-	</p>
-
-	<div id="myDiv" style="width: 300px; height: 300px;"><!-- Plotly chart will be drawn inside this DIV --></div>
-
+		<span id="Result">Not recording</span>
+	</body>
+	
 	<script>
-		
 		var sensortag
 		function initialiseSensorTag()
 		{
 			// Create SensorTag CC2650 instance.
 			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
 			sensortag.statusCallback(statusHandler)
-				     .errorCallback(errorHandler)
-					 .keypressCallback(keypressHandler)
-					 .accelerometerCallback(accelerometerHandler, 100)
-					 .connectToNearestDevice()
+						.errorCallback(errorHandler)
+						.keypressCallback(keypressHandler)
+						.accelerometerCallback(accelerometerHandler, 100)
+						.connectToNearestDevice()
 		}
 
 		function connect() { sensortag.connectToNearestDevice() }
@@ -68,31 +42,23 @@
 			resetSensorDisplayValues()
 		}
 
-		function statusHandler(status)
-		{
-			displayValue('StatusData', status)
-		}
+		function statusHandler(status) { displayValue('StatusData', status) }
 
 		function errorHandler(error)
 		{
 			console.log('Error: ' + error)
-
-			if (evothings.easyble.error.DISCONNECTED == error)
-			{
-				resetSensorDisplayValues()
-			}
-			else
-			{
-				displayValue('StatusData', 'Error: ' + error)
-			}
+			if (evothings.easyble.error.DISCONNECTED == error) { resetSensorDisplayValues() }
+			else { displayValue('StatusData', 'Error: ' + error) }
 		}
+
 		var recording = false
 		function keypressHandler(data)
 		{
 			// Update background color.
 			if(data[0] == 1) {
 				recording = !recording
-				if (recording) {hyper.log("Start recording...")} else {hyper.log ("Done recording...")}
+				if (recording) {hyper.log("Start recording...")} 
+				else {hyper.log ("Done recording...")}
 			}
 		}
 
@@ -102,12 +68,12 @@
 			displayValue('AccelerometerData', '[Waiting for value]')
 			displayValue('Result', 'Not recording')
 		}
+
 		var x_offset = -0.004
 		var y_offset = 0.0
 		var z_offset = -0.01
 		var recordStartTime = 0.0
 		var record = []
-
 		function accelerometerHandler (data)
 		{	
 			if (recording) { // if it is recording 
