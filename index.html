@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="format-detection" content="telephone=no" />
-		<script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
-		<script src="cordova.js"></script>
-		<script src="libs/crafty.js"></script>
-   		<script src="src/game.js"></script>
-		<script src="src/gesture.js"></script>
-   		<script src="src/game.css"></script>
-		<script src="libs/evothings/evothings.js"></script>
-		<script src="libs/evothings/ui/ui.js"></script>
-		<script src="libs/evothings/tisensortag/tisensortag.js"></script>
-		<script>window.addEventListener('load', Game.start)</script>
-	</head>
-    <body style="background-image:url(assets/background.png)">
-		<button onclick="connect()" class="green">connect</button>
-		<button onclick="disconnect()" class="red">disconnect</button>
-		<span id="StatusData">Press Connect to find the nearest SensorTag</span>
-		<span id="AccelerometerData">[Waiting for value]</span>
-		<span id="Result">Not recording</span>
-	</body>
-	
-	<script>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
+	<script src="cordova.js"></script>
+	<script src="libs/crafty.js"></script>
+	<script src="src/game.js"></script>
+	<script src="src/gesture.js"></script>
+	<script src="src/game.css"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/ui/ui.js"></script>
+	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+	<script>window.addEventListener('load', Game.start)</script>
+</head>
+
+<body style="background-image:url(assets/background.png)">
+	<button onclick="connect()" class="green">connect</button>
+	<button onclick="disconnect()" class="red">disconnect</button>
+	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
+	<span id="AccelerometerData">[Waiting for value]</span>
+	<span id="Result">Not recording</span>
+
+</body>
+
+<script>
 		var sensortag
 		function initialiseSensorTag()
 		{
@@ -102,7 +105,7 @@
 			}
 		}
 	
-      var dataset = Gesture.init()
+    var dataset = Gesture.init()
 	function getBestMatching (data) {
 		var result = []
 		var temp = interpolate(segment(smooth(data)))
