@@ -97,7 +97,7 @@
 			} else {
 				if(record.length != 0) {
 					hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-					getBestMatching(record)
+					Gesture.getBestMatching(record)
 					printReading (record)
 					record = []
 					displayValue('AccelerometerData', '[Waiting for value]')
@@ -105,109 +105,6 @@
 			}
 		}
 	
-    var dataset = Gesture.init()
-	function getBestMatching (data) {
-		var result = []
-		var temp = interpolate(segment(smooth(data)))
-		result.push(getReadingDistance(dataset[0], temp))
-		result.push(getReadingDistance(dataset[1], temp))
-		result.push(getReadingDistance(dataset[2], temp))
-		result.push(getReadingDistance(dataset[3], temp))
-		result.push(getReadingDistance(dataset[4], temp))
-		result.push(getReadingDistance(dataset[5], temp))
-		result.push(getReadingDistance(dataset[6], temp))
-		result.push(getReadingDistance(dataset[7], temp))
-		result.push(getReadingDistance(dataset[8], temp))
-		result.push(getReadingDistance(dataset[9], temp))
-
-		var index = minIndex(result)
-		if (index == 0) {
-			Game.moveLeft()
-		}
-		if (index == 1) {
-			Game.moveRight()
-		}
-		hyper.log(result)
-		hyper.log(index)
-		displayValue('Result', "Input is " + index)
-		return index
-	}
-
-	function getReadingDistance (r1, r2) {
-			var dis = 0.0;
-			for (i = 0; i < r1.length; i++) { dis += getDistance (r1[i], r2[i]) } return dis
-		}
-
-		var segmentThreshold = 3
-		function segment(reading) {
-			var temp = reading.slice()
-			for (i = 0; i < segmentThreshold; i++){
-				temp.splice(0, 1)
-				temp.splice(temp.length-1, 1)
-			}
-				return temp
-	}
-
-	var smoothThreshold = 0.3
-	function smooth (reading) {
-		var smoothReading = []
-		for (i = 0; i < reading.length; i++) {
-			v_x = reading[i][0]
-			v_y = reading[i][1]
-			v_z = reading[i][2]
-			if (i == 0) {
-				smoothReading.push ([v_x, v_y, v_z])
-			} else {
-				s_x = smoothReading[i-1][0]
-				s_y = smoothReading[i-1][1]
-				s_z = smoothReading[i-1][2]
-				smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
-			}
-		}
-		return smoothReading
-	}
-	
-	function getAxis (reading, axis) {
-		var axis_record = []
-		for (i = 0; i < reading.length; i++) { axis_record.push (reading[i][axis]) } return axis_record
-	}
-
-	// http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
-	var interpolateThreshold = 100
-	function linearInterpolate(before, after, atPoint) { return before + (after - before) * atPoint }
-
-	function interpolateArray(data, fitCount) {
-		var newData = new Array();
-		var springFactor = new Number((data.length - 1) / (fitCount - 1));
-		newData[0] = data[0]; // for new allocation
-		for ( var i = 1; i < fitCount - 1; i++) {
-			var tmp = i * springFactor;
-			var before = new Number(Math.floor(tmp)).toFixed();
-			var after = new Number(Math.ceil(tmp)).toFixed();
-			var atPoint = tmp - before;
-			newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
-		}
-		newData[fitCount - 1] = data[data.length - 1]; // for new allocation
-		return newData;
-	}
-
-		function interpolate (reading) {
-			var xnew = interpolateArray(getAxis(reading, 0), interpolateThreshold)
-			var ynew = interpolateArray(getAxis(reading, 1), interpolateThreshold)
-			var znew = interpolateArray(getAxis(reading, 2), interpolateThreshold )
-			return assemblyReading (xnew, ynew, znew)
-		}
-
-		function assemblyReading (x, y, z) {
-			var temp = []
-			for (i = 0; i < x.length; i++) {
-				temp[i] = [x[i], y[i], z[i]]
-			}
-			return temp
-		}
-
-	function getDistance (v1, v2) { return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 )) }
-
 	function printReading (reading) {
 		var log = ""
 		for (i = 0; i < reading.length; i++) {
@@ -217,19 +114,7 @@
 		hyper.log (log)
 	}
 
-	function minIndex(arr) {
-		if (!arr || arr.length === 0) { return -1 }
-		var min = arr[0];
-		var minIndex = 0;
-		for (var len = arr.length; len > 0; len--) {
-			if (arr[len] < min) {
-				min = arr[len];
-				minIndex = len;
-			}
-		}
-		return minIndex;
-	}
-
+	
 		function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
 		document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
