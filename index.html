@@ -4,16 +4,13 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="format-detection" content="telephone=no" />
-	<script>if (window.hyper && window.hyper.log) { console.log = hyper.log }</script>
 	<script src="cordova.js"></script>
 	<script src="libs/crafty.js"></script>
 	<script src="src/game.js"></script>
 	<script src="src/gesture.js"></script>
-	<script src="src/game.css"></script>
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="libs/evothings/ui/ui.js"></script>
 	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
-	<script>window.addEventListener('load', Game.start)</script>
 </head>
 
 <body style="background-image:url(assets/background.png)">
@@ -26,99 +23,97 @@
 </body>
 
 <script>
-		var sensortag
-		function initialiseSensorTag()
-		{
-			// Create SensorTag CC2650 instance.
-			sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
-			sensortag.statusCallback(statusHandler)
-						.errorCallback(errorHandler)
-						.keypressCallback(keypressHandler)
-						.accelerometerCallback(accelerometerHandler, 100)
-						.connectToNearestDevice()
-		}
+if (window.hyper && window.hyper.log) { console.log = hyper.log }
+window.addEventListener('load', Game.start)
+document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
 
-		function connect() { sensortag.connectToNearestDevice() }
+var sensortag
+function initialiseSensorTag() {
+	sensortag = evothings.tisensortag.createInstance(evothings.tisensortag.CC2650_BLUETOOTH_SMART)
+	sensortag.statusCallback(statusHandler)
+				.errorCallback(errorHandler)
+				.keypressCallback(keypressHandler)
+				.accelerometerCallback(accelerometerHandler, 100)
+				.connectToNearestDevice()
+}
 
-		function disconnect()
-		{
-			sensortag.disconnectDevice()
-			resetSensorDisplayValues()
-		}
+function connect() { sensortag.connectToNearestDevice() }
 
-		function statusHandler(status) { displayValue('StatusData', status) }
+function disconnect() {
+	sensortag.disconnectDevice()
+	resetSensorDisplayValues()
+}
 
-		function errorHandler(error)
-		{
-			console.log('Error: ' + error)
-			if (evothings.easyble.error.DISCONNECTED == error) { resetSensorDisplayValues() }
-			else { displayValue('StatusData', 'Error: ' + error) }
-		}
+function statusHandler(status) { displayValue('StatusData', status) }
 
-		var recording = false
-		function keypressHandler(data)
-		{
-			// Update background color.
-			if(data[0] == 1) {
-				recording = !recording
-				if (recording) {hyper.log("Start recording...")} 
-				else {hyper.log ("Done recording...")}
-			}
-		}
+function errorHandler(error) {
+	console.log('Error: ' + error)
+	if (evothings.easyble.error.DISCONNECTED == error) { resetSensorDisplayValues() }
+	else { displayValue('StatusData', 'Error: ' + error) }
+}
 
-		function resetSensorDisplayValues()
-		{
-			displayValue('StatusData', 'Press Connect to find a SensorTag')
-			displayValue('AccelerometerData', '[Waiting for value]')
-			displayValue('Result', 'Not recording')
-		}
-
-		var x_offset = -0.004
-		var y_offset = 0.0
-		var z_offset = -0.01
-		var recordStartTime = 0.0
-		var record = []
-		function accelerometerHandler (data)
-		{	
-			if (recording) { // if it is recording 
-				var values = sensortag.getAccelerometerValues(data)
-				if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
-					if (record.length == 0) {
-						displayValue('Result', 'Recording')
-						recordStartTime = Date.now()/1000
-					}
-					var x = parseFloat ((values.x - x_offset).toFixed(2))
-					var y = parseFloat ((values.y - y_offset).toFixed(2))
-					var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
-					record.push ([x, y, z])
-					string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G' 
-					displayValue('AccelerometerData', string)
-				}
-			} else {
-				if(record.length != 0) {
-					hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-					Gesture.getBestMatching(record)
-					printReading (record)
-					record = []
-					displayValue('AccelerometerData', '[Waiting for value]')
-				}
-			}
-		}
-	
-	function printReading (reading) {
-		var log = ""
-		for (i = 0; i < reading.length; i++) {
-			if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
-			else { log += "[" + reading[i] + "]" }
-		}
-		hyper.log (log)
+var recording = false
+function keypressHandler(data)
+{
+	if(data[0] == 1) {
+		recording = !recording
+		if (recording) {hyper.log("Start recording...")} 
+		else {hyper.log ("Done recording...")}
 	}
+}
+
+function resetSensorDisplayValues()
+{
+	displayValue('StatusData', 'Press Connect to find a SensorTag')
+	displayValue('AccelerometerData', '[Waiting for value]')
+	displayValue('Result', 'Not recording')
+}
+
+var x_offset = -0.004
+var y_offset = 0.0
+var z_offset = -0.01
+var recordStartTime = 0.0
+var record = []
+function accelerometerHandler (data)
+{	
+	if (recording) { // if it is recording 
+		var values = sensortag.getAccelerometerValues(data)
+		if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
+			if (record.length == 0) {
+				displayValue('Result', 'Recording')
+				recordStartTime = Date.now()/1000
+			}
+			var x = parseFloat ((values.x - x_offset).toFixed(2))
+			var y = parseFloat ((values.y - y_offset).toFixed(2))
+			var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
+			record.push ([x, y, z])
+			string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G' 
+			displayValue('AccelerometerData', string)
+		}
+	} else {
+		if(record.length != 0) {
+			hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
+			Gesture.getBestMatching(record)
+			printReading (record)
+			record = []
+			displayValue('AccelerometerData', '[Waiting for value]')
+		}
+	}
+}
+	
+function printReading (reading) {
+	var log = ""
+	for (i = 0; i < reading.length; i++) {
+		if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
+		else { log += "[" + reading[i] + "]" }
+	}
+	hyper.log (log)
+}
 
 	
-		function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
+function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
-		document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
-	</script>
+</script>
 
 </body>
 
