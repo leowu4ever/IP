@@ -49,7 +49,7 @@ Game = {
 
     player = spawn (platform_high_x + 10, platform_high_y - 30, "player")
 
-    recordingImg = spawn (width/2, height/2, "recording")
+    recordingImg = spawn (width/3 + 60, height/2.5, "recording")
     recordingImg.attr({alpha: 0.0})
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
   },
