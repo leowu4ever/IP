@@ -20,9 +20,10 @@ var platform_normal, platform_floating, platform_high, platform_wide
 var player 
 var pos = 2
 var platforms = []
+var numbers = []
 
 Game = {
-  start: function() {
+  start : function () {
     Crafty.init(width, height)
     // wave first
     wave = spawn (0, wave_y, "wave")
@@ -49,8 +50,14 @@ Game = {
 
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
   },
+   showNumber : function (index) {
+     var num = spawn (width - 200, 0, index.toString())
+     num.timeout(function() {
+       num.destroy();
+     }, 2000);
+   },
   
-   moveLeft : function  () {
+   moveLeft : function () {
      var x, y
      if (pos > 0) {
        pos--
@@ -60,7 +67,7 @@ Game = {
      }
    },
      
-   moveRight : function  () {
+   moveRight : function () {
      if (pos < 3) {
        pos++
        x = platforms[pos].x

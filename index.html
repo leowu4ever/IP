@@ -18,6 +18,7 @@
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
+	<button onclick="Game.test()" class="red">test</button>
 </body>
 
 <script>
@@ -91,7 +92,8 @@
 		} else {
 			if(record.length != 0) {
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				Gesture.getBestMatching(record)
+				var index = Gesture.getBestMatching(record)
+				Game.showNumber(index)
 				printReading (record)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')
