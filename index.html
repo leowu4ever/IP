@@ -18,7 +18,6 @@
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
-	<button onclick="Game.test()" class="red">test</button>
 </body>
 
 <script>
@@ -79,6 +78,7 @@
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
+					Game.showRecordingImg()
 					displayValue('Result', 'Recording')
 					recordStartTime = Date.now()/1000
 				}
@@ -91,6 +91,7 @@
 			}
 		} else {
 			if(record.length != 0) {
+				Game.hideRecordingImg()
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
 				var index = Gesture.getBestMatching(record)
 				Game.showNumber(index)

@@ -21,6 +21,7 @@ var player
 var pos = 2
 var platforms = []
 var numbers = []
+var recordingImg
 
 Game = {
   start : function () {
@@ -48,6 +49,8 @@ Game = {
 
     player = spawn (platform_high_x + 10, platform_high_y - 30, "player")
 
+    recordingImg = spawn (width/2, height/2, "recording")
+    recordingImg.attr({alpha: 0.0})
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
   },
    showNumber : function (index) {
@@ -74,8 +77,15 @@ Game = {
        y = platforms[pos].y
        player.tween({x: x + 10, y: y - 30}, 1000, "easeInQuad")
      }
-   }
+   },
 
+   showRecordingImg : function () {
+     recordingImg.tween ({alpha: 1.0}, 200)
+   },
+
+   hideRecordingImg : function () {
+     recordingImg.tween ({alpha: 0.0}, 200)
+   }
    // queston type 1. counting items like diamond/star 2. simply just a question 
 }
 
