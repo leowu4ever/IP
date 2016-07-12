@@ -18,11 +18,12 @@
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
+	<button onclick="location.href='index.html'" class="green">BACK</button>
 </body>
 
 <script>
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	window.addEventListener('load', Game.start)
+	window.addEventListener('load', Game.game1start)
 	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
 
 	var sensortag
@@ -113,4 +114,5 @@
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
 </script>
+
 </html>
