@@ -54,7 +54,14 @@ Game = {
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
   },
    showNumber : function (index) {
-     var num = spawn (width - 200, 0, index.toString())
+     var content
+     if (index == 10) { content = "left" }
+     else if (index == 11) { content = "right"}
+     else if (index == 12) { content = "square"}
+     else if (index == 13) { content = "triangle"}
+     else { content = index.toString()}
+
+     var num = spawn (width - 200, 0, content)
      num.timeout(function() {
        num.destroy();
      }, 2000);
