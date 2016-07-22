@@ -144,7 +144,6 @@
 
       function plot () {
         var tempdata = data_1
-
         var x_before = getAxis (tempdata, 0)
         var x_after = getAxis (interpolate(segment(smooth(tempdata))), 0)
         var trace1_x = { y: x_before, mode: 'lines+markers' }

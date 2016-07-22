@@ -86,8 +86,10 @@
 				var x = parseFloat ((values.x - x_offset).toFixed(2))
 				var y = parseFloat ((values.y - y_offset).toFixed(2))
 				var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
+				var roll  = Math.atan(y / Math.sqrt (x*x + z*z)) * 180/Math.PI
+				Game.updateWheel(roll)
 				record.push ([x, y, z])
-				string = 'x: ' + (x >= 0 ? '+' : '') + x + 'G' + 'y: ' + (y >= 0 ? '+' : '') + y + 'G' + 'z: ' + (z >= 0 ? '+' : '') + z + 'G' 
+				string = "roll: " + roll 
 				displayValue('AccelerometerData', string)
 			}
 		} else {

@@ -1,6 +1,7 @@
 var width = window.innerWidth // 981
 var height = window.innerHeight // 553
 
+// game 1
 var wave_y = 0.8 * height
 
 var platform_normal_x = 0 * width
@@ -23,7 +24,10 @@ var platforms = []
 var numbers = []
 var recordingImg
 
-Game = {
+// game 2
+var wheel
+
+Game1 = {
   game1start: function () {
     Crafty.init(width, height)
     // wave first
@@ -52,25 +56,10 @@ Game = {
     recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
     recordingImg.attr({ alpha: 0.0 })
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
+
+    
   },
 
-  game2start: function () {
-    Crafty.init(width, height)
-    spawn (300, 50, "circle_base")
-    spawn (370, 70, "1")
-    spawn (520, 70, "2")
-    spawn (370, 270, "3")
-    spawn (520, 270, "4")
-    spawn (500, 225, "arrow")
-  },
-
-  game3start: function () {
-    Crafty.init(width, height)
-    spawn (0, 0, "circle")
-    spawn (500, 300, "square")
-    spawn (200, 200, "triangle")
-  },
-  
   showNumber: function (index) {
     var content
     if (index == 10) { content = "left" }
@@ -110,8 +99,39 @@ Game = {
 
   hideRecordingImg: function () {
     recordingImg.tween({ alpha: 0.0 }, 200)
-  }
+  },
+
+
+  // game 2
+  game2start: function () {
+    Crafty.init(width, height)
+    wheel = spawn(300, 50, "circle_base")
+    wheel.origin("center")
+    spawn(370, 70, "1")
+    spawn(520, 70, "2")
+    spawn(370, 270, "3")
+    spawn(520, 270, "4")
+    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
+    recordingImg.attr({ alpha: 0.0 })
+  },
+
+
+  // game 3
+  game3start: function () {
+    Crafty.init(width, height)
+    spawn(0, 0, "circle")
+    spawn(500, 300, "square")
+    spawn(200, 200, "triangle")
+    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
+    recordingImg.attr({ alpha: 0.0 })
+  },
+
   // queston type 1. counting items like diamond/star 2. simply just a question 
+
+  updateWheel: function (roll) {
+
+    wheel.attr({ rotation: roll })
+  }
 }
 
 function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/" + name + ".png") }
