@@ -28,7 +28,7 @@ var recordingImg
 var wheel
 
 Game1 = {
-  game1start: function () {
+  gamestart: function () {
     Crafty.init(width, height)
     // wave first
     wave = spawn(0, wave_y, "wave")
