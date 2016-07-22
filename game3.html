@@ -5,7 +5,7 @@
 	<meta name="format-detection" content="telephone=no" />
 	<script src="cordova.js"></script>
 	<script src="libs/crafty.js"></script>
-	<script src="src/game.js"></script>
+	<script src="src/game3.js"></script>
 	<script src="src/gesture.js"></script>
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="libs/evothings/ui/ui.js"></script>
@@ -23,7 +23,7 @@
 
 <script>
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	window.addEventListener('load', Game.game3start)
+	window.addEventListener('load', Game3.gamestart)
 	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
 
 	var sensortag
