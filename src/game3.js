@@ -10,14 +10,11 @@ Game3 = {
     initQuestion()
     Crafty.init(width, height)
 
-    
-
-
     var length = question.length
     for (var i = 0; i < length; i++) {
-      var randomInt = getRandomInt (0, question.length -1)
-      spawn ((i%5) * 55, Math.floor(i/5)* 55, question[randomInt] + i)
-      question.splice (randomInt, 1)
+      var randomInt = getRandomInt(0, question.length - 1)
+      spawn((i % 5) * 55, Math.floor(i / 5) * 55, question[randomInt] + i)
+      question.splice(randomInt, 1)
     }
   }
 }
@@ -34,22 +31,22 @@ function initQuestion() {
     amounts[i] = digits[randomInt]
     digits.splice(randomInt, 1)
   }
-  console.log (amounts)
-  for (var a = 0; a < amounts[0]; a++) { question.push ("square") }
-  for (var a = 0; a < amounts[1]; a++) { question.push ("circle") }
-  for (var a = 0; a < amounts[2]; a++) { question.push ("triangle")}
+  console.log(amounts)
+  for (var a = 0; a < amounts[0]; a++) { question.push("square") }
+  for (var a = 0; a < amounts[1]; a++) { question.push("circle") }
+  for (var a = 0; a < amounts[2]; a++) { question.push("triangle") }
   answer = indexOfMax(amounts)
 }
 
 function indexOfMax(arr) {
-    if (arr.length === 0) { return -1 }
-    var max = arr[0]
-    var maxIndex = 0
-    for (var i = 1; i < arr.length; i++) {
-        if (arr[i] > max) {
-            maxIndex = i
-            max = arr[i]
-        }
+  if (arr.length === 0) { return -1 }
+  var max = arr[0]
+  var maxIndex = 0
+  for (var i = 1; i < arr.length; i++) {
+    if (arr[i] > max) {
+      maxIndex = i
+      max = arr[i]
     }
-    return maxIndex;
+  }
+  return maxIndex;
 }
