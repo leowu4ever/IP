@@ -3,16 +3,13 @@ var height = window.innerHeight // 553
 
 var question = []
 var answer = 0
-
+var temp = []
 Game3 = {
   // game 3
   gamestart: function () {
     initQuestion()
     Crafty.init(width, height)
-    for (var i = 0; i < question.length; i++) {
-      spawn ((i%3) * 55, Math.floor(i/3)* 55, question[i])
-    }
-
+    
   }
 }
 
