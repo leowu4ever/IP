@@ -9,8 +9,15 @@ Game3 = {
   gamestart: function () {
     initQuestion()
     Crafty.init(width, height)
-    for (var i = 0; i < question.length; i++) {
-      spawn ((i%5) * 55, Math.floor(i/5)* 55, question[i] + i)
+
+    
+
+
+    var length = question.length
+    for (var i = 0; i < length; i++) {
+      var randomInt = getRandomInt (0, question.length -1)
+      spawn ((i%5) * 55, Math.floor(i/5)* 55, question[randomInt] + i)
+      question.splice (randomInt, 1)
     }
   }
 }
@@ -27,7 +34,7 @@ function initQuestion() {
     amounts[i] = digits[randomInt]
     digits.splice(randomInt, 1)
   }
-   hyper.log (amounts)
+  console.log (amounts)
   for (var a = 0; a < amounts[0]; a++) { question.push ("square") }
   for (var a = 0; a < amounts[1]; a++) { question.push ("circle") }
   for (var a = 0; a < amounts[2]; a++) { question.push ("triangle")}
