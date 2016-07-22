@@ -10,7 +10,7 @@ Game3 = {
     initQuestion()
     Crafty.init(width, height)
     for (var i = 0; i < question.length; i++) {
-      spawn ((i%3) * 55, Math.floor(i/3)* 55, question[i] + i)
+      spawn ((i%5) * 55, Math.floor(i/5)* 55, question[i] + i)
     }
   }
 }
@@ -20,7 +20,7 @@ function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: 
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
 function initQuestion() {
-  var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
   var amounts = []  // square circle triangle
   for (var i = 0; i < 3; i++) {
     var randomInt = getRandomInt(0, digits.length - 1)
