@@ -13,18 +13,19 @@ Game3 = {
     var length = question.length
     for (var i = 0; i < length; i++) {
       var randomInt = getRandomInt(0, question.length - 1)
-      spawn((i % 5) * 55, Math.floor(i / 5) * 55, question[randomInt] + i)
+      spawn((i % 5) * 55 + 100, Math.floor(i / 5) * 55 + 50, question[randomInt] + i)
       question.splice(randomInt, 1)
     }
+    spawn (width/2, 50, "whichshape")
   }
 }
 
-function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/shapes/" + name + ".png") }
+function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game2/" + name + ".png") }
 
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
 function initQuestion() {
-  var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+  var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
   var amounts = []  // square circle triangle
   for (var i = 0; i < 3; i++) {
     var randomInt = getRandomInt(0, digits.length - 1)
