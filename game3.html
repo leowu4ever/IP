@@ -24,7 +24,7 @@
 <script>
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
 	window.addEventListener('load', Game3.gamestart)
-	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
+	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) }, false)
 
 	var sensortag
 	function initialiseSensorTag() {
@@ -52,8 +52,7 @@
 	}
 
 	var recording = false
-	function keypressHandler(data)
-	{
+	function keypressHandler(data) {
 		if(data[0] == 1) {
 			recording = !recording
 			if (recording) {hyper.log("Start recording...")} 
@@ -61,8 +60,7 @@
 		}
 	}
 
-	function resetSensorDisplayValues()
-	{
+	function resetSensorDisplayValues() {
 		displayValue('StatusData', 'Press Connect to find a SensorTag')
 		displayValue('AccelerometerData', '[Waiting for value]')
 		displayValue('Result', 'Not recording')
@@ -73,13 +71,12 @@
 	var z_offset = -0.01
 	var recordStartTime = 0.0
 	var record = []
-	function accelerometerHandler (data)
-	{	
+	function accelerometerHandler (data) {	
 		if (recording) { // if it is recording 
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
-					Game.showRecordingImg()
+					Game3.showRecordingImg()
 					displayValue('Result', 'Recording')
 					recordStartTime = Date.now()/1000
 				}
@@ -92,27 +89,14 @@
 			}
 		} else {
 			if(record.length != 0) {
-				Game.hideRecordingImg()
-				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				var index = Gesture.getBestMatching(record)
-				Game.showNumber(index)
-				printReading (record)
+				Game3.hideRecordingImg()
+				var index = Gesture.getBestMatching2(record)
+				Game3.showShape(index)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')
 			}
 		}
 	}
-		
-	function printReading (reading) {
-		var log = ""
-		for (i = 0; i < reading.length; i++) {
-			if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
-			else { log += "[" + reading[i] + "]" }
-		}
-		hyper.log (log)
-	}
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
-
 </script>
-
 </html>

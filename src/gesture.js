@@ -30,9 +30,9 @@ var data_square = [[-0.00016333333333333336,0.0006666666666666666,1],[-0.0006090
 var dataset = []
 
 Gesture = {
-  getBestMatching: function (data) {
+  getBestMatching1: function (data) {
     var result = []
-    dataset = [data_0, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_left, data_right, data_square, data_triangle]
+    dataset = [data_0, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_left, data_right]
     var temp = interpolate(segment(smooth(data)))
     result.push(getReadingDistance(dataset[0], temp))
     result.push(getReadingDistance(dataset[1], temp))
@@ -52,6 +52,22 @@ Gesture = {
     var index = minIndex(result)
     if (index == 10) { Game.moveLeft() }
     if (index == 11) { Game.moveRight() }
+    hyper.log(result)
+    hyper.log(index)
+    displayValue('Result', "Input is " + index)
+    return index
+  },
+
+
+ getBestMatching2: function (data) {
+    var result = []
+    dataset = [data_square, data_0, data_triangle]
+    var temp = interpolate(segment(smooth(data)))
+    result.push(getReadingDistance(dataset[0], temp))
+    result.push(getReadingDistance(dataset[1], temp))
+    result.push(getReadingDistance(dataset[2], temp))
+
+    var index = minIndex(result)
     hyper.log(result)
     hyper.log(index)
     displayValue('Result', "Input is " + index)

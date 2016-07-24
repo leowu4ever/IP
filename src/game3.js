@@ -4,6 +4,9 @@ var height = window.innerHeight // 553
 var amounts = []  // square circle triangle
 var question = []
 var answer = 0
+
+var recordingImg
+
 Game3 = {
   // game 3
   gamestart: function () {
@@ -16,7 +19,29 @@ Game3 = {
       spawn((i % 5) * 55 + 100, Math.floor(i / 5) * 55 + 50, question[randomInt] + i)
       question.splice(randomInt, 1)
     }
-    spawn (width/2, 50, "whichshape")
+    spawn(width / 2, 50, "whichshape")
+    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
+    recordingImg.attr({ alpha: 0.0 })
+  },
+
+  showShape: function (index) {
+    var content
+    if (index == 0) { content = "square" }
+    if (index == 1) { content = "circle" }
+    if (index == 2) { content = "triangle" }
+    
+    var num = spawn(width-390, 200, content)
+    num.timeout(function () {
+      num.destroy();
+    }, 2000);
+  },
+
+  showRecordingImg: function () {
+    recordingImg.tween({ alpha: 1.0 }, 200)
+  },
+
+  hideRecordingImg: function () {
+    recordingImg.tween({ alpha: 0.0 }, 200)
   }
 }
 
@@ -49,5 +74,5 @@ function indexOfMax(arr) {
       max = arr[i]
     }
   }
-  return maxIndex;
+  return maxIndex
 }
