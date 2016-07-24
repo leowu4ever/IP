@@ -6,8 +6,7 @@ var question = []
 var answer = 0
 
 var black
-var correct
-var tryagain
+
 
 var recordingImg
 
@@ -24,14 +23,11 @@ Game3 = {
       question.splice(randomInt, 1)
     }
     spawn(width / 2, 50, "whichshape")
-    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
+    recordingImg = spawn(400, 400, "recording")
     recordingImg.attr({ alpha: 0.0 })
-
-
 
     black = spawn(0, 0, "black")
     black.attr({ alpha: 0.0 })
-
   },
 
   showShape: function (index) {
@@ -40,8 +36,15 @@ Game3 = {
     if (index == 1) { content = "circle" }
     if (index == 2) { content = "triangle" }
 
-    var num = spawn(width - 390, 200, content)
-    num.timeout(function () { num.destroy() }, 2000)
+    var shape = spawn(width - 390, 200, content)
+    shape.timeout(function () { shape.destroy() }, 1500)
+
+    if (index == answer) {
+      var correct = spawn(width - 360, 200, "correct")
+    } else {
+      var tryagain = spawn(width - 440, 400, "tryagain")
+      tryagain.timeout(function () { tryagain.destroy() }, 1500)
+    }
   },
 
   showRecordingImg: function () {
@@ -53,6 +56,8 @@ Game3 = {
     recordingImg.tween({ alpha: 0.0 }, 200)
     black.tween({ alpha: 0.0 }, 200)
   }
+
+
 }
 
 function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game3/" + name + ".png") }
