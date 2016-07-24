@@ -5,6 +5,10 @@ var amounts = []  // square circle triangle
 var question = []
 var answer = 0
 
+var black
+var correct
+var tryagain
+
 var recordingImg
 
 Game3 = {
@@ -22,6 +26,12 @@ Game3 = {
     spawn(width / 2, 50, "whichshape")
     recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
     recordingImg.attr({ alpha: 0.0 })
+
+
+
+    black = spawn(0, 0, "black")
+    black.attr({ alpha: 0.0 })
+
   },
 
   showShape: function (index) {
@@ -29,23 +39,23 @@ Game3 = {
     if (index == 0) { content = "square" }
     if (index == 1) { content = "circle" }
     if (index == 2) { content = "triangle" }
-    
-    var num = spawn(width-390, 200, content)
-    num.timeout(function () {
-      num.destroy();
-    }, 2000);
+
+    var num = spawn(width - 390, 200, content)
+    num.timeout(function () { num.destroy() }, 2000)
   },
 
   showRecordingImg: function () {
     recordingImg.tween({ alpha: 1.0 }, 200)
+    black.tween({ alpha: 0.5 }, 200)
   },
 
   hideRecordingImg: function () {
     recordingImg.tween({ alpha: 0.0 }, 200)
+    black.tween({ alpha: 0.0 }, 200)
   }
 }
 
-function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game2/" + name + ".png") }
+function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game3/" + name + ".png") }
 
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
