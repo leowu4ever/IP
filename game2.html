@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8" />
 	<meta name="format-detection" content="telephone=no" />
@@ -13,12 +14,13 @@
 </head>
 
 <body style="background-image:url(assets/background.png)">
-	<button onclick="connect()" >connect</button>
-	<button onclick="disconnect()" >disconnect</button>
+	<button onclick="connect()">connect</button>
+	<button onclick="disconnect()">disconnect</button>
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
 	<button onclick="location.href='index.html'"> BACK</button>
+	<button onclick="location.href='game2.html'"> restart</button>
 </body>
 
 <script>
@@ -57,7 +59,10 @@
 		if(data[0] == 1) {
 			recording = !recording
 			if (recording) {hyper.log("Start recording...")} 
-			else {hyper.log ("Done recording...")}
+			else {
+				Game2.checkAnswer()
+				Game2.updateArrow (0)
+				hyper.log ("Done recording...")}
 		}
 	}
 
@@ -88,6 +93,7 @@
 				var z = (values.z - z_offset)/0.26
 				var roll  = Math.atan(y / Math.sqrt (x*x + z*z)) * 180/Math.PI
 				record.push ([x, y, z])
+				Game2.updateArrow (roll)
 				string = "roll: " + roll.toFixed(0) 
 				displayValue('AccelerometerData', string)
 			}
@@ -114,4 +120,5 @@
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 
 </script>
+
 </html>
