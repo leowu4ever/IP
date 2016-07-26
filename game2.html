@@ -79,25 +79,23 @@
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
-					Game.showRecordingImg()
+					Game2.showRecordingImg()
 					displayValue('Result', 'Recording')
 					recordStartTime = Date.now()/1000
 				}
-				var x = parseFloat ((values.x - x_offset).toFixed(2))
-				var y = parseFloat ((values.y - y_offset).toFixed(2))
-				var z = parseFloat ((values.z - z_offset).toFixed(2))/0.26
+				var x = (values.x - x_offset)
+				var y = (values.y - y_offset)
+				var z = (values.z - z_offset)/0.26
 				var roll  = Math.atan(y / Math.sqrt (x*x + z*z)) * 180/Math.PI
-				Game.updateWheel(roll)
 				record.push ([x, y, z])
-				string = "roll: " + roll 
+				string = "roll: " + roll.toFixed(0) 
 				displayValue('AccelerometerData', string)
 			}
 		} else {
 			if(record.length != 0) {
-				Game.hideRecordingImg()
+				Game2.hideRecordingImg()
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				var index = Gesture.getBestMatching(record)
-				Game.showNumber(index)
+				//var index = Gesture.getBestMatching(record)
 				printReading (record)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')
