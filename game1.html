@@ -79,7 +79,7 @@
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
-					Game.showRecordingImg()
+					Game1.showRecordingImg()
 					displayValue('Result', 'Recording')
 					recordStartTime = Date.now()/1000
 				}
@@ -92,10 +92,10 @@
 			}
 		} else {
 			if(record.length != 0) {
-				Game.hideRecordingImg()
+				Game1.hideRecordingImg()
 				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
-				var index = Gesture.getBestMatching(record)
-				Game.showNumber(index)
+				var index = Gesture.getBestMatching1(record)
+				Game1.showNumber(index)
 				printReading (record)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')

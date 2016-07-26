@@ -90,9 +90,8 @@
 		} else {
 			if(record.length != 0) {
 				Game3.hideRecordingImg()
-				var index = Gesture.getBestMatching2(record)
+				var index = Gesture.getBestMatching3(record)
 				Game3.showShape(index)
-					
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')
 			}

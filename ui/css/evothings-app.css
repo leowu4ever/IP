@@ -21,7 +21,6 @@ html, body {
 	-webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 body {
-	margin: 0 0.9em 0 0.9em;
 	font-size: 150%;
 	font-size: 7.5vw;
 }
@@ -464,10 +463,9 @@ figcaption {
 h1 {
 	padding: 0;
 	margin: 1em 0 0 0;
-
+	color: grey;
 	font-family: 'Proxima Nova Black';
 	font-size: 100%;
-	line-height: 1.5;
 
 	vertical-align: middle;
 }
@@ -494,6 +492,7 @@ a {
 p {
 	margin: 0.4em 0 0.4em 0;
 	padding: 0;
+	color: grey;
 
 	font-size: 63%;
 	line-height: 1.5;
