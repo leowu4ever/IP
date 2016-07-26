@@ -31,8 +31,10 @@ Game2 = {
     Crafty.init(width, height)
     initQuestion()
 
+
+    // wheel
     wheel = spawn(50, 50, "circle_base")
-    spawn(140, 110, "1")
+    spawn(140, 110, answer.toString()+"_copycopy")
     spawn(290, 110, "2")
     spawn(140, 280, "3")
     spawn(290, 280, "4")
@@ -46,13 +48,21 @@ Game2 = {
     a4 = spawn(370, 400, "a4")
     a4.attr({ alpha: 0.0 })
 
+
+    // equation question
     spawn(500, 100, f1.toString() + "_")
     spawn(580, 100, "minus")
     spawn(660, 100, f2.toString() + "_copy")
     spawn(740, 100, "equal")
+    //spawn (820, 100, "1_copycopy")
 
-    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
+    // noti
+    spawn (600, 300, "correct")
+    spawn (600, 300, "tryagain")
+
+    recordingImg = spawn(400, 400, "recording")
     recordingImg.attr({ alpha: 0.0 })
+
   },
 
 }
