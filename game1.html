@@ -84,10 +84,10 @@
 	var z_offset = -0.01
 	var recordStartTime = 0.0
 	var record = []
-	var id = 0
+	var id = 48
 	function accelerometerHandler (data)
 	{	
-		if (recording) { // if it is recording 
+		if (recording) { // if it is recording  
 			var values = sensortag.getAccelerometerValues(data)
 			if (!isNaN (values.x) && !isNaN (values.y) && !isNaN (values.z)) {
 				if (record.length == 0) {
