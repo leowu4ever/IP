@@ -24,6 +24,8 @@ var platforms = []
 var recordingImg
 
 var answers = []
+var questions = []
+var q1, q2, q3
 
 // game 2
 var wheel
@@ -35,7 +37,7 @@ Game1 = {
     initQuestion()
     // wave first
     wave = spawn(0, wave_y, "wave")
-  
+
     // normal
     platform_normal = spawn(platform_normal_x, platform_normal_y, "platform_normal")
     spawn(platform_normal_x + 70, platform_normal_y - 30, "star")
@@ -59,8 +61,10 @@ Game1 = {
     recordingImg.attr({ alpha: 0.0 })
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
 
-    spawn (100, 100, "q1")
-    spawn ()
+    spawn(180, 50, "q1")
+    for (i = 0; i < answers[0]; i++) {
+      spawn(210 + i * 30, 150, "star"+i)
+    }
   },
 
   showNumber: function (index) {
@@ -141,9 +145,9 @@ function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min +
 
 function initQuestion() {
   for (var i = 0; i < 3; i++) {
-    answers[0] = getRandomInt (1,9)
-    answers[1] = getRandomInt (1,9)
-    answers[3] = getRandomInt (1,9)
+    answers[0] = getRandomInt(1, 9)
+    answers[1] = getRandomInt(1, 9)
+    answers[3] = getRandomInt(1, 9)
   }
 }
 
