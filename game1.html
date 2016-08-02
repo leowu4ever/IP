@@ -67,8 +67,8 @@
 	{
 		if(data[0] == 1) {
 			recording = !recording
-			if (recording) {hyper.log("Start recording...")} 
-			else {hyper.log ("Done recording...")}
+			//if (recording) {hyper.log("Start recording...")} 
+			//else {hyper.log ("Done recording...")}
 		}
 	}
 
@@ -84,6 +84,7 @@
 	var z_offset = -0.01
 	var recordStartTime = 0.0
 	var record = []
+	var id = 0
 	function accelerometerHandler (data)
 	{	
 		if (recording) { // if it is recording 
@@ -104,12 +105,13 @@
 		} else {
 			if(record.length != 0) {
 				Game1.hideRecordingImg()
-				hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
+				//hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
 				var index = Gesture.getBestMatching1(record)
 				Game1.showNumber(index)
 				printReading (record)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')
+				id++
 			}
 		}
 	}
@@ -120,7 +122,7 @@
 			if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
 			else { log += "[" + reading[i] + "]" }
 		}
-		hyper.log (log)
+		hyper.log ("var data_" + id + " =" + " [ " + log + " ]")
 	}
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
 </script>

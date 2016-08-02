@@ -51,8 +51,8 @@ Gesture = {
     var index = minIndex(result)
     if (index == 10) { Game1.moveLeft() }
     if (index == 11) { Game1.moveRight() }
-    hyper.log(result)
-    hyper.log(index)
+   // hyper.log(result)
+   //  hyper.log(index)
     displayValue('Result', "Input is " + index)
     return index
   },
