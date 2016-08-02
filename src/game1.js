@@ -21,8 +21,9 @@ var platform_normal, platform_floating, platform_high, platform_wide
 var player
 var pos = 2
 var platforms = []
-var numbers = []
 var recordingImg
+
+var answers = []
 
 // game 2
 var wheel
@@ -30,9 +31,11 @@ var wheel
 Game1 = {
   gamestart: function () {
     Crafty.init(width, height)
+
+    initQuestion()
     // wave first
     wave = spawn(0, wave_y, "wave")
-    // for each platform from left to right
+  
     // normal
     platform_normal = spawn(platform_normal_x, platform_normal_y, "platform_normal")
     spawn(platform_normal_x + 70, platform_normal_y - 30, "star")
@@ -52,12 +55,12 @@ Game1 = {
     spawn(platform_wide_x + 170, platform_wide_y - 80, "cloud")
 
     player = spawn(platform_high_x + 10, platform_high_y - 30, "player")
-
     recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
     recordingImg.attr({ alpha: 0.0 })
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
 
-    
+    spawn (100, 100, "q1")
+    spawn ()
   },
 
   showNumber: function (index) {
@@ -134,6 +137,16 @@ Game1 = {
   }
 }
 
-function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/" + name + ".png") }
+function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
+
+function initQuestion() {
+  for (var i = 0; i < 3; i++) {
+    answers[0] = getRandomInt (1,9)
+    answers[1] = getRandomInt (1,9)
+    answers[3] = getRandomInt (1,9)
+  }
+}
+
+function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game1/" + name + ".png") }
 
 
