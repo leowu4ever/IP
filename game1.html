@@ -45,6 +45,11 @@
 					.keypressCallback(keypressHandler)
 					.accelerometerCallback(accelerometerHandler, 100)
 					.connectToNearestDevice()
+		var s = ""
+		for (i = 0; i < 50; i++) {
+			s += "trace"+i + "_z, "
+		}	
+		hyper.log(s)			
 	}
 	
 	function connect() { sensortag.connectToNearestDevice() }

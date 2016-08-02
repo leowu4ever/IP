@@ -1,39 +1,667 @@
-<!DOCTYPE html>
-<!--
-	Demonstration of the TI SensorTag JavaScript library.
--->
 <html>
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="format-detection" content="telephone=no" />
-	<meta name="viewport" content="width=device-width, user-scalable=no,
-		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<title>TI SensorTag CC2650 &amp; CC2541 Sensors</title>
+  <meta charset="utf-8" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="viewport" content="width=device-width, user-scalable=no,
+      shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<style>
-		@import 'ui/css/evothings-app.css';
-	</style>
+  <style>
+    @import 'ui/css/evothings-app.css';
+  </style>
 
-	<script>
-	// Redirect console.log to Evothings Workbench.
-	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	</script>
-	<script src="libs/plotly-latest.min.js"></script>
-	<script src="cordova.js"></script>
-	<script src="libs/evothings/evothings.js"></script>
-	<script src="libs/evothings/ui/ui.js"></script>
-	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+  <script>
+    // Redirect console.log to Evothings Workbench.	
+    if (window.hyper && window.hyper.log) { console.log = hyper.log}
+    </script>
+  <script src="libs/plotly-latest.min.js"></script>
+  <script src="cordova.js"></script>
+  <script src="crafty.js"></script>
+  <script src="libs/evothings/evothings.js"></script>
+  <script src="libs/evothings/ui/ui.js"></script>
+  <script src="libs/evothings/tisensortag/tisensortag.js"></script>
+
 </head>
 
-<body style="background-image:url(assets/background.png)">
-	<h1>An Interactive Game for Children with Learning Difficulties</h1>
-	<button onclick="location.href='game1.html'" class="green">game 1</button>
-	<button onclick="location.href='game2.html'" class="yellow">game 2</button>
-	<button onclick="location.href='game3.html'" class="red">game 3</button>
-	<div><button onclick="location.href='help.html'" class="blue">help</button></div>
-	<p>Liqun Wu Supervised by Dr. Benny Lo</p>
+<body>
+  <div>
+    <button onclick="plot()" class="green">
+	       plot
+	   </button>
+  </div>
+
+  <div id="x" style="width: 500px; height: 500px; float:left">
+    <!-- Plotly chart will be drawn inside this DIV -->
+  </div>
+  <div id="z" style="width: 500px; height: 500px; float:right">
+    <!-- Plotly chart will be drawn inside this DIV -->
+  </div>
+  <div id="y" style="width: 500px; height: 500px; margin: 0 auto">
+    <!-- Plotly chart will be drawn inside this DIV -->
+  </div>
+
+  <script>
+     
+  var data_0 = [ [0,0,1],[0,0,1],[-0.01,0,1],[0.02,0,1],[0.02,0.01,1],[0,0,1],[-0.01,0,1],[-0.01,0.01,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,-0.02,1],[-0.02,-0.02,1],[-0.01,-0.03,1],[0,-0.03,1],[0.02,-0.01,1],[-0.02,-0.04,1],[0.01,-0.01,1],[0.02,0,1],[0.01,0,1],[0.01,0.02,1],[0.01,0.04,1],[0,0.02,1],[-0.04,-0.01,1] ]
+
+  var data_1 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0.02,-0.02,1],[0.01,0,1],[0.02,0,1],[0.03,0.03,1],[0.02,0.02,1],[0.01,0.02,1],[-0.02,0.02,1],[-0.03,0.01,1] ]
+
+  var data_2 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0,1],[0.01,0.02,1],[-0.01,0.02,1],[-0.01,0.02,1],[-0.01,0,1],[-0.01,0,1],[-0.03,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[0.01,-0.03,1],[0.01,0,1],[0.01,-0.01,1],[0,-0.02,1],[0.02,0.01,1],[0.01,0.04,1],[-0.01,0.03,1],[-0.02,0.01,1],[-0.02,0,1] ]
+
+  var data_3 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0,1],[0.01,0.01,1],[-0.01,0.02,1],[0,0.02,1],[0,0.03,1],[0,0.03,1],[-0.02,0,1],[-0.02,0,1],[-0.02,0,1],[-0.01,-0.02,1],[-0.02,-0.01,1],[0,-0.03,1],[0.01,-0.02,1],[0.02,-0.01,1],[0.02,0.01,1],[0.01,0.01,1],[0.01,0.02,1],[0.01,0.03,1],[0,0.02,1],[0,0.01,1],[-0.01,0,1] ]
+
+  var data_4 = [ [0,0,1],[0,0,1],[0.02,-0.01,1],[0,0.01,1],[0.01,0.01,1],[0,0.01,1],[-0.01,0.01,1],[0,0.03,1],[-0.02,0.01,1],[-0.02,0,1],[-0.02,-0.02,1],[-0.02,-0.01,0.9615384615384615],[-0.02,-0.01,1],[0,-0.01,1],[0,-0.03,1],[0,-0.02,1],[0.01,0,1],[0,0,1],[0,0.01,1],[0.01,0.03,1],[-0.01,0.02,1],[-0.01,0.02,1],[-0.02,0,1] ]
+
+  var data_5 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0.01,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.02,-0.02,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[0,-0.02,1],[0.02,0,1],[0.01,0,1],[0.02,0.03,1],[0.01,0.01,1],[0,0.03,1],[0,0.03,1],[-0.01,0.01,1],[-0.03,0,1] ]
+
+  var data_6 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[0,0,1],[-0.02,0,1],[-0.01,0.01,1],[-0.01,0,1],[-0.02,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[0,-0.01,1],[-0.01,-0.03,1],[0.01,0,1],[0,-0.01,1],[0.01,0.01,1],[0,0.01,1],[0,0.02,1],[-0.01,0.01,1],[-0.02,0,1] ]
+
+  var data_7 = [ [0,0,1],[0,0,1],[0,0.01,1],[0,0.01,1],[-0.01,0.01,1],[0,0.01,1],[0,0.02,1],[0,0.02,1],[-0.01,0.01,1],[-0.01,-0.01,1],[-0.02,0,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.03,1],[0.01,0.01,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0,0.01,1],[0,0.01,1],[0,0,1],[0,0.02,1],[-0.02,0.01,1],[-0.02,0,1],[0,0,1] ]
+
+  var data_8 = [ [0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[0,0.02,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,0,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[-0.01,-0.01,1],[0,-0.01,1],[0.01,-0.01,1],[0,-0.01,1],[0,-0.02,1],[0.01,0,1],[0.01,-0.01,1],[0,0,1],[0,0.01,1],[-0.01,0.01,1],[-0.03,0.01,1],[-0.02,0,1] ]
+
+  var data_9 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[0,0.02,1],[-0.02,0,1],[-0.01,0.01,1],[-0.02,-0.02,1],[-0.01,0,1],[-0.02,0,1],[-0.01,0,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.01,1],[0,-0.02,1],[0,-0.02,1],[0.01,-0.02,1],[0,-0.02,1],[0.02,0.02,0.9615384615384615],[0.01,0.03,1],[-0.01,0.02,1],[-0.04,0,1] ]
+
+  var data_10 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0.02,0.02,1],[-0.01,0.01,1],[-0.01,0,1],[0,0.02,1],[-0.01,0.01,1],[-0.02,0,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.02,0,1],[-0.01,-0.02,1],[-0.02,-0.02,1],[0,-0.02,1],[0,-0.02,0.9615384615384615],[-0.01,-0.03,1],[0,-0.01,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0.02,1],[0,0.01,1],[-0.03,0.01,1],[-0.02,0,1] ]
+
+  var data_11 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0.01,0.02,1],[-0.01,0,1],[0,0.01,1],[-0.01,0.01,1],[-0.02,0.02,1],[-0.02,-0.02,1],[-0.01,0,1],[0,0,1],[0,-0.02,1],[-0.01,-0.01,1],[0,-0.02,1],[0.01,-0.01,1],[0.01,-0.01,1],[0.01,-0.01,1],[0.01,0,1],[0,-0.01,1],[0,0.01,1],[0.01,0.01,1],[0,0.03,1],[0.01,0.02,1],[-0.03,0,1] ]
+
+  var data_12 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0.01,0,1],[0.01,0.02,1],[-0.01,0.01,1],[-0.01,0.02,1],[-0.02,0,1],[0,0,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.02,1],[-0.01,-0.01,1],[0.02,-0.01,1],[0.02,-0.02,1],[0.02,-0.02,1],[0.01,-0.01,1],[0,0,1],[0.01,0.01,1],[0.01,0.02,1],[-0.01,0.02,1],[-0.01,0.02,1] ]
+
+  var data_13 = [ [0,0,1],[0.01,0.02,1],[0.01,0.01,1],[0.01,0.02,1],[0,0,1],[0,0.02,1],[-0.01,0.03,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.03,1],[0.02,-0.01,1],[0.01,0,1],[0.01,0,1],[0,0.01,1],[0.01,0.03,1],[-0.01,0.02,1],[-0.07,0,0.9615384615384615] ]
+
+  var data_14 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.02,1],[0,-0.01,1],[-0.01,-0.02,1],[0.01,-0.01,1],[0.01,0,1],[0.01,0,1],[0.01,0.02,1],[-0.01,0.03,1],[-0.03,0,1] ]
+
+  var data_15 = [ [-0.01,-0.02,1],[0,0,1],[0.02,0,1],[0,0.01,1],[0,0.01,1],[-0.01,0.01,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.02,1],[-0.01,-0.02,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[0.01,-0.02,1],[0.01,-0.03,1],[0.02,0.01,1],[0.02,-0.01,1],[0.02,0.01,1],[0,0.01,1],[0.01,0.02,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.03,0,0.9615384615384615] ]
+
+  var data_16 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0,1],[0,0,1],[-0.01,0.01,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0.01,1],[-0.01,0,1],[-0.02,-0.02,1],[-0.01,-0.01,1],[0,-0.01,1],[0,0,1],[0,-0.01,1],[-0.01,-0.02,1],[0.02,-0.01,1],[0.01,0,1],[0.01,0.01,1],[0,0,1],[0,0.03,1],[-0.01,0.01,1] ]
+
+  var data_17 = [ [0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[0,0.01,1],[0,0.04,1],[-0.01,0.03,1],[-0.02,0.01,1],[-0.01,0.01,1],[-0.01,-0.02,1],[-0.02,-0.01,1],[-0.01,-0.02,1],[0,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0.01,-0.01,1],[-0.01,-0.04,1],[0.01,0.01,1],[0.01,0,1],[0,0.01,1],[0,0.02,1],[0.01,0.02,1],[-0.01,0.01,1],[-0.02,0.01,1] ]
+
+  var data_18 = [ [0,0,1],[0,0,1],[0.01,0,1],[0,0,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.01,1],[0,-0.02,1],[0.01,0,1],[0.01,-0.02,1],[0.01,0.01,1],[0,-0.01,1],[0.01,0.02,1],[0,0.02,1],[0,0.02,1],[-0.02,0,1] ]
+
+  var data_19 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0.01,1],[0,0.02,1],[0,0.04,1],[-0.01,0,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0.01,-0.01,1],[0.01,-0.02,1],[-0.01,-0.02,1],[0,0,1],[0.01,0.01,1],[0.02,0.03,1],[0.01,0.03,1],[-0.01,0.02,1],[-0.04,0.01,1] ]
+
+  var data_20 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[0,0.02,1],[-0.02,0.01,1],[-0.02,0,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,-0.01,1],[-0.02,-0.02,1],[-0.01,-0.01,1],[0,-0.02,1],[-0.01,-0.01,1],[0,-0.01,1],[-0.01,-0.02,1],[0.01,-0.01,1],[0.01,-0.01,1],[0.01,0,1],[0,0,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.01,1] ]
+
+  var data_21 = [ [0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0,1],[-0.01,0.01,1],[-0.01,0.01,1],[0,0.02,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[0.01,-0.02,1],[0.02,-0.01,1],[0.01,0,1],[0.01,0,1],[0,0,1],[0.01,0,1],[0.01,0.02,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.02,0.02,1] ]
+
+  var data_22 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0,0.01,1],[0,0.02,1],[-0.01,0,1],[-0.01,0.02,1],[-0.01,0,1],[-0.02,0,1],[0,0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[0,-0.01,1],[0,-0.02,1],[0.01,0,1],[0.01,0,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0.02,1],[-0.02,0.02,1],[-0.02,0.01,1] ]
+
+  var data_23 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.02,1],[0,0.02,1],[-0.01,0.01,1],[-0.01,0.01,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0.01,-0.01,1],[0,-0.02,1],[0,-0.01,1],[0.02,0.01,1],[0,-0.01,1],[0,-0.01,1],[0.02,0.02,1],[0.01,0.02,1],[-0.01,0.03,1],[-0.01,0,1],[-0.01,0,1] ]
+
+  var data_24 = [ [0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0.01,1],[0,0.02,1],[-0.01,0.01,1],[0,0.03,1],[-0.01,0,1],[-0.01,0.01,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.02,1],[0,-0.03,1],[0.01,0.01,1],[0.02,0.01,1],[0.02,0.02,1],[0.01,0.02,1],[0.01,0.02,1],[0,0.02,1],[-0.01,0.01,1],[-0.02,0,1] ]
+
+  var data_25 = [ [0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.03,1],[-0.01,0.02,1],[0,0.03,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,-0.03,1],[-0.01,-0.02,1],[0.01,-0.01,1],[-0.01,-0.02,1],[0.01,0,1],[0.01,0,1],[0.02,0.01,1],[0.01,0.01,1],[0,0.02,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,0,1] ]
+
+  var data_26 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0.04,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.01,0,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.02,-0.02,1],[-0.02,-0.02,1],[0.01,-0.02,1],[0.01,-0.02,1],[0,-0.02,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0,1],[0.01,0,1],[0.01,0.02,1],[0,0.02,1],[-0.02,0.02,1],[-0.01,0,1] ]
+
+  var data_27 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0,1],[-0.01,0.01,1],[0,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.02,-0.02,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.02,0,1],[-0.02,-0.01,1],[0,-0.02,1],[0.02,-0.01,1],[0.01,-0.01,1],[0,-0.02,1],[0,-0.01,1],[0.01,0,1],[0.02,0.02,1],[0,0.02,1],[0,0.01,1],[-0.02,0.01,1],[-0.02,0.01,1],[0,0,1] ]
+
+  var data_28 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.01,1],[0,0.02,1],[-0.01,0.01,1],[0,0.02,1],[-0.02,-0.01,1],[-0.01,0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[0.01,-0.01,1],[0.01,-0.01,1],[-0.01,-0.02,1],[-0.02,-0.03,1],[0.01,0.01,1],[0,-0.01,1],[0.01,0.02,1],[0.01,0.01,1],[0,0.02,1],[-0.02,0.02,1] ]
+
+  var data_29 = [ [0,0,1],[0,0,1],[0,0,1],[0.02,0,1.0384615384615385],[0.01,0,0.9615384615384615],[-0.01,0,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[-0.02,-0.03,1],[0.01,-0.02,1],[0.01,-0.02,1],[0.01,0,1],[0,0.01,1],[0,0,1],[0,0.03,1],[-0.01,0.01,1] ]
+
+  var data_30 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0,0.01,1],[0,0.01,1],[-0.01,0,1],[-0.01,0.02,1],[0,0.03,1],[-0.02,0,1],[-0.01,0.01,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.01,-0.03,1],[0,-0.02,1],[0.01,-0.02,1],[-0.01,-0.03,1],[0.01,-0.02,1],[0.01,-0.01,1],[-0.01,-0.02,1],[0.01,0.01,1],[0.01,0.02,1],[-0.01,0.02,1],[-0.02,0,1] ]
+
+  var data_31 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0.02,0.01,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.02,0,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.02,0,1],[-0.02,-0.02,1],[-0.01,-0.02,1],[0,-0.02,1],[0.02,0,1],[0,-0.02,1],[0.01,0,1],[0.02,0.01,1],[0.01,0,1],[0.01,0.01,1],[0,0.01,1],[0,0.03,1],[0.01,0.01,1],[-0.01,0.01,1],[-0.02,0,1] ]
+
+  var data_32 = [ [0,0,1],[0,0,1],[0,0,1],[0.02,0,1],[0.02,0.02,1],[-0.01,0,1],[-0.03,0.01,1],[-0.02,-0.01,1],[-0.01,0.02,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,-0.02,1],[0,-0.02,1],[0,-0.03,1],[0,-0.03,1],[0,-0.01,1],[0,-0.01,0.9615384615384615],[0.02,0.03,1],[0,0,1],[0,0.03,1],[0,0.02,1],[-0.04,0,1] ]
+
+  var data_33 = [ [0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0.01,0,1],[0,0.03,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[0,-0.01,1],[0,-0.02,1],[-0.02,-0.01,1],[0,-0.02,1],[0.01,-0.02,1],[0.02,0,1],[0.01,0.01,1],[0.01,0.01,1],[0.01,0.02,1],[0,0.03,1],[-0.02,0.02,1],[-0.02,0,1] ]
+
+  var data_34 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0,1],[0,0.02,1],[-0.01,0.01,1],[0,0.02,1],[-0.01,0.01,0.9615384615384615],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[0,-0.01,1],[0,-0.01,1],[-0.01,-0.01,1],[0,-0.03,1],[0,-0.02,1],[-0.01,-0.04,1],[0.01,0.02,1],[0.01,0.04,1],[0,0.02,1],[-0.02,0,1],[-0.01,0,1.0384615384615385] ]
+
+  var data_35 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.01,1],[-0.01,0.01,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.02,0.01,1],[-0.01,0,1],[-0.01,0.01,1],[-0.02,-0.02,1],[-0.01,-0.02,1],[0.01,-0.03,1],[0,-0.02,1],[0.01,-0.01,1],[0,-0.01,1],[0.02,0.01,1],[0.01,0,1],[0.02,0.04,1],[-0.02,0.02,1],[-0.05,0.03,1] ]
+
+  var data_36 = [ [0,0,1],[0,0,1],[0,0,1],[0.02,0,1],[0.01,0.01,1],[0,0.02,1],[-0.01,0.01,1],[0,0.02,1],[-0.01,0,1],[-0.01,0.02,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.02,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[0,-0.02,1],[0.01,-0.02,1],[-0.01,-0.04,1],[0.01,-0.01,1],[0,-0.02,1],[0.01,0.02,1],[0,0.01,1],[-0.01,0.03,1],[-0.01,0.01,1],[-0.02,0,1] ]
+
+  var data_37 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0.01,0,1],[0,0.02,1],[-0.01,-0.01,1],[-0.01,0.02,1],[-0.02,0.01,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.01,-0.02,1],[0,-0.02,1],[0,-0.02,1],[0.02,0.01,1],[0.02,0.01,1],[0.01,0.02,1],[0.01,0.03,1],[-0.01,0.02,1],[-0.02,0,1] ]
+
+  var data_38 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0.01,1],[0,0.01,1],[-0.02,0.01,1],[0,0.02,1],[-0.02,0,0.9615384615384615],[-0.01,0.01,1],[-0.01,0,1],[0,0,1],[-0.01,-0.02,1],[-0.01,-0.01,1],[0,-0.01,1],[0,-0.01,1],[0.01,-0.01,1],[-0.01,0,1],[0,-0.01,1],[0.01,0.01,1],[0.01,0,1],[0,0.02,1],[0,0.03,1],[-0.01,0.02,1],[-0.02,0,1] ]
+
+  var data_39 = [ [0,0,1],[0,0,1],[0,0,1],[0.02,0,0.9615384615384615],[0.02,0.02,1],[-0.02,0.01,1],[-0.01,0.02,1],[-0.01,0.01,1],[0,0.02,1],[-0.02,0,1],[-0.01,0,1],[-0.02,-0.01,1],[-0.03,-0.01,1],[0,-0.02,1],[0,-0.01,1],[0,-0.02,1],[0,-0.02,1],[0.01,0,1],[0,0.01,1],[0.01,0.02,1],[0,0.01,1],[0,0,1],[-0.01,0.01,1],[-0.01,0.01,1],[-0.01,-0.01,1] ]
+
+  var data_40 = [ [0,0,1],[-0.01,0,1],[0.01,0,1],[0.01,0,1],[0.01,0.01,1],[-0.01,0,1],[-0.01,0.02,1],[0,0.02,1],[-0.02,0.01,1],[0,0.01,1],[-0.01,0,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.02,-0.01,1],[-0.02,-0.03,1],[0,-0.01,1],[0.01,-0.03,1],[0,-0.01,1],[0.01,-0.01,1],[0.01,0,1],[0.02,0,1],[0.01,0.02,1],[0.01,0.01,1],[0,0.01,1],[-0.02,0,1] ]
+
+  var data_41 = [ [0,0,1],[0,0,1],[0.02,0,1],[0.01,0.02,1],[0,0.01,1],[-0.02,0,1],[0,0.01,1],[-0.01,0,1],[-0.01,0.02,1],[-0.02,0,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.02,0,1],[0,-0.02,1],[0.01,-0.01,1],[-0.01,-0.03,1],[0,-0.02,1],[0.02,0,1],[0.01,0,1],[0.01,0.01,1],[0,0.03,1],[-0.03,0.02,1],[-0.04,0,1] ]
+
+  var data_42 = [ [0,0,1],[0,0,1],[0.01,0,1],[-0.01,0.02,1],[0,0.02,1],[0,0.02,1],[0,0.02,1],[-0.02,0,1],[-0.01,0.02,1],[-0.02,-0.03,1],[-0.01,-0.02,1],[-0.01,-0.02,1],[-0.02,-0.01,1],[-0.01,-0.03,1],[0,-0.01,1],[0.01,0,1],[0.01,-0.01,1],[0.02,0,1],[0.01,0.03,1],[0,0.03,1],[-0.02,0.01,1],[-0.02,0,1] ]
+
+  var data_43 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0.04,1],[0,0,1],[0,0.01,1],[0,0.02,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.01,-0.01,1],[-0.01,0,1],[-0.02,-0.03,1],[-0.02,-0.01,1],[-0.01,-0.03,1],[0.01,-0.01,1],[0.01,-0.01,1],[-0.02,-0.04,1],[0.02,0.01,1],[0.01,0.01,1],[0.01,0.02,1],[0,0.01,1],[-0.01,0.02,1],[-0.01,0,1] ]
+  1
+  var data_44 = [ [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0.02,0.01,1],[0,0,1],[0,0.01,1],[0.02,0.03,1],[0,0.04,1],[-0.03,0.01,1],[-0.02,-0.01,1],[-0.01,0.01,1],[-0.02,-0.01,1],[-0.02,-0.02,1],[0,-0.01,1],[-0.01,-0.01,1],[0,-0.02,1],[0.02,-0.01,1],[0.02,-0.01,1],[0.03,0.03,1],[0,0.02,1],[-0.01,0.04,1],[-0.03,0.01,1],[0,0,1] ]
+
+  var data_45 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0.01,0.01,1],[0,0.02,1],[-0.01,0.01,1],[-0.02,0,1],[-0.02,-0.01,1],[-0.02,0,1],[-0.02,-0.01,0.9615384615384615],[-0.02,-0.02,1],[-0.02,-0.02,1],[-0.01,-0.02,1],[0,-0.01,1],[0.01,-0.01,1],[0.03,0.01,1],[0,-0.01,1],[0.02,0.03,1],[0.01,0,1],[0,0.03,1],[-0.02,0.01,1],[-0.02,0,1] ]
+
+  var data_46 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0,1],[0.02,0.02,1],[-0.01,0.01,1],[-0.01,0.03,1],[-0.02,0,1],[-0.01,0.01,1],[-0.02,0,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[-0.01,-0.01,1],[-0.02,-0.02,1],[-0.02,-0.02,1],[0,-0.01,1],[0,-0.01,1],[0.01,0,1],[0.02,0.01,1],[0.01,0.02,1],[0.01,-0.01,1],[0,0.03,1],[0,0,1],[-0.01,0.02,1],[0,0,1],[-0.01,0,1] ]
+
+  var data_47 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0,0.01,1],[0,0.01,1],[0,0.01,1],[-0.01,0.02,1],[-0.01,0,1],[-0.02,0,1],[-0.01,0.01,1],[-0.02,0,1],[-0.01,-0.01,1],[-0.02,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.03,1],[0,-0.02,1],[0,-0.01,1],[0,-0.02,1],[0.02,0,1],[0,0,1],[-0.01,0.01,1],[0,0.03,1],[0,0.01,1],[0,0.01,1],[-0.02,0,1],[-0.01,0,1] ]
+
+  var data_48 = [ [0,0,1],[0,0,1],[0,0,1],[0.01,0.01,1],[0.01,0.01,1],[-0.01,0.01,1],[0,0.02,1],[-0.02,0.01,1],[-0.01,0.02,1],[-0.01,0.01,1],[-0.01,0,1],[-0.02,-0.02,1],[0,-0.02,1],[-0.01,-0.01,1],[-0.01,-0.01,1],[-0.01,-0.02,1],[0,0,1],[0.01,0,1],[0,0,1],[0.02,0.02,1],[0.01,0,1],[0,0.02,1],[-0.03,0.02,1],[-0.03,-0.01,1] ]
+
+  var data_49 = [ [0,0,1],[0,0,1],[0.01,0,1],[0.01,0.01,1],[0,0.01,1],[-0.01,0,1],[0,0.02,1],[-0.02,-0.01,1],[-0.01,0,1],[-0.02,0,1],[-0.01,-0.01,1],[-0.02,0,1],[-0.01,-0.01,1],[0,-0.02,1],[0,-0.01,1],[0,-0.01,1],[0,-0.01,1],[-0.01,-0.02,1],[0,-0.02,1],[0.02,0.01,1],[0.01,-0.01,1],[0.01,0.02,1],[-0.01,0.01,1],[-0.01,0.02,1],[-0.03,0,1] ]
+  
+      var dataset = [ data_0, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10, data_11, data_12, data_13, data_14, data_15, data_16, data_17, data_18, data_19, data_20, data_21, data_22, data_23, data_24, data_25, data_26, data_27, data_28, data_29, data_30, data_31, data_32, data_33, data_34, data_35, data_36, data_37, data_38, data_39, data_40, data_41, data_42, data_43, data_44, data_45, data_46, data_47, data_48, data_49 ]
+ 
+      function minIndex(arr) {
+        if (!arr || arr.length === 0) {
+          return -1;
+        }
+        var min = arr[0];
+        var minIndex = 0;
+        for (var len = arr.length; len > 0; len--) {
+          if (arr[len] < min) {
+            min = arr[len];
+            minIndex = len;
+          }
+        }
+        return minIndex;
+      }
+      
+      function getMeanData () {
+        var ds = [] 
+        for (a = 0; a < dataset.length; a++) {
+          ds[a] = interpolate(segment(smooth(dataset[a])))
+        }
+        var temp = []
+
+        for (i = 0; i < ds[0].length; i++) {
+          var x = 0.0
+          var y = 0.0
+          var z = 0.0
+          for (j = 0; j < ds.length; j++) {
+            x += ds[j][i][0]
+            y += ds[j][i][1]
+            z += ds[j][i][2]
+          }
+          x /= ds.length
+          y /= ds.length
+          z /= ds.length
+          temp[i] = [x, y, z]
+        }
+        printReading(temp)
+        return temp
+      }
+
+      function printReading (reading) {
+        var log = ""
+        for (i = 0; i < reading.length; i++) {
+          if ( i != reading.length -1 ) { log += "[" + reading[i] + "]" + "," } 
+          else { log += "[" + reading[i] + "]" }
+        }
+        //hyper.log (log)
+      }
+
+      function getReadingDistance (r1, r2) {
+        var dis = 0.0;
+        for (i = 0; i < r1.length; i++) {
+          dis += getDistance (r1[i], r2[i])
+        }
+        return dis
+      }
+      
+      // remove the first two and last two data
+      var segmentThreshold = 3
+      function segment(reading) {
+        var temp = reading.slice()
+        for (i = 0; i < segmentThreshold; i++){
+          temp.splice(0, 1)
+          temp.splice(temp.length-1, 1)
+        }
+          return temp
+      }
+
+      var smoothThreshold = 0.3
+      function smooth (reading) {
+        var smoothReading = []
+        for (i = 0; i < reading.length; i++) {
+          v_x = reading[i][0]
+          v_y = reading[i][1]
+          v_z = reading[i][2]
+          if (i == 0) {
+            smoothReading.push ([v_x, v_y, v_z])
+          } else {
+            s_x = smoothReading[i-1][0]
+            s_y = smoothReading[i-1][1]
+            s_z = smoothReading[i-1][2]
+            smoothReading.push ([ (s_x + smoothThreshold * (v_x - s_x)), (s_y + smoothThreshold * (v_y - s_y)), (s_z + smoothThreshold * (v_z - s_z)) ])
+          }
+        }
+        return smoothReading
+      }
+      
+      function getAxis (reading, axis) {
+        var axis_record = []
+        for (i = 0; i < reading.length; i++) {
+          axis_record.push (reading[i][axis])
+        }
+        return axis_record
+      }
+
+      // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
+      var interpolateThreshold = 100
+      function linearInterpolate(before, after, atPoint) {
+	      return before + (after - before) * atPoint;
+      }
+
+      function interpolateArray(data, fitCount) {
+        var newData = new Array();
+        var springFactor = new Number((data.length - 1) / (fitCount - 1));
+        newData[0] = data[0]; // for new allocation
+        for ( var i = 1; i < fitCount - 1; i++) {
+          var tmp = i * springFactor;
+          var before = new Number(Math.floor(tmp)).toFixed();
+          var after = new Number(Math.ceil(tmp)).toFixed();
+          var atPoint = tmp - before;
+          newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
+        }
+        newData[fitCount - 1] = data[data.length - 1]; // for new allocation
+        return newData;
+      }
+
+      function interpolate (reading) {
+        var xnew = interpolateArray(getAxis(reading, 0), interpolateThreshold)
+        var ynew = interpolateArray(getAxis(reading, 1), interpolateThreshold)
+        var znew = interpolateArray(getAxis(reading, 2), interpolateThreshold )
+        return assemblyReading (xnew, ynew, znew)
+      }
+
+      function assemblyReading (x, y, z) {
+        var temp = []
+        for (i = 0; i < x.length; i++) {
+          temp[i] = [x[i], y[i], z[i]]
+        }
+        return temp
+      }
+    
+      function plot () {
+        
+        var d0 = interpolate(segment(smooth(data_0)))
+        var d1 = interpolate(segment(smooth(data_1)))
+        var d2 = interpolate(segment(smooth(data_2)))
+        var d3 = interpolate(segment(smooth(data_3)))
+        var d4 = interpolate(segment(smooth(data_4)))
+        var d5 = interpolate(segment(smooth(data_5)))
+        var d6 = interpolate(segment(smooth(data_6)))
+        var d7 = interpolate(segment(smooth(data_7)))
+        var d8 = interpolate(segment(smooth(data_8)))
+        var d9 = interpolate(segment(smooth(data_9)))
+        var d10 = interpolate(segment(smooth(data_10)))
+        var d11 = interpolate(segment(smooth(data_11)))
+        var d12 = interpolate(segment(smooth(data_12)))
+        var d13 = interpolate(segment(smooth(data_13)))
+        var d14 = interpolate(segment(smooth(data_14)))
+        var d15 = interpolate(segment(smooth(data_15)))
+        var d16 = interpolate(segment(smooth(data_16)))
+        var d17 = interpolate(segment(smooth(data_17)))
+        var d18 = interpolate(segment(smooth(data_18)))
+        var d19 = interpolate(segment(smooth(data_19)))
+        var d20 = interpolate(segment(smooth(data_20)))
+        var d21 = interpolate(segment(smooth(data_21)))
+        var d22 = interpolate(segment(smooth(data_22)))
+        var d23 = interpolate(segment(smooth(data_23)))
+        var d24 = interpolate(segment(smooth(data_24)))
+        var d25 = interpolate(segment(smooth(data_25)))
+        var d26 = interpolate(segment(smooth(data_26)))
+        var d27 = interpolate(segment(smooth(data_27)))
+        var d28 = interpolate(segment(smooth(data_28)))
+        var d29 = interpolate(segment(smooth(data_29)))
+        var d30 = interpolate(segment(smooth(data_30)))
+        var d31 = interpolate(segment(smooth(data_31)))
+        var d32 = interpolate(segment(smooth(data_32)))
+        var d33 = interpolate(segment(smooth(data_33)))
+        var d34 = interpolate(segment(smooth(data_34)))
+        var d35 = interpolate(segment(smooth(data_35)))
+        var d36 = interpolate(segment(smooth(data_36)))
+        var d37 = interpolate(segment(smooth(data_37)))
+        var d38 = interpolate(segment(smooth(data_38)))
+        var d39 = interpolate(segment(smooth(data_39)))
+        var d40 = interpolate(segment(smooth(data_40)))
+        var d41 = interpolate(segment(smooth(data_41)))
+        var d42 = interpolate(segment(smooth(data_42)))
+        var d43 = interpolate(segment(smooth(data_43)))
+        var d44 = interpolate(segment(smooth(data_44)))
+        var d45 = interpolate(segment(smooth(data_45)))
+        var d46 = interpolate(segment(smooth(data_46)))
+        var d47 = interpolate(segment(smooth(data_47)))
+        var d48 = interpolate(segment(smooth(data_48)))
+        var d49 = interpolate(segment(smooth(data_49)))
+        var dmean = getMeanData ()
+
+        
+         var x0 = getAxis (d0,0)
+         var x1 = getAxis (d1,0)
+         var x2 = getAxis (d2,0)
+         var x3 = getAxis (d3,0)
+         var x4 = getAxis (d4,0)
+         var x5 = getAxis (d5,0)
+         var x6 = getAxis (d6,0)
+         var x7 = getAxis (d7,0)
+         var x8 = getAxis (d8,0)
+         var x9 = getAxis (d9,0)
+         var x10 = getAxis (d10,0)
+         var x11 = getAxis (d11,0)
+         var x12 = getAxis (d12,0)
+         var x13 = getAxis (d13,0)
+         var x14 = getAxis (d14,0)
+         var x15 = getAxis (d15,0)
+         var x16 = getAxis (d16,0)
+         var x17 = getAxis (d17,0)
+         var x18 = getAxis (d18,0)
+         var x19 = getAxis (d19,0)
+         var x20 = getAxis (d20,0)
+         var x21 = getAxis (d21,0)
+         var x22 = getAxis (d22,0)
+         var x23 = getAxis (d23,0)
+         var x24 = getAxis (d24,0)
+         var x25 = getAxis (d25,0)
+         var x26 = getAxis (d26,0)
+         var x27 = getAxis (d27,0)
+         var x28 = getAxis (d28,0)
+         var x29 = getAxis (d29,0)
+         var x30 = getAxis (d30,0)
+         var x31 = getAxis (d31,0)
+         var x32 = getAxis (d32,0)
+         var x33 = getAxis (d33,0)
+         var x34 = getAxis (d34,0)
+         var x35 = getAxis (d35,0)
+         var x36 = getAxis (d36,0)
+         var x37 = getAxis (d37,0)
+         var x38 = getAxis (d38,0)
+         var x39 = getAxis (d39,0)
+         var x40 = getAxis (d40,0)
+         var x41 = getAxis (d41,0)
+         var x42 = getAxis (d42,0)
+         var x43 = getAxis (d43,0)
+         var x44 = getAxis (d44,0)
+         var x45 = getAxis (d45,0)
+         var x46 = getAxis (d46,0)
+         var x47 = getAxis (d47,0)
+         var x48 = getAxis (d48,0)
+        var x49 = getAxis (d49,0)
+        var xmean = getAxis (dmean, 0)
+
+        var trace0_x = { y: x0, mode: 'lines+markers' }
+        var trace1_x = { y: x1, mode: 'lines+markers'}
+        var trace2_x = { y: x2, mode: 'lines+markers'}
+        var trace3_x = { y: x3, mode: 'lines+markers'}
+        var trace4_x = { y: x4, mode: 'lines+markers'}
+        var trace5_x = { y: x5, mode: 'lines+markers'}
+        var trace6_x = { y: x6, mode: 'lines+markers'}
+        var trace7_x = { y: x7, mode: 'lines+markers'}
+        var trace8_x = { y: x8, mode: 'lines+markers'}
+        var trace9_x = { y: x9, mode: 'lines+markers'}
+        var trace10_x = { y: x10, mode: 'lines+markers'}
+        var trace11_x = { y: x11, mode: 'lines+markers'}
+        var trace12_x = { y: x12, mode: 'lines+markers'}
+        var trace13_x = { y: x13, mode: 'lines+markers'}
+        var trace14_x = { y: x14, mode: 'lines+markers'}
+        var trace15_x = { y: x15, mode: 'lines+markers'}
+        var trace16_x = { y: x16, mode: 'lines+markers'}
+        var trace17_x = { y: x17, mode: 'lines+markers'}
+        var trace18_x = { y: x18, mode: 'lines+markers'}
+        var trace19_x = { y: x19, mode: 'lines+markers'}
+        var trace20_x = { y: x20, mode: 'lines+markers'}
+        var trace21_x = { y: x21, mode: 'lines+markers'}
+        var trace22_x = { y: x22, mode: 'lines+markers'}
+        var trace23_x = { y: x23, mode: 'lines+markers'}
+        var trace24_x = { y: x24, mode: 'lines+markers'}
+        var trace25_x = { y: x25, mode: 'lines+markers'}
+        var trace26_x = { y: x26, mode: 'lines+markers'}
+        var trace27_x = { y: x27, mode: 'lines+markers'}
+        var trace28_x = { y: x28, mode: 'lines+markers'}
+        var trace29_x = { y: x29, mode: 'lines+markers'}
+        var trace30_x = { y: x30, mode: 'lines+markers'}
+        var trace31_x = { y: x31, mode: 'lines+markers'}
+        var trace32_x = { y: x32, mode: 'lines+markers'}
+        var trace33_x = { y: x33, mode: 'lines+markers'}
+        var trace34_x = { y: x34, mode: 'lines+markers'}
+        var trace35_x = { y: x35, mode: 'lines+markers'}
+        var trace36_x = { y: x36, mode: 'lines+markers'}
+        var trace37_x = { y: x37, mode: 'lines+markers'}
+        var trace38_x = { y: x38, mode: 'lines+markers'}
+        var trace39_x = { y: x39, mode: 'lines+markers'}
+        var trace40_x = { y: x40, mode: 'lines+markers'}
+        var trace41_x = { y: x41, mode: 'lines+markers'}
+        var trace42_x = { y: x42, mode: 'lines+markers'}
+        var trace43_x = { y: x43, mode: 'lines+markers'}
+        var trace44_x = { y: x44, mode: 'lines+markers'}
+        var trace45_x = { y: x45, mode: 'lines+markers'}
+        var trace46_x = { y: x46, mode: 'lines+markers'}
+        var trace47_x = { y: x47, mode: 'lines+markers'}
+        var trace48_x = { y: x48, mode: 'lines+markers'}
+        var trace49_x = { y: x49, mode: 'lines+markers'}
+        var trace_mean_x = {y: xmean, mode: 'lines+markers'}
+
+        var data_x = [
+trace0_x, trace1_x, trace2_x, trace3_x, trace4_x, trace5_x, trace6_x, trace7_x, trace8_x, trace9_x, trace10_x, trace11_x, trace12_x, trace13_x, trace14_x, trace15_x, trace16_x, trace17_x, trace18_x, trace19_x, trace20_x, trace21_x, trace22_x, trace23_x, trace24_x, trace25_x, trace26_x, trace27_x, trace28_x, trace29_x, trace30_x, trace31_x, trace32_x, trace33_x, trace34_x, trace35_x, trace36_x, trace37_x, trace38_x, trace39_x, trace40_x, trace41_x, trace42_x, trace43_x, trace44_x, trace45_x, trace46_x, trace47_x, trace48_x, trace49_x, trace_mean_x]
+        var layout_x = {title:'x '}
+        Plotly.newPlot('x', data_x, layout_x)
+
+        var y0 = getAxis (d0,1)
+        var y1 = getAxis (d1,1)
+        var y2 = getAxis (d2,1)
+        var y3 = getAxis (d3,1)
+        var y4 = getAxis (d4,1)
+        var y5 = getAxis (d5,1)
+        var y6 = getAxis (d6,1)
+        var y7 = getAxis (d7,1)
+        var y8 = getAxis (d8,1)
+        var y9 = getAxis (d9,1)
+        var y10 = getAxis (d10,1)
+        var y11 = getAxis (d11,1)
+        var y12 = getAxis (d12,1)
+        var y13 = getAxis (d13,1)
+        var y14 = getAxis (d14,1)
+        var y15 = getAxis (d15,1)
+        var y16 = getAxis (d16,1)
+        var y17 = getAxis (d17,1)
+        var y18 = getAxis (d18,1)
+        var y19 = getAxis (d19,1)
+        var y20 = getAxis (d20,1)
+        var y21 = getAxis (d21,1)
+        var y22 = getAxis (d22,1)
+        var y23 = getAxis (d23,1)
+        var y24 = getAxis (d24,1)
+        var y25 = getAxis (d25,1)
+        var y26 = getAxis (d26,1)
+        var y27 = getAxis (d27,1)
+        var y28 = getAxis (d28,1)
+        var y29 = getAxis (d29,1)
+        var y30 = getAxis (d30,1)
+        var y31 = getAxis (d31,1)
+        var y32 = getAxis (d32,1)
+        var y33 = getAxis (d33,1)
+        var y34 = getAxis (d34,1)
+        var y35 = getAxis (d35,1)
+        var y36 = getAxis (d36,1)
+        var y37 = getAxis (d37,1)
+        var y38 = getAxis (d38,1)
+        var y39 = getAxis (d39,1)
+        var y40 = getAxis (d40,1)
+        var y41 = getAxis (d41,1)
+        var y42 = getAxis (d42,1)
+        var y43 = getAxis (d43,1)
+        var y44 = getAxis (d44,1)
+        var y45 = getAxis (d45,1)
+        var y46 = getAxis (d46,1)
+        var y47 = getAxis (d47,1)
+        var y48 = getAxis (d48,1)
+        var y49 = getAxis (d49,1)
+        var ymean = getAxis (dmean, 1)
+
+        var trace0_y = { y: y0, mode: 'lines+markers' }
+        var trace1_y = { y: y1, mode: 'lines+markers' }
+        var trace2_y = { y: y2, mode: 'lines+markers' }
+        var trace3_y = { y: y3, mode: 'lines+markers' }
+        var trace4_y = { y: y4, mode: 'lines+markers' }
+        var trace5_y = { y: y5, mode: 'lines+markers' }
+        var trace6_y = { y: y6, mode: 'lines+markers' }
+        var trace7_y = { y: y7, mode: 'lines+markers' }
+        var trace8_y = { y: y8, mode: 'lines+markers' }
+        var trace9_y = { y: y9, mode: 'lines+markers' }
+        var trace10_y = { y: y10, mode: 'lines+markers' }
+        var trace11_y = { y: y11, mode: 'lines+markers' }
+        var trace12_y = { y: y12, mode: 'lines+markers' }
+        var trace13_y = { y: y13, mode: 'lines+markers' }
+        var trace14_y = { y: y14, mode: 'lines+markers' }
+        var trace15_y = { y: y15, mode: 'lines+markers' }
+        var trace16_y = { y: y16, mode: 'lines+markers' }
+        var trace17_y = { y: y17, mode: 'lines+markers' }
+        var trace18_y = { y: y18, mode: 'lines+markers' }
+        var trace19_y = { y: y19, mode: 'lines+markers' }
+        var trace20_y = { y: y20, mode: 'lines+markers' }
+        var trace21_y = { y: y21, mode: 'lines+markers' }
+        var trace22_y = { y: y22, mode: 'lines+markers' }
+        var trace23_y = { y: y23, mode: 'lines+markers' }
+        var trace24_y = { y: y24, mode: 'lines+markers' }
+        var trace25_y = { y: y25, mode: 'lines+markers' }
+        var trace26_y = { y: y26, mode: 'lines+markers' }
+        var trace27_y = { y: y27, mode: 'lines+markers' }
+        var trace28_y = { y: y28, mode: 'lines+markers' }
+        var trace29_y = { y: y29, mode: 'lines+markers' }
+        var trace30_y = { y: y30, mode: 'lines+markers' }
+        var trace31_y = { y: y31, mode: 'lines+markers' }
+        var trace32_y = { y: y32, mode: 'lines+markers' }
+        var trace33_y = { y: y33, mode: 'lines+markers' }
+        var trace34_y = { y: y34, mode: 'lines+markers' }
+        var trace35_y = { y: y35, mode: 'lines+markers' }
+        var trace36_y = { y: y36, mode: 'lines+markers' }
+        var trace37_y = { y: y37, mode: 'lines+markers' }
+        var trace38_y = { y: y38, mode: 'lines+markers' }
+        var trace39_y = { y: y39, mode: 'lines+markers' }
+        var trace40_y = { y: y40, mode: 'lines+markers' }
+        var trace41_y = { y: y41, mode: 'lines+markers' }
+        var trace42_y = { y: y42, mode: 'lines+markers' }
+        var trace43_y = { y: y43, mode: 'lines+markers' }
+        var trace44_y = { y: y44, mode: 'lines+markers' }
+        var trace45_y = { y: y45, mode: 'lines+markers' }
+        var trace46_y = { y: y46, mode: 'lines+markers' }
+        var trace47_y = { y: y47, mode: 'lines+markers' }
+        var trace48_y = { y: y48, mode: 'lines+markers' }
+        var trace49_y = { y: y49, mode: 'lines+markers' }
+        var trace_mean_y = {y: ymean, mode: 'lines+markers'}
+
+        var data_y = [trace0_y, trace1_y, trace2_y, trace3_y, trace4_y, trace5_y, trace6_y, trace7_y, trace8_y, trace9_y, trace10_y, trace11_y, trace12_y, trace13_y, trace14_y, trace15_y, trace16_y, trace17_y, trace18_y, trace19_y, trace20_y, trace21_y, trace22_y, trace23_y, trace24_y, trace25_y, trace26_y, trace27_y, trace28_y, trace29_y, trace30_y, trace31_y, trace32_y, trace33_y, trace34_y, trace35_y, trace36_y, trace37_y, trace38_y, trace39_y, trace40_y, trace41_y, trace42_y, trace43_y, trace44_y, trace45_y, trace46_y, trace47_y, trace48_y, trace49_y, trace_mean_y]
+        var layout_y = {title:'y '}
+        Plotly.newPlot('y', data_y, layout_y)
+
+        var z0 = getAxis (d0,2)
+        var z1 = getAxis (d1,2)
+        var z2 = getAxis (d2,2)
+        var z3 = getAxis (d3,2)
+        var z4 = getAxis (d4,2)
+        var z5 = getAxis (d5,2)
+        var z6 = getAxis (d6,2)
+        var z7 = getAxis (d7,2)
+        var z8 = getAxis (d8,2)
+        var z9 = getAxis (d9,2)
+        var z10 = getAxis (d10,2)
+        var z11 = getAxis (d11,2)
+        var z12 = getAxis (d12,2)
+        var z13 = getAxis (d13,2)
+        var z14 = getAxis (d14,2)
+        var z15 = getAxis (d15,2)
+        var z16 = getAxis (d16,2)
+        var z17 = getAxis (d17,2)
+        var z18 = getAxis (d18,2)
+        var z19 = getAxis (d19,2)
+        var z20 = getAxis (d20,2)
+        var z21 = getAxis (d21,2)
+        var z22 = getAxis (d22,2)
+        var z23 = getAxis (d23,2)
+        var z24 = getAxis (d24,2)
+        var z25 = getAxis (d25,2)
+        var z26 = getAxis (d26,2)
+        var z27 = getAxis (d27,2)
+        var z28 = getAxis (d28,2)
+        var z29 = getAxis (d29,2)
+        var z30 = getAxis (d30,2)
+        var z31 = getAxis (d31,2)
+        var z32 = getAxis (d32,2)
+        var z33 = getAxis (d33,2)
+        var z34 = getAxis (d34,2)
+        var z35 = getAxis (d35,2)
+        var z36 = getAxis (d36,2)
+        var z37 = getAxis (d37,2)
+        var z38 = getAxis (d38,2)
+        var z39 = getAxis (d39,2)
+        var z40 = getAxis (d40,2)
+        var z41 = getAxis (d41,2)
+        var z42 = getAxis (d42,2)
+        var z43 = getAxis (d43,2)
+        var z44 = getAxis (d44,2)
+        var z45 = getAxis (d45,2)
+        var z46 = getAxis (d46,2)
+        var z47 = getAxis (d47,2)
+        var z48 = getAxis (d48,2)
+        var z49 = getAxis (d49,2)
+        var zmean = getAxis (dmean, 2)
+
+        var trace0_z = { y: z0, mode: 'lines+markers' }
+        var trace1_z = { y: z1, mode: 'lines+markers' }
+        var trace2_z = { y: z2, mode: 'lines+markers' }
+        var trace3_z = { y: z3, mode: 'lines+markers' }
+        var trace4_z = { y: z4, mode: 'lines+markers' }
+        var trace5_z = { y: z5, mode: 'lines+markers' }
+        var trace6_z = { y: z6, mode: 'lines+markers' }
+        var trace7_z = { y: z7, mode: 'lines+markers' }
+        var trace8_z = { y: z8, mode: 'lines+markers' }
+        var trace9_z = { y: z9, mode: 'lines+markers' }
+        var trace10_z = { y: z10, mode: 'lines+markers' }
+        var trace11_z = { y: z11, mode: 'lines+markers' }
+        var trace12_z = { y: z12, mode: 'lines+markers' }
+        var trace13_z = { y: z13, mode: 'lines+markers' }
+        var trace14_z = { y: z14, mode: 'lines+markers' }
+        var trace15_z = { y: z15, mode: 'lines+markers' }
+        var trace16_z = { y: z16, mode: 'lines+markers' }
+        var trace17_z = { y: z17, mode: 'lines+markers' }
+        var trace18_z = { y: z18, mode: 'lines+markers' }
+        var trace19_z = { y: z19, mode: 'lines+markers' }
+        var trace20_z = { y: z20, mode: 'lines+markers' }
+        var trace21_z = { y: z21, mode: 'lines+markers' }
+        var trace22_z = { y: z22, mode: 'lines+markers' }
+        var trace23_z = { y: z23, mode: 'lines+markers' }
+        var trace24_z = { y: z24, mode: 'lines+markers' }
+        var trace25_z = { y: z25, mode: 'lines+markers' }
+        var trace26_z = { y: z26, mode: 'lines+markers' }
+        var trace27_z = { y: z27, mode: 'lines+markers' }
+        var trace28_z = { y: z28, mode: 'lines+markers' }
+        var trace29_z = { y: z29, mode: 'lines+markers' }
+        var trace30_z = { y: z30, mode: 'lines+markers' }
+        var trace31_z = { y: z31, mode: 'lines+markers' }
+        var trace32_z = { y: z32, mode: 'lines+markers' }
+        var trace33_z = { y: z33, mode: 'lines+markers' }
+        var trace34_z = { y: z34, mode: 'lines+markers' }
+        var trace35_z = { y: z35, mode: 'lines+markers' }
+        var trace36_z = { y: z36, mode: 'lines+markers' }
+        var trace37_z = { y: z37, mode: 'lines+markers' }
+        var trace38_z = { y: z38, mode: 'lines+markers' }
+        var trace39_z = { y: z39, mode: 'lines+markers' }
+        var trace40_z = { y: z40, mode: 'lines+markers' }
+        var trace41_z = { y: z41, mode: 'lines+markers' }
+        var trace42_z = { y: z42, mode: 'lines+markers' }
+        var trace43_z = { y: z43, mode: 'lines+markers' }
+        var trace44_z = { y: z44, mode: 'lines+markers' }
+        var trace45_z = { y: z45, mode: 'lines+markers' }
+        var trace46_z = { y: z46, mode: 'lines+markers' }
+        var trace47_z = { y: z47, mode: 'lines+markers' }
+        var trace48_z = { y: z48, mode: 'lines+markers' }
+        var trace49_z = { y: z49, mode: 'lines+markers' }
+        var trace_mean_z = {y: zmean, mode: 'lines+markers'}
+
+        var data_z = [trace0_z, trace1_z, trace2_z, trace3_z, trace4_z, trace5_z, trace6_z, trace7_z, trace8_z, trace9_z, trace10_z, trace11_z, trace12_z, trace13_z, trace14_z, trace15_z, trace16_z, trace17_z, trace18_z, trace19_z, trace20_z, trace21_z, trace22_z, trace23_z, trace24_z, trace25_z, trace26_z, trace27_z, trace28_z, trace29_z, trace30_z, trace31_z, trace32_z, trace33_z, trace34_z, trace35_z, trace36_z, trace37_z, trace38_z, trace39_z, trace40_z, trace41_z, trace42_z, trace43_z, trace44_z, trace45_z, trace46_z, trace47_z, trace48_z, trace49_z, trace_mean_z]
+        var layout_z = {title:'z '}
+        Plotly.newPlot('z', data_z, layout_z)
+      }
+
+      function getDistance (v1, v2) {
+		    return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 ))
+	    }
+
+     </script>
 </body>
 
 </html>
