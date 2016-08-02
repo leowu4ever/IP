@@ -19,13 +19,23 @@
 	<span id="StatusData">Press Connect to find the nearest SensorTag</span>
 	<span id="AccelerometerData">[Waiting for value]</span>
 	<span id="Result">Not recording</span>
-	<button onclick="location.href='index.html'"> BACK</button>
+	<button onclick="left()"> left</button>
+	<button onclick="right()"> right</button>
+
 </body>
 
 <script>
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
 	window.addEventListener('load', Game1.gamestart)
 	document.addEventListener('deviceready',function() { evothings.scriptsLoaded(initialiseSensorTag) },false)
+
+	function left () {
+		Game1.moveLeft()
+	}
+
+	function right () {
+		Game1.moveRight()
+	}
 
 	var sensortag
 	function initialiseSensorTag() {
@@ -36,7 +46,7 @@
 					.accelerometerCallback(accelerometerHandler, 100)
 					.connectToNearestDevice()
 	}
-
+	
 	function connect() { sensortag.connectToNearestDevice() }
 
 	function disconnect() {
@@ -113,7 +123,6 @@
 		hyper.log (log)
 	}
 	function displayValue (elementId, value) { document.getElementById(elementId).innerHTML = value }
-
 </script>
 
 </html>

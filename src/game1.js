@@ -11,10 +11,10 @@ var platform_floating_x = 0.2 * width
 var platform_floating_y = 0.2 * height
 
 var platform_high_x = 0.45 * width
-var platform_high_y = 0.3 * height
+var platform_high_y = 0.15 * height
 
-var platform_wide_x = 0.75 * width
-var platform_wide_y = 0.65 * height
+var platform_wide_x = 0.7 * width
+var platform_wide_y = 0.35 * height
 
 var wave
 var platform_normal, platform_floating, platform_high, platform_wide
@@ -25,10 +25,10 @@ var recordingImg
 
 var answers = []
 var questions = []
-var q1, q2, q3
-
-// game 2
-var wheel
+var q0 = []
+var q1 = []
+var q2 = []
+var q3 = []
 
 Game1 = {
   gamestart: function () {
@@ -51,20 +51,44 @@ Game1 = {
 
     // wide + wood + grass + character_2 + cloud
     platform_wide = spawn(platform_wide_x, platform_wide_y, "platform_wide")
-    spawn(platform_wide_x + 40, platform_wide_y - 40, "character_2")
-    spawn(platform_wide_x + 100, platform_wide_y - 34, "grass")
-    spawn(platform_wide_x + 170, platform_wide_y - 30, "wood")
-    spawn(platform_wide_x + 170, platform_wide_y - 80, "cloud")
+    spawn(platform_wide_x + 170, platform_wide_y - 34, "grass")
 
     player = spawn(platform_high_x + 10, platform_high_y - 30, "player")
     recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
     recordingImg.attr({ alpha: 0.0 })
     platforms = [platform_normal, platform_floating, platform_high, platform_wide]
 
-    spawn(180, 50, "q1")
+    // for q0
+    q0[0] = spawn(180, 200, "q0")
     for (i = 0; i < answers[0]; i++) {
-      spawn(210 + i * 30, 150, "star"+i)
+      q0[i + 1] = spawn(215 + i * 40, 300, "star" + i)
     }
+
+    for (i = 0; i < q0.length; i++) {
+      q0[i].attr({ alpha: 0.0 })
+    }
+
+    // for q1
+    q1[0] = spawn(180, 200, "q1")
+    for (i = 0; i < answers[1]; i++) {
+      q1[i + 1] = spawn(215 + i * 40, 300, "diamond" + i)
+    }
+
+    for (i = 0; i < q1.length; i++) {
+      q1[i].attr({ alpha: 0.0 })
+    }
+
+    // for q3
+    q3[0] = spawn(180, 200, "q3")
+    for (i = 0; i < answers[3]; i++) {
+      q3[i + 1] = spawn(215 + i * 40, 300, "grass" + i)
+    }
+
+    for (i = 0; i < q3.length; i++) {
+      q3[i].attr({ alpha: 0.0 })
+    }
+
+    questions = [q0, q1, q2, q3]
   },
 
   showNumber: function (index) {
@@ -75,7 +99,7 @@ Game1 = {
     else if (index == 13) { content = "triangle" }
     else { content = index.toString() }
 
-    var num = spawn(width - 200, 0, content)
+    var num = spawn(650, 235, content)
     num.timeout(function () {
       num.destroy();
     }, 2000);
@@ -84,20 +108,25 @@ Game1 = {
   moveLeft: function () {
     var x, y
     if (pos > 0) {
+      if (pos != 2) { HideQuestion(pos) }
       pos--
       x = platforms[pos].x
       y = platforms[pos].y
       player.tween({ x: x + 10, y: y - 30 }, 1000, "easeInQuad")
     }
+    if (pos != 2) { showQuestion(pos) } 
   },
 
   moveRight: function () {
+    var x, y
     if (pos < 3) {
+      if (pos != 2) { HideQuestion(pos) }
       pos++
       x = platforms[pos].x
       y = platforms[pos].y
       player.tween({ x: x + 10, y: y - 30 }, 1000, "easeInQuad")
     }
+    if (pos != 2) { showQuestion(pos) } 
   },
 
   showRecordingImg: function () {
@@ -106,38 +135,6 @@ Game1 = {
 
   hideRecordingImg: function () {
     recordingImg.tween({ alpha: 0.0 }, 200)
-  },
-
-
-  // game 2
-  game2start: function () {
-    Crafty.init(width, height)
-    wheel = spawn(300, 50, "circle_base")
-    wheel.origin("center")
-    spawn(370, 70, "1")
-    spawn(520, 70, "2")
-    spawn(370, 270, "3")
-    spawn(520, 270, "4")
-    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
-    recordingImg.attr({ alpha: 0.0 })
-  },
-
-
-  // game 3
-  game3start: function () {
-    Crafty.init(width, height)
-    spawn(0, 0, "circle")
-    spawn(500, 300, "square")
-    spawn(200, 200, "triangle")
-    recordingImg = spawn(width / 3 + 60, height / 2.5, "recording")
-    recordingImg.attr({ alpha: 0.0 })
-  },
-
-  // queston type 1. counting items like diamond/star 2. simply just a question 
-
-  updateWheel: function (roll) {
-
-    wheel.attr({ rotation: roll })
   }
 }
 
@@ -147,6 +144,7 @@ function initQuestion() {
   for (var i = 0; i < 3; i++) {
     answers[0] = getRandomInt(1, 9)
     answers[1] = getRandomInt(1, 9)
+    answers[2] = -1
     answers[3] = getRandomInt(1, 9)
   }
 }
@@ -154,3 +152,22 @@ function initQuestion() {
 function spawn(x, y, name) { return Crafty.e("2D, DOM, Image, Tween").attr({ x: x, y: y }).image("assets/game1/" + name + ".png") }
 
 
+function showQuestion(q) {
+  for (i = 0; i < questions.length; i++) {
+    if (i == q) {
+      for (j = 0; j < questions[i].length; j++) {
+        questions[i][j].tween({ alpha: 1.0 }, 200)
+      }
+    }
+  }
+}
+
+function HideQuestion(q) {
+  for (i = 0; i < questions.length; i++) {
+    if (i == q) {
+      for (j = 0; j < questions[i].length; j++) {
+        questions[i][j].attr({ alpha: 0.0 })
+      }
+    }
+  }
+}
