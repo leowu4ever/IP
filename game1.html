@@ -112,7 +112,6 @@
 				Game1.hideRecordingImg()
 				//hyper.log ( "Duration : " + ((Date.now()/1000) - recordStartTime) + " " + record.length + "recorded" )
 				var index = Gesture.getBestMatching1(record)
-				Game1.showNumber(index)
 				printReading (record)
 				record = []
 				displayValue('AccelerometerData', '[Waiting for value]')

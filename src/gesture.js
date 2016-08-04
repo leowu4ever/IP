@@ -34,15 +34,19 @@ Gesture = {
     result.push(getReadingDistance(dataset[11], temp))
 
     var index = minIndex(result)
-    if (index == 10) { Game1.moveLeft() }
-    if (index == 11) { Game1.moveRight() }
+      Game1.showNumber(index)
+    if (index == 10) { 
+      Game1.moveLeft() 
+    } else if (index == 11) { 
+      Game1.moveRight() 
+    } else {
+      Game1.checkAnswer(index)
+    }
    // hyper.log(result)
     hyper.log(index)
     displayValue('Result', "Input is " + index)
     return index
   },
-
-
   getBestMatching3: function (data) {
     var result = []
     dataset = [data_square, data_0, data_triangle]
