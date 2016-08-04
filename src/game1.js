@@ -114,7 +114,7 @@ Game1 = {
       y = platforms[pos].y
       player.tween({ x: x + 10, y: y - 30 }, 1000, "easeInQuad")
     }
-    if (pos != 2) { showQuestion(pos) }
+    if (answers[pos] != -1) { showQuestion(pos) }
   },
 
   moveRight: function () {
@@ -126,7 +126,7 @@ Game1 = {
       y = platforms[pos].y
       player.tween({ x: x + 10, y: y - 30 }, 1000, "easeInQuad")
     }
-    if (pos != 2) { showQuestion(pos) }
+    if (answers[pos] != -1) { showQuestion(pos) }
   },
 
   showRecordingImg: function () {
@@ -139,14 +139,20 @@ Game1 = {
 
   checkAnswer: function (a) {
     if (a == answers[pos]) {
-      HideQuestion(pos)
+      //HideQuestion(pos)
+      var correct = spawn(650, 235, "correct")
+      correct.timeout(function () {
+        correct.destroy()
+        HideQuestion(pos)
+      }, 2000);
+      answers[pos] = -1
+
     } else {
       tryagain = spawn(400, 0, "tryagain")
       tryagain.timeout(function () { tryagain.destroy() }, 1500);
     }
   }
 }
-
 
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
