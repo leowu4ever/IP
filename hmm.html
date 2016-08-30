@@ -379,7 +379,8 @@
         }
         return axis_record
       }
-      // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
+      // function linearInterpolate is from the site below
+	  // http://www.hevi.info/2012/03/interpolating-and-array-to-fit-another-size/
       var interpolateThreshold = 100
       function linearInterpolate(before, after, atPoint) {
 	      return before + (after - before) * atPoint;
@@ -506,8 +507,6 @@
 	}
 
 
-	
-
 	function getDistance (v1, v2) { return Math.sqrt (Math.pow ( (v1[0] - v2[0]), 2 ) + Math.pow ( (v1[1] - v2[1]), 2 ) + Math.pow ( (v1[2] - v2[2]), 2 )) }
 
 	function printReading (reading) {
@@ -519,7 +518,6 @@
 		hyper.log (log)
 	}
 
-	// https://github.com/dkyang/UMDHMM-python/blob/master/hmm.py#L205
 	function forward_with_scale (pi, A, B, observation) {
 	
 		var T = observation.length
@@ -684,7 +682,6 @@
 		probTemp /= trainingInteration
 		return [logprobinit, logprobfinal, pi, A, B, probTemp]
 	}
-	// https://github.com/liwenzhu/nodehmm/blob/master/lib/baum.js#L21		
 	// compute γ
 	function computeGamma (alphas, betas, T) {
 		
